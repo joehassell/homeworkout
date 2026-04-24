@@ -214,6 +214,26 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .section-badge.main { background: #4f8cff22; color: var(--accent); }
 .section-badge.cooldown { background: #34d39922; color: var(--green); }
 
+/* Audio/Voice toggle icons */
+.timer-toggles {
+  position: absolute; top: max(env(safe-area-inset-top, 16px), 16px);
+  right: 20px; display: flex; gap: 12px; z-index: 10;
+}
+.toggle-btn {
+  width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: var(--surface); color: var(--text-dim); font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; touch-action: manipulation; transition: all 0.15s;
+  position: relative;
+}
+.toggle-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.toggle-btn:active { transform: scale(0.92); }
+.toggle-btn .off-line {
+  display: none; position: absolute; width: 2px; height: 28px;
+  background: var(--red); transform: rotate(-45deg); border-radius: 1px;
+}
+.toggle-btn:not(.active) .off-line { display: block; }
+
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -303,6 +323,16 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 
 <!-- TIMER -->
 <div id="timer" class="screen">
+  <div class="timer-toggles">
+    <button class="toggle-btn active" id="t-sound" onclick="toggleSound()" aria-label="Toggle sound">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+      <span class="off-line"></span>
+    </button>
+    <button class="toggle-btn active" id="t-voice" onclick="toggleVoice()" aria-label="Toggle voice">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      <span class="off-line"></span>
+    </button>
+  </div>
   <div class="timer-phase" id="t-phase">WORK</div>
   <div class="timer-exercise-name" id="t-name">Air Squat</div>
   <div class="timer-exercise-detail" id="t-detail">Bodyweight - Quads, Glutes</div>
@@ -595,16 +625,49 @@ let config = { type:'hiit', duration:30, intensity:'moderate', workSec:45, restS
 let workout = [];
 let timerState = { running:false, paused:false, idx:0, phase:'work', remaining:0, intervalId:null, startedAt:null };
 let wasPausedBeforeInfo = false;
+let soundEnabled = true;
+let voiceEnabled = true;
 
 // ═══════════════════════════════════════════════════
-// AUDIO
+// AUDIO (iOS-compatible)
 // ═══════════════════════════════════════════════════
 let audioCtx = null;
-function ensureAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+
+function ensureAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+// iOS requires audio unlock from a direct user tap.
+// We play a silent buffer to unlock on any touch in the app.
+let audioUnlocked = false;
+function unlockAudio() {
+  if (audioUnlocked) return;
+  ensureAudio();
+  const buf = audioCtx.createBuffer(1, 1, 22050);
+  const src = audioCtx.createBufferSource();
+  src.buffer = buf;
+  src.connect(audioCtx.destination);
+  src.start(0);
+  // Also unlock speech synthesis on iOS
+  if ('speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance('');
+    u.volume = 0;
+    speechSynthesis.speak(u);
+  }
+  audioUnlocked = true;
+}
+document.addEventListener('touchstart', unlockAudio, { once: true });
+document.addEventListener('click', unlockAudio, { once: true });
+
 function beep(freq, duration, vol=0.3) {
+  if (!soundEnabled) return;
   try {
     ensureAudio();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
     const o = audioCtx.createOscillator();
     const g = audioCtx.createGain();
     o.connect(g); g.connect(audioCtx.destination);
@@ -618,6 +681,31 @@ function beepWork() { beep(880, 0.15); setTimeout(()=>beep(880,0.15),200); }
 function beepRest() { beep(440, 0.3); }
 function beepDone() { beep(660,0.15); setTimeout(()=>beep(880,0.15),200); setTimeout(()=>beep(1100,0.3),400); }
 function beepCountdown() { beep(660, 0.08, 0.15); }
+
+// ═══════════════════════════════════════════════════
+// TEXT-TO-SPEECH
+// ═══════════════════════════════════════════════════
+function speak(text) {
+  if (!voiceEnabled || !('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.95;
+  u.pitch = 1;
+  u.volume = 1;
+  speechSynthesis.speak(u);
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  document.getElementById('t-sound').classList.toggle('active', soundEnabled);
+  if (soundEnabled) beep(880, 0.1, 0.2);
+}
+
+function toggleVoice() {
+  voiceEnabled = !voiceEnabled;
+  document.getElementById('t-voice').classList.toggle('active', voiceEnabled);
+  if (voiceEnabled) speak('Voice on');
+}
 
 // ═══════════════════════════════════════════════════
 // INFO MODAL
@@ -718,7 +806,6 @@ const COOLDOWN_CATS = ['mobility'];
 function pickExercises(pool, count) { return shuffle([...pool]).slice(0, count); }
 
 function generateWorkout() {
-  ensureAudio();
   const warmupCount = 3, cooldownCount = 2;
   const totalSec = config.duration * 60;
   const warmupSec = warmupCount * (30 + 15);
@@ -806,7 +893,12 @@ function startWorkout() {
   ensureAudio();
   timerState = { running:true, paused:false, idx:0, phase:'work', remaining:workout[0].workSec, intervalId:null, startedAt:Date.now() };
   showScreen('timer');
+  // Reset toggle UI state
+  document.getElementById('t-sound').classList.toggle('active', soundEnabled);
+  document.getElementById('t-voice').classList.toggle('active', voiceEnabled);
   updateTimerUI();
+  speak(workout[0].exercise.name);
+  beepWork();
   timerState.intervalId = setInterval(tick, 1000);
   requestWakeLock();
 }
@@ -832,6 +924,13 @@ function advancePhase() {
       timerState.phase = 'rest';
       timerState.remaining = w.restSec;
       beepRest();
+      // Announce next exercise during rest
+      const nextIdx = timerState.idx + 1;
+      if (nextIdx < workout.length) {
+        speak('Rest. Next up: ' + workout[nextIdx].exercise.name);
+      } else {
+        speak('Rest. Last exercise done.');
+      }
     } else {
       advanceExercise();
     }
@@ -846,6 +945,7 @@ function advanceExercise() {
   timerState.phase = 'work';
   timerState.remaining = workout[timerState.idx].workSec;
   beepWork();
+  speak(workout[timerState.idx].exercise.name);
 }
 
 function updateTimerUI() {
