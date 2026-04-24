@@ -85,17 +85,54 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 }
 .exercise-item .ex-num { font-size: 0.75rem; color: var(--text-dim); min-width: 22px; text-align: center; }
 .exercise-item .ex-info { flex: 1; }
-.exercise-item .ex-name { font-weight: 600; font-size: 0.95rem; }
+.exercise-item .ex-name { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .exercise-item .ex-detail { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
 .exercise-item .ex-remove {
   width: 32px; height: 32px; border-radius: 8px; border: none;
   background: transparent; color: var(--red); font-size: 1.2rem;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  touch-action: manipulation;
+  touch-action: manipulation; flex-shrink: 0;
 }
 .exercise-item .ex-remove:active { background: #f8717122; }
 .preview-actions { display: flex; gap: 10px; }
 .preview-actions .btn { flex: 1; }
+
+/* Info icon */
+.info-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--accent);
+  background: transparent; color: var(--accent); font-size: 0.7rem; font-weight: 700;
+  font-style: italic; font-family: Georgia, serif; cursor: pointer;
+  touch-action: manipulation; flex-shrink: 0; line-height: 1;
+}
+.info-btn:active { background: var(--accent-glow); }
+.timer-exercise-name .info-btn {
+  width: 28px; height: 28px; font-size: 0.85rem; vertical-align: middle;
+}
+
+/* Info modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 100;
+  background: rgba(0,0,0,0.75); align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.active { display: flex; }
+.modal-content {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px; max-width: 420px; width: 100%;
+  max-height: 80vh; overflow-y: auto;
+}
+.modal-content h2 { color: var(--text); font-size: 1.3rem; margin-bottom: 8px; }
+.modal-meta { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 16px; }
+.modal-instructions { font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+.modal-instructions p { margin-bottom: 10px; }
+.modal-instructions strong { color: var(--accent); font-weight: 600; }
+.modal-close {
+  margin-top: 20px; width: 100%; padding: 14px; border-radius: 12px;
+  border: none; background: var(--accent); color: #fff; font-size: 1rem;
+  font-weight: 600; cursor: pointer; touch-action: manipulation;
+}
+.modal-close:active { background: #3a70d4; }
 
 /* Timer */
 #timer {
@@ -117,6 +154,7 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .timer-exercise-name {
   font-size: 1.8rem; font-weight: 700; text-align: center;
   margin-bottom: 4px; line-height: 1.2;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
 }
 .timer-exercise-detail {
   font-size: 0.85rem; color: var(--text-dim); margin-bottom: 24px; text-align: center;
@@ -170,7 +208,7 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .section-badge {
   display: inline-block; font-size: 0.7rem; font-weight: 700;
   text-transform: uppercase; letter-spacing: 0.08em;
-  padding: 2px 8px; border-radius: 4px; margin-left: 8px;
+  padding: 2px 8px; border-radius: 4px; margin-left: 4px;
 }
 .section-badge.warmup { background: #fbbf2422; color: var(--yellow); }
 .section-badge.main { background: #4f8cff22; color: var(--accent); }
@@ -296,143 +334,258 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   <button class="btn btn-primary" onclick="showScreen('setup')" style="margin-top:20px;">New Workout</button>
 </div>
 
+<!-- INFO MODAL -->
+<div class="modal-overlay" id="info-modal" onclick="closeInfoIfBg(event)">
+  <div class="modal-content">
+    <h2 id="modal-title">Exercise</h2>
+    <div class="modal-meta" id="modal-meta"></div>
+    <div class="modal-instructions" id="modal-body"></div>
+    <button class="modal-close" onclick="closeInfo()">Got it</button>
+  </div>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════════
-// EXERCISE DATABASE
+// EXERCISE DATABASE WITH INSTRUCTIONS
 // ═══════════════════════════════════════════════════
 const DB = [
   // Lower Body: Squat
-  {name:"Air Squat",cat:"lower-squat",equip:["bodyweight"],muscles:["quads","glutes"],types:["strength","hiit","conditioning","functional"],diff:1},
-  {name:"Goblet Squat",cat:"lower-squat",equip:["kettlebell","dumbbell"],muscles:["quads","glutes"],types:["strength","functional","conditioning"],diff:2},
-  {name:"Back Squat",cat:"lower-squat",equip:["barbell"],muscles:["quads","glutes","core"],types:["strength"],diff:3},
-  {name:"Front Squat",cat:"lower-squat",equip:["barbell","kettlebell"],muscles:["quads","glutes","core"],types:["strength","functional"],diff:3},
-  {name:"Zercher Squat",cat:"lower-squat",equip:["barbell"],muscles:["quads","glutes","core","arms"],types:["strength","functional"],diff:3},
-  {name:"Split Squat",cat:"lower-squat",equip:["bodyweight","dumbbell"],muscles:["quads","glutes"],types:["strength","functional","conditioning"],diff:2},
-  {name:"Bulgarian Split Squat",cat:"lower-squat",equip:["bodyweight","dumbbell","bench"],muscles:["quads","glutes"],types:["strength","functional"],diff:3},
-  {name:"Step-Ups",cat:"lower-squat",equip:["bench","dumbbell"],muscles:["quads","glutes"],types:["strength","conditioning","functional"],diff:2},
-  {name:"Box Squat",cat:"lower-squat",equip:["bench","barbell"],muscles:["quads","glutes"],types:["strength"],diff:2},
-  {name:"Sissy Squat",cat:"lower-squat",equip:["bodyweight"],muscles:["quads"],types:["strength","conditioning"],diff:2},
-  {name:"Cossack Squat",cat:"lower-squat",equip:["bodyweight","kettlebell"],muscles:["quads","glutes","adductors"],types:["functional","conditioning"],diff:2},
-  {name:"Jump Squat",cat:"lower-squat",equip:["bodyweight"],muscles:["quads","glutes"],types:["hiit","conditioning"],diff:2},
-  {name:"Pause Squat",cat:"lower-squat",equip:["barbell","bodyweight"],muscles:["quads","glutes"],types:["strength"],diff:3},
+  {name:"Air Squat",cat:"lower-squat",equip:["bodyweight"],muscles:["quads","glutes"],types:["strength","hiit","conditioning","functional"],diff:1,
+   info:"Stand with feet shoulder-width apart, toes slightly out. Push hips back and bend knees to lower until thighs are parallel to the floor. Keep chest up, weight in heels. Drive through heels to stand. Keep knees tracking over toes throughout."},
+  {name:"Goblet Squat",cat:"lower-squat",equip:["kettlebell","dumbbell"],muscles:["quads","glutes"],types:["strength","functional","conditioning"],diff:2,
+   info:"Hold a kettlebell or dumbbell at chest height, cupping it with both hands. Feet shoulder-width apart. Squat down keeping the weight close to your chest and elbows between your knees. Drive through heels to stand. The front load helps keep your torso upright."},
+  {name:"Back Squat",cat:"lower-squat",equip:["barbell"],muscles:["quads","glutes","core"],types:["strength"],diff:3,
+   info:"Rest the barbell across your upper traps. Feet shoulder-width apart. Brace your core, push hips back and squat down until thighs are at least parallel. Keep chest proud and knees tracking over toes. Drive up through your whole foot."},
+  {name:"Front Squat",cat:"lower-squat",equip:["barbell","kettlebell"],muscles:["quads","glutes","core"],types:["strength","functional"],diff:3,
+   info:"Rack the barbell across front delts with elbows high (or hold KBs in front rack). Squat down keeping torso very upright. The front load demands more core and quad engagement. Drive up through heels keeping elbows high throughout."},
+  {name:"Zercher Squat",cat:"lower-squat",equip:["barbell"],muscles:["quads","glutes","core","arms"],types:["strength","functional"],diff:3,
+   info:"Hold the barbell in the crook of your elbows, arms bent, bar against your torso. Squat down keeping the bar close to your body. This position forces an upright torso and heavily loads the core and biceps. Drive up through heels."},
+  {name:"Split Squat",cat:"lower-squat",equip:["bodyweight","dumbbell"],muscles:["quads","glutes"],types:["strength","functional","conditioning"],diff:2,
+   info:"Stand in a staggered stance, one foot forward, one back. Lower your back knee toward the floor while keeping front shin vertical. Front knee stays over ankle. Push through the front heel to stand. Complete all reps on one side before switching."},
+  {name:"Bulgarian Split Squat",cat:"lower-squat",equip:["bodyweight","dumbbell","bench"],muscles:["quads","glutes"],types:["strength","functional"],diff:3,
+   info:"Place your rear foot on a bench behind you, laces down. Lower your back knee toward the floor while keeping your front shin vertical. Keep torso upright. Push through the front heel to stand. This is a single-leg dominant movement - expect it to burn."},
+  {name:"Step-Ups",cat:"lower-squat",equip:["bench","dumbbell"],muscles:["quads","glutes"],types:["strength","conditioning","functional"],diff:2,
+   info:"Stand facing a bench. Step one foot fully onto the bench. Drive through that heel to stand up on top. Step back down with control. Avoid pushing off the back foot - the working leg should do all the work. Alternate legs or complete one side first."},
+  {name:"Box Squat",cat:"lower-squat",equip:["bench","barbell"],muscles:["quads","glutes"],types:["strength"],diff:2,
+   info:"Set up a bench behind you. With barbell on back, squat down until you sit on the bench. Pause briefly (don't bounce), then drive up explosively. Sit back rather than straight down. This teaches good squat mechanics and builds power out of the bottom."},
+  {name:"Sissy Squat",cat:"lower-squat",equip:["bodyweight"],muscles:["quads"],types:["strength","conditioning"],diff:2,
+   info:"Stand upright. Lean back while bending your knees, rising onto your toes. Lower your body by pushing knees far forward while leaning your torso back. You should feel an intense stretch in your quads. Hold something for balance if needed. Reverse to stand."},
+  {name:"Cossack Squat",cat:"lower-squat",equip:["bodyweight","kettlebell"],muscles:["quads","glutes","adductors"],types:["functional","conditioning"],diff:2,
+   info:"Stand in a wide stance. Shift your weight to one side, bending that knee into a deep squat while straightening the other leg out to the side. Keep the straight leg's toes pointing up. Push back to centre and repeat on the other side. Great for hip mobility."},
+  {name:"Jump Squat",cat:"lower-squat",equip:["bodyweight"],muscles:["quads","glutes"],types:["hiit","conditioning"],diff:2,
+   info:"Start in a squat position. Explode upward, jumping as high as you can. Swing arms for momentum. Land softly with bent knees, absorbing the impact, and immediately drop into the next squat. Stay on the balls of your feet for speed."},
+  {name:"Pause Squat",cat:"lower-squat",equip:["barbell","bodyweight"],muscles:["quads","glutes"],types:["strength"],diff:3,
+   info:"Perform a standard squat but pause for 2-3 seconds at the bottom position. Stay tight - maintain core brace and tension throughout the pause. Then drive up powerfully. The pause eliminates the stretch reflex and builds strength in the weakest position."},
 
   // Lower Body: Hinge
-  {name:"Deadlift",cat:"lower-hinge",equip:["barbell"],muscles:["hamstrings","glutes","back"],types:["strength"],diff:3},
-  {name:"Romanian Deadlift",cat:"lower-hinge",equip:["barbell","dumbbell"],muscles:["hamstrings","glutes"],types:["strength","functional"],diff:2},
-  {name:"Stiff-Leg Deadlift",cat:"lower-hinge",equip:["barbell","dumbbell"],muscles:["hamstrings","glutes"],types:["strength"],diff:2},
-  {name:"Single-Leg RDL",cat:"lower-hinge",equip:["dumbbell","kettlebell"],muscles:["hamstrings","glutes"],types:["strength","functional"],diff:2},
-  {name:"Kettlebell Deadlift",cat:"lower-hinge",equip:["kettlebell"],muscles:["hamstrings","glutes","back"],types:["strength","functional"],diff:1},
-  {name:"Kettlebell Swing",cat:"lower-hinge",equip:["kettlebell"],muscles:["hamstrings","glutes","core"],types:["hiit","conditioning","functional","strength"],diff:2},
-  {name:"Hip Thrust",cat:"lower-hinge",equip:["bench","barbell"],muscles:["glutes","hamstrings"],types:["strength"],diff:2},
-  {name:"Glute Bridge",cat:"lower-hinge",equip:["bodyweight","barbell","mat"],muscles:["glutes","hamstrings"],types:["strength","conditioning"],diff:1},
-  {name:"Nordic Hamstring Curl",cat:"lower-hinge",equip:["bodyweight","mat"],muscles:["hamstrings"],types:["strength"],diff:3},
-  {name:"Good Mornings",cat:"lower-hinge",equip:["barbell"],muscles:["hamstrings","glutes","back"],types:["strength"],diff:2},
+  {name:"Deadlift",cat:"lower-hinge",equip:["barbell"],muscles:["hamstrings","glutes","back"],types:["strength"],diff:3,
+   info:"Stand with feet hip-width, barbell over mid-foot. Hinge at hips, grip the bar just outside your knees. Flat back, chest up. Drive through your feet, pushing the floor away. Keep the bar close to your body. Stand tall, squeeze glutes at the top. Lower with control."},
+  {name:"Romanian Deadlift",cat:"lower-hinge",equip:["barbell","dumbbell"],muscles:["hamstrings","glutes"],types:["strength","functional"],diff:2,
+   info:"Hold the weight in front of your thighs. With a slight knee bend, hinge at the hips pushing your butt back. Lower the weight along your legs until you feel a deep hamstring stretch. Keep your back flat. Squeeze glutes to return to standing. Don't round your back."},
+  {name:"Stiff-Leg Deadlift",cat:"lower-hinge",equip:["barbell","dumbbell"],muscles:["hamstrings","glutes"],types:["strength"],diff:2,
+   info:"Similar to an RDL but with straighter legs. Hold the weight and hinge forward from the hips, keeping legs nearly straight (soft knees). Lower until you feel a strong hamstring stretch. Flat back throughout. This variation hits the hamstrings harder than a standard RDL."},
+  {name:"Single-Leg RDL",cat:"lower-hinge",equip:["dumbbell","kettlebell"],muscles:["hamstrings","glutes"],types:["strength","functional"],diff:2,
+   info:"Stand on one leg holding a weight in the opposite hand. Hinge forward at the hip, extending the free leg behind you for counterbalance. Lower until your torso is nearly parallel to the floor. Keep hips square. Squeeze the standing glute to return upright. Great for balance."},
+  {name:"Kettlebell Deadlift",cat:"lower-hinge",equip:["kettlebell"],muscles:["hamstrings","glutes","back"],types:["strength","functional"],diff:1,
+   info:"Stand over a kettlebell with feet hip-width apart. Hinge at hips, bend knees, grip the handle with both hands. Flat back, chest up. Drive through heels to stand tall. Squeeze glutes at the top. Lower with control. A great entry point for learning the hinge pattern."},
+  {name:"Kettlebell Swing",cat:"lower-hinge",equip:["kettlebell"],muscles:["hamstrings","glutes","core"],types:["hiit","conditioning","functional","strength"],diff:2,
+   info:"Stand over the KB, feet wider than shoulders. Hike the KB back between your legs like a football snap. Explosively drive hips forward to swing the KB to chest height. Arms are just along for the ride - power comes from the hip snap. Let it swing back and repeat. Don't squat it."},
+  {name:"Hip Thrust",cat:"lower-hinge",equip:["bench","barbell"],muscles:["glutes","hamstrings"],types:["strength"],diff:2,
+   info:"Sit on the floor with upper back against a bench, barbell across your hips. Feet flat, hip-width apart. Drive through heels and squeeze glutes to lift hips until your body forms a straight line from shoulders to knees. Pause at the top. Lower with control."},
+  {name:"Glute Bridge",cat:"lower-hinge",equip:["bodyweight","barbell","mat"],muscles:["glutes","hamstrings"],types:["strength","conditioning"],diff:1,
+   info:"Lie on your back, knees bent, feet flat on the floor. Drive through heels and squeeze glutes to lift hips toward the ceiling. Your body should form a straight line from shoulders to knees. Pause at the top. Lower with control. Add weight across hips to progress."},
+  {name:"Nordic Hamstring Curl",cat:"lower-hinge",equip:["bodyweight","mat"],muscles:["hamstrings"],types:["strength"],diff:3,
+   info:"Kneel on a mat with someone holding your ankles (or hook feet under something solid). Slowly lower your body forward, resisting with your hamstrings for as long as possible. Catch yourself with your hands and push back up. Even the eccentric-only version is extremely effective."},
+  {name:"Good Mornings",cat:"lower-hinge",equip:["barbell"],muscles:["hamstrings","glutes","back"],types:["strength"],diff:2,
+   info:"Rest the barbell across your upper back. Feet hip-width, slight knee bend. Hinge forward at the hips, pushing your butt back until your torso is near parallel. Keep your back flat and core braced. Drive hips forward to stand. Use moderate weight - this is a technique lift."},
 
   // Upper Push Horizontal
-  {name:"Push-Ups",cat:"push-h",equip:["bodyweight","mat"],muscles:["chest","triceps","shoulders"],types:["strength","hiit","conditioning","functional"],diff:1},
-  {name:"Incline Push-Ups",cat:"push-h",equip:["bench","bodyweight"],muscles:["chest","triceps"],types:["conditioning","functional"],diff:1},
-  {name:"Decline Push-Ups",cat:"push-h",equip:["bench","bodyweight"],muscles:["chest","triceps","shoulders"],types:["strength","conditioning"],diff:2},
-  {name:"Dumbbell Bench Press",cat:"push-h",equip:["dumbbell","bench"],muscles:["chest","triceps","shoulders"],types:["strength"],diff:2},
-  {name:"Barbell Bench Press",cat:"push-h",equip:["barbell","bench"],muscles:["chest","triceps","shoulders"],types:["strength"],diff:3},
-  {name:"Close-Grip Bench Press",cat:"push-h",equip:["barbell","bench"],muscles:["triceps","chest"],types:["strength"],diff:2},
-  {name:"Floor Press",cat:"push-h",equip:["dumbbell","mat"],muscles:["chest","triceps"],types:["strength"],diff:2},
-  {name:"Medicine Ball Chest Pass",cat:"push-h",equip:["medicine ball"],muscles:["chest","triceps"],types:["hiit","conditioning","functional"],diff:1},
-  {name:"Plyo Push-Ups",cat:"push-h",equip:["bodyweight","mat"],muscles:["chest","triceps"],types:["hiit","conditioning"],diff:3},
+  {name:"Push-Ups",cat:"push-h",equip:["bodyweight","mat"],muscles:["chest","triceps","shoulders"],types:["strength","hiit","conditioning","functional"],diff:1,
+   info:"Hands slightly wider than shoulders, body in a straight line from head to heels. Lower your chest to the floor by bending elbows (keep them at roughly 45 degrees, not flared). Push back up to full extension. Engage your core throughout - don't let hips sag or pike up."},
+  {name:"Incline Push-Ups",cat:"push-h",equip:["bench","bodyweight"],muscles:["chest","triceps"],types:["conditioning","functional"],diff:1,
+   info:"Place hands on a bench, body in a straight line at an angle. Perform push-ups from this elevated position. The incline makes it easier than floor push-ups while still working chest and triceps. Good for high-rep sets or as a regression."},
+  {name:"Decline Push-Ups",cat:"push-h",equip:["bench","bodyweight"],muscles:["chest","triceps","shoulders"],types:["strength","conditioning"],diff:2,
+   info:"Place feet on a bench, hands on the floor. Perform push-ups with your body angled downward. This shifts more load to the upper chest and shoulders. Keep core tight to maintain a straight body line. Harder than standard push-ups."},
+  {name:"Dumbbell Bench Press",cat:"push-h",equip:["dumbbell","bench"],muscles:["chest","triceps","shoulders"],types:["strength"],diff:2,
+   info:"Lie on a bench holding dumbbells above your chest, arms extended. Lower the dumbbells to chest level, elbows at roughly 45 degrees. Press back up to full extension. Dumbbells allow greater range of motion than a barbell and work each side independently."},
+  {name:"Barbell Bench Press",cat:"push-h",equip:["barbell","bench"],muscles:["chest","triceps","shoulders"],types:["strength"],diff:3,
+   info:"Lie on the bench, eyes under the bar. Grip slightly wider than shoulder-width. Unrack and lower the bar to mid-chest with control. Press back up to lockout. Keep shoulder blades pinched together, feet planted. Touch your chest on each rep."},
+  {name:"Close-Grip Bench Press",cat:"push-h",equip:["barbell","bench"],muscles:["triceps","chest"],types:["strength"],diff:2,
+   info:"Lie on the bench and grip the bar with hands about shoulder-width apart (narrower than standard). Lower to your chest keeping elbows closer to your body. Press up to lockout. The narrow grip shifts emphasis to the triceps. Keep wrists straight."},
+  {name:"Floor Press",cat:"push-h",equip:["dumbbell","mat"],muscles:["chest","triceps"],types:["strength"],diff:2,
+   info:"Lie on the floor holding dumbbells above your chest. Lower until your upper arms touch the floor - this limits range of motion and removes leg drive. Pause briefly, then press up. Great for building lockout strength and easier on the shoulders."},
+  {name:"Medicine Ball Chest Pass",cat:"push-h",equip:["medicine ball"],muscles:["chest","triceps"],types:["hiit","conditioning","functional"],diff:1,
+   info:"Stand facing a wall, holding a medicine ball at chest height. Explosively push the ball from your chest into the wall (like a basketball chest pass). Catch the rebound and immediately repeat. Stay on the balls of your feet. This builds explosive pushing power."},
+  {name:"Plyo Push-Ups",cat:"push-h",equip:["bodyweight","mat"],muscles:["chest","triceps"],types:["hiit","conditioning"],diff:3,
+   info:"Start in push-up position. Lower your chest to the floor, then push up explosively so your hands leave the ground. Land softly with bent elbows and go straight into the next rep. For extra difficulty, clap at the top. Requires good baseline push-up strength."},
 
   // Upper Push Vertical
-  {name:"Overhead Press",cat:"push-v",equip:["barbell","dumbbell"],muscles:["shoulders","triceps"],types:["strength"],diff:2},
-  {name:"Push Press",cat:"push-v",equip:["barbell","kettlebell"],muscles:["shoulders","triceps","legs"],types:["strength","functional"],diff:2},
-  {name:"Arnold Press",cat:"push-v",equip:["dumbbell"],muscles:["shoulders","triceps"],types:["strength"],diff:2},
-  {name:"Pike Push-Ups",cat:"push-v",equip:["bodyweight","mat"],muscles:["shoulders","triceps"],types:["strength","conditioning"],diff:2},
-  {name:"Handstand Push-Ups",cat:"push-v",equip:["bodyweight"],muscles:["shoulders","triceps","core"],types:["strength"],diff:3},
+  {name:"Overhead Press",cat:"push-v",equip:["barbell","dumbbell"],muscles:["shoulders","triceps"],types:["strength"],diff:2,
+   info:"Stand with feet hip-width, holding the weight at shoulder height. Brace your core and press straight overhead to full lockout. Keep your ribs down - avoid arching your back. Lower with control to shoulder height. This is a strict press - no leg drive."},
+  {name:"Push Press",cat:"push-v",equip:["barbell","kettlebell"],muscles:["shoulders","triceps","legs"],types:["strength","functional"],diff:2,
+   info:"Hold weight at shoulder height. Dip slightly by bending your knees, then explosively drive upward using your legs to help press the weight overhead. The leg drive lets you move more weight than a strict press. Lower with control and repeat the dip-and-drive."},
+  {name:"Arnold Press",cat:"push-v",equip:["dumbbell"],muscles:["shoulders","triceps"],types:["strength"],diff:2,
+   info:"Start with dumbbells at shoulder height, palms facing you (like the top of a curl). As you press up, rotate your palms to face forward at the top. Reverse the rotation on the way down. This rotation hits all three heads of the deltoid through the full range."},
+  {name:"Pike Push-Ups",cat:"push-v",equip:["bodyweight","mat"],muscles:["shoulders","triceps"],types:["strength","conditioning"],diff:2,
+   info:"Start in a downward dog position - hands and feet on the floor, hips piked high. Bend your elbows to lower the top of your head toward the floor between your hands. Push back up. The steep angle mimics an overhead press using bodyweight. Walk feet closer to hands to make it harder."},
+  {name:"Handstand Push-Ups",cat:"push-v",equip:["bodyweight"],muscles:["shoulders","triceps","core"],types:["strength"],diff:3,
+   info:"Kick up into a handstand against a wall, hands shoulder-width apart. Lower yourself by bending your elbows until the top of your head touches the floor. Press back up to full extension. Keep core tight. This is an advanced movement - build up with pike push-ups first."},
 
   // Upper Pull Horizontal
-  {name:"Bent-Over Row",cat:"pull-h",equip:["barbell"],muscles:["back","biceps"],types:["strength"],diff:2},
-  {name:"Dumbbell Row",cat:"pull-h",equip:["dumbbell","bench"],muscles:["back","biceps"],types:["strength","functional"],diff:2},
-  {name:"Renegade Row",cat:"pull-h",equip:["dumbbell"],muscles:["back","biceps","core"],types:["hiit","conditioning","functional"],diff:2},
-  {name:"Inverted Row",cat:"pull-h",equip:["chinup bar"],muscles:["back","biceps"],types:["strength","conditioning"],diff:2},
-  {name:"Medicine Ball Row",cat:"pull-h",equip:["medicine ball"],muscles:["back","biceps"],types:["conditioning","functional"],diff:1},
+  {name:"Bent-Over Row",cat:"pull-h",equip:["barbell"],muscles:["back","biceps"],types:["strength"],diff:2,
+   info:"Stand with feet hip-width, hinge forward about 45 degrees. Grip the barbell with arms hanging straight down. Pull the bar to your lower ribcage, squeezing your shoulder blades together. Lower with control. Keep your back flat and core braced throughout. Don't jerk the weight."},
+  {name:"Dumbbell Row",cat:"pull-h",equip:["dumbbell","bench"],muscles:["back","biceps"],types:["strength","functional"],diff:2,
+   info:"Place one hand and knee on a bench, other foot on the floor. Hold a dumbbell in the free hand, arm hanging straight down. Pull the dumbbell to your hip, driving your elbow past your torso. Squeeze your shoulder blade at the top. Lower with control. Keep your back flat."},
+  {name:"Renegade Row",cat:"pull-h",equip:["dumbbell"],muscles:["back","biceps","core"],types:["hiit","conditioning","functional"],diff:2,
+   info:"Start in push-up position with hands on dumbbells. Row one dumbbell to your hip while stabilising with the other arm. Place it down and row the other side. Keep hips square to the floor - resist rotation. This is as much a core exercise as it is a back exercise."},
+  {name:"Inverted Row",cat:"pull-h",equip:["chinup bar"],muscles:["back","biceps"],types:["strength","conditioning"],diff:2,
+   info:"Set a bar at waist height. Hang underneath it with arms extended, body in a straight line, heels on the floor. Pull your chest to the bar by squeezing your shoulder blades together. Lower with control. Walk feet further under the bar to make it harder."},
+  {name:"Medicine Ball Row",cat:"pull-h",equip:["medicine ball"],muscles:["back","biceps"],types:["conditioning","functional"],diff:1,
+   info:"Stand in a staggered stance, hinged forward. Hold the medicine ball with both hands, arms extended. Pull the ball toward your chest, squeezing your shoulder blades. Extend arms back out. Keep your back flat. The instability of the ball adds a grip and stabilisation challenge."},
 
   // Upper Pull Vertical
-  {name:"Pull-Ups",cat:"pull-v",equip:["chinup bar"],muscles:["back","biceps"],types:["strength","functional"],diff:3},
-  {name:"Chin-Ups",cat:"pull-v",equip:["chinup bar"],muscles:["back","biceps"],types:["strength"],diff:3},
-  {name:"Neutral Grip Pull-Ups",cat:"pull-v",equip:["chinup bar"],muscles:["back","biceps"],types:["strength"],diff:3},
-  {name:"Negative Pull-Ups",cat:"pull-v",equip:["chinup bar"],muscles:["back","biceps"],types:["strength","conditioning"],diff:2},
-  {name:"Hanging Scapular Pulls",cat:"pull-v",equip:["chinup bar"],muscles:["back","shoulders"],types:["strength","functional"],diff:1},
+  {name:"Pull-Ups",cat:"pull-v",equip:["chinup bar"],muscles:["back","biceps"],types:["strength","functional"],diff:3,
+   info:"Hang from the bar with an overhand grip, hands slightly wider than shoulder-width. Pull yourself up until your chin clears the bar. Lower with full control to a dead hang. Initiate the pull by depressing and retracting your shoulder blades. Avoid kipping."},
+  {name:"Chin-Ups",cat:"pull-v",equip:["chinup bar"],muscles:["back","biceps"],types:["strength"],diff:3,
+   info:"Hang from the bar with an underhand (supinated) grip, hands shoulder-width apart. Pull yourself up until your chin clears the bar. Lower with control. The underhand grip recruits more biceps than pull-ups and is generally slightly easier. Full range of motion on every rep."},
+  {name:"Neutral Grip Pull-Ups",cat:"pull-v",equip:["chinup bar"],muscles:["back","biceps"],types:["strength"],diff:3,
+   info:"Hang from parallel handles (palms facing each other). Pull yourself up until your chin clears the bar. Lower with control. The neutral grip is generally the most shoulder-friendly pull-up variation and works the brachialis along with the back."},
+  {name:"Negative Pull-Ups",cat:"pull-v",equip:["chinup bar"],muscles:["back","biceps"],types:["strength","conditioning"],diff:2,
+   info:"Jump or step up to the top position of a pull-up (chin above bar). Lower yourself as slowly as possible - aim for 5-10 seconds down. Release at the bottom and repeat. This eccentric training builds the strength needed for full pull-ups. One of the best progressions."},
+  {name:"Hanging Scapular Pulls",cat:"pull-v",equip:["chinup bar"],muscles:["back","shoulders"],types:["strength","functional"],diff:1,
+   info:"Hang from the bar with arms fully extended. Without bending your elbows, pull your shoulder blades down and together, lifting your body slightly. Hold briefly, then release. This activates the muscles that initiate a pull-up and builds scapular control and shoulder health."},
 
   // Core
-  {name:"Front Plank",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["strength","conditioning","functional"],diff:1},
-  {name:"Side Plank",cat:"core",equip:["mat","bodyweight"],muscles:["core","obliques"],types:["strength","functional"],diff:1},
-  {name:"Dead Bug",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["functional","conditioning"],diff:1},
-  {name:"Hollow Body Hold",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["strength"],diff:2},
-  {name:"Sit-Ups",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["conditioning","hiit"],diff:1},
-  {name:"Crunches",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["conditioning"],diff:1},
-  {name:"Russian Twists",cat:"core",equip:["medicine ball","dumbbell","mat"],muscles:["core","obliques"],types:["hiit","conditioning","functional"],diff:1},
-  {name:"Bicycle Crunch",cat:"core",equip:["mat","bodyweight"],muscles:["core","obliques"],types:["hiit","conditioning"],diff:1},
-  {name:"Hanging Leg Raises",cat:"core",equip:["chinup bar"],muscles:["core"],types:["strength"],diff:3},
-  {name:"Hanging Knee Raises",cat:"core",equip:["chinup bar"],muscles:["core"],types:["strength","conditioning"],diff:2},
-  {name:"Toes-to-Bar",cat:"core",equip:["chinup bar"],muscles:["core"],types:["strength","functional"],diff:3},
-  {name:"Mountain Climbers",cat:"core",equip:["mat","bodyweight"],muscles:["core","shoulders"],types:["hiit","conditioning"],diff:1},
+  {name:"Front Plank",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["strength","conditioning","functional"],diff:1,
+   info:"Support yourself on forearms and toes, body in a straight line. Engage your core by pulling your belly button toward your spine. Don't let hips sag or pike up. Squeeze your glutes. Breathe steadily. Hold for the duration. To make it harder, move elbows further from your body."},
+  {name:"Side Plank",cat:"core",equip:["mat","bodyweight"],muscles:["core","obliques"],types:["strength","functional"],diff:1,
+   info:"Lie on your side, propped on your forearm. Stack your feet and lift your hips so your body forms a straight line. Hold this position. Keep your top hip stacked directly over the bottom - don't rotate forward. Switch sides. For an easier version, bend your bottom knee."},
+  {name:"Dead Bug",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["functional","conditioning"],diff:1,
+   info:"Lie on your back, arms extended toward the ceiling, knees bent at 90 degrees. Press your lower back into the floor. Slowly extend one arm overhead while extending the opposite leg, keeping your back flat. Return and repeat on the other side. If your back arches, you've gone too far."},
+  {name:"Hollow Body Hold",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["strength"],diff:2,
+   info:"Lie on your back. Lift your shoulders and legs off the ground, arms extended overhead. Press your lower back firmly into the floor - this is essential. Your body should form a banana shape. Hold this position. If it's too hard, bend your knees or bring arms to your sides."},
+  {name:"Sit-Ups",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["conditioning","hiit"],diff:1,
+   info:"Lie on your back, knees bent, feet flat (anchor them if needed). Cross arms over chest or place hands by ears. Curl your torso up to a seated position. Lower with control. Avoid pulling on your neck. Exhale on the way up, inhale on the way down."},
+  {name:"Crunches",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["conditioning"],diff:1,
+   info:"Lie on your back, knees bent. Place hands by your ears. Lift your shoulder blades off the floor by contracting your abs. Hold briefly at the top, then lower. The range of motion is small and controlled - don't sit all the way up. Focus on the squeeze at the top."},
+  {name:"Russian Twists",cat:"core",equip:["medicine ball","dumbbell","mat"],muscles:["core","obliques"],types:["hiit","conditioning","functional"],diff:1,
+   info:"Sit with knees bent, feet off the floor, torso leaned back at 45 degrees. Hold a weight at chest height. Rotate your torso to touch the weight to the floor on one side, then the other. Keep your chest up and move from your ribcage, not just your arms. Feet stay still."},
+  {name:"Bicycle Crunch",cat:"core",equip:["mat","bodyweight"],muscles:["core","obliques"],types:["hiit","conditioning"],diff:1,
+   info:"Lie on your back, hands by ears. Lift shoulders off the floor. Bring one knee toward your chest while rotating to touch the opposite elbow to that knee. Extend the other leg straight. Alternate sides in a pedalling motion. Move with control - don't rush through reps."},
+  {name:"Hanging Leg Raises",cat:"core",equip:["chinup bar"],muscles:["core"],types:["strength"],diff:3,
+   info:"Hang from a bar with arms fully extended. Keeping legs straight, raise them until they're parallel to the floor (or higher). Lower with control - don't swing. If straight legs are too hard, bend your knees. Avoid swinging momentum. This is a serious core exercise."},
+  {name:"Hanging Knee Raises",cat:"core",equip:["chinup bar"],muscles:["core"],types:["strength","conditioning"],diff:2,
+   info:"Hang from a bar with arms extended. Draw your knees up toward your chest by curling your pelvis. Lower with control. Avoid swinging. The key is to curl your pelvis up - don't just lift your knees with hip flexors. Pause briefly at the top."},
+  {name:"Toes-to-Bar",cat:"core",equip:["chinup bar"],muscles:["core"],types:["strength","functional"],diff:3,
+   info:"Hang from the bar. In one controlled movement, lift your legs and touch your toes to the bar. Lower with control. This requires significant core strength, hamstring flexibility, and lat engagement. Build up through hanging knee raises first."},
+  {name:"Mountain Climbers",cat:"core",equip:["mat","bodyweight"],muscles:["core","shoulders"],types:["hiit","conditioning"],diff:1,
+   info:"Start in push-up position. Drive one knee toward your chest, then quickly switch legs. Keep your hips down and core tight - don't let your butt rise. Move as fast as you can while maintaining form. This is both a core exercise and cardio."},
 
   // Full Body / Functional
-  {name:"Burpees",cat:"full-body",equip:["bodyweight","mat"],muscles:["full body"],types:["hiit","conditioning","functional"],diff:2},
-  {name:"Thrusters",cat:"full-body",equip:["dumbbell","barbell","kettlebell"],muscles:["quads","shoulders","core"],types:["hiit","conditioning","functional"],diff:2},
-  {name:"Kettlebell Clean",cat:"full-body",equip:["kettlebell"],muscles:["full body"],types:["strength","functional"],diff:2},
-  {name:"Dumbbell Snatch",cat:"full-body",equip:["dumbbell"],muscles:["full body"],types:["hiit","functional"],diff:2},
-  {name:"Kettlebell Snatch",cat:"full-body",equip:["kettlebell"],muscles:["full body"],types:["hiit","conditioning","functional"],diff:3},
-  {name:"Clean and Press",cat:"full-body",equip:["kettlebell","barbell","dumbbell"],muscles:["full body"],types:["strength","functional"],diff:3},
-  {name:"Devil's Press",cat:"full-body",equip:["dumbbell"],muscles:["full body"],types:["hiit","conditioning"],diff:3},
-  {name:"Turkish Get-Up",cat:"full-body",equip:["kettlebell"],muscles:["full body"],types:["strength","functional"],diff:3},
-  {name:"Man Makers",cat:"full-body",equip:["dumbbell"],muscles:["full body"],types:["hiit","conditioning"],diff:3},
-  {name:"Barbell Clean",cat:"full-body",equip:["barbell"],muscles:["full body"],types:["strength","functional"],diff:3},
+  {name:"Burpees",cat:"full-body",equip:["bodyweight","mat"],muscles:["full body"],types:["hiit","conditioning","functional"],diff:2,
+   info:"Stand, then squat down and place hands on the floor. Jump or step your feet back to a push-up position. Do a push-up (optional). Jump or step feet back to your hands. Explode upward into a jump with arms overhead. Land and immediately repeat. The ultimate full-body conditioner."},
+  {name:"Thrusters",cat:"full-body",equip:["dumbbell","barbell","kettlebell"],muscles:["quads","shoulders","core"],types:["hiit","conditioning","functional"],diff:2,
+   info:"Hold weights in the front rack position (at shoulders). Squat to full depth. As you drive up out of the squat, use that momentum to press the weight overhead in one fluid motion. Lower the weight back to shoulders as you descend into the next squat. One seamless movement."},
+  {name:"Kettlebell Clean",cat:"full-body",equip:["kettlebell"],muscles:["full body"],types:["strength","functional"],diff:2,
+   info:"Start with the KB between your feet. Hike it back, then snap your hips to swing it up. As it rises, pull your elbow back and rotate your hand around the bell to catch it in the front rack (bell resting on your forearm, elbow tight to your body). The clean should be smooth, not a crash."},
+  {name:"Dumbbell Snatch",cat:"full-body",equip:["dumbbell"],muscles:["full body"],types:["hiit","functional"],diff:2,
+   info:"Start with a dumbbell between your feet. Hinge and grip it with one hand. Explosively extend your hips and pull the dumbbell overhead in one motion, punching up at the top. Lower to the start position. This is a fast, explosive, full-body movement. Alternate arms each set."},
+  {name:"Kettlebell Snatch",cat:"full-body",equip:["kettlebell"],muscles:["full body"],types:["hiit","conditioning","functional"],diff:3,
+   info:"Swing the KB back between your legs, then drive hips forward explosively. As the KB rises, pull your hand back and punch up, letting the bell rotate over your hand to lockout overhead. The path should be close to your body. This is advanced - master the swing and clean first."},
+  {name:"Clean and Press",cat:"full-body",equip:["kettlebell","barbell","dumbbell"],muscles:["full body"],types:["strength","functional"],diff:3,
+   info:"Clean the weight to the front rack position (shoulders). Pause briefly, then press it overhead to full lockout. Lower to the rack, then back to the start. This combines two movements and works practically every muscle. Focus on a smooth, efficient clean before adding the press."},
+  {name:"Devil's Press",cat:"full-body",equip:["dumbbell"],muscles:["full body"],types:["hiit","conditioning"],diff:3,
+   info:"Hold two dumbbells. Perform a burpee with hands on the dumbbells. At the bottom, do a push-up. As you jump up, swing the dumbbells between your legs and snatch them overhead in one fluid motion. Lower and repeat. This is extremely demanding - pace yourself."},
+  {name:"Turkish Get-Up",cat:"full-body",equip:["kettlebell"],muscles:["full body"],types:["strength","functional"],diff:3,
+   info:"Lie on your back holding a KB straight up with one arm. In a sequence of deliberate steps: roll to elbow, post on hand, bridge hips, sweep leg through to kneeling, then stand. Reverse each step to lie back down. Keep your eye on the weight. Go slow - this is about control, not speed."},
+  {name:"Man Makers",cat:"full-body",equip:["dumbbell"],muscles:["full body"],types:["hiit","conditioning"],diff:3,
+   info:"Start standing with two dumbbells. Drop into a burpee with hands on dumbbells. At the bottom, do a push-up, then a renegade row on each side. Jump feet to hands, clean the dumbbells to shoulders, then press overhead. That's one rep. This is one of the most demanding exercises there is."},
+  {name:"Barbell Clean",cat:"full-body",equip:["barbell"],muscles:["full body"],types:["strength","functional"],diff:3,
+   info:"Stand with bar over mid-foot. Grip just outside knees, hinge with flat back. First pull: lift the bar to just above knees. Second pull: explosively extend hips and shrug, pulling yourself under the bar. Catch it in a front squat position on your shoulders. Stand up. This is a technical lift - prioritise form."},
 
   // Carries
-  {name:"Farmer's Carry",cat:"carry",equip:["dumbbell","kettlebell"],muscles:["grip","core","traps"],types:["strength","conditioning","functional"],diff:1},
-  {name:"Suitcase Carry",cat:"carry",equip:["dumbbell","kettlebell"],muscles:["core","grip","obliques"],types:["strength","functional"],diff:2},
-  {name:"Front Rack Carry",cat:"carry",equip:["kettlebell"],muscles:["core","shoulders"],types:["strength","functional"],diff:2},
-  {name:"Overhead Carry",cat:"carry",equip:["dumbbell","kettlebell"],muscles:["shoulders","core"],types:["strength","functional"],diff:2},
-  {name:"Bear Hug Carry",cat:"carry",equip:["medicine ball"],muscles:["core","arms"],types:["conditioning","functional"],diff:1},
+  {name:"Farmer's Carry",cat:"carry",equip:["dumbbell","kettlebell"],muscles:["grip","core","traps"],types:["strength","conditioning","functional"],diff:1,
+   info:"Pick up a heavy weight in each hand. Stand tall with shoulders back and down. Walk with controlled, deliberate steps. Keep your core braced and resist leaning to either side. Walk for time or distance. This builds grip, core stability, and total body resilience. Go heavy."},
+  {name:"Suitcase Carry",cat:"carry",equip:["dumbbell","kettlebell"],muscles:["core","grip","obliques"],types:["strength","functional"],diff:2,
+   info:"Hold a heavy weight in one hand only, like carrying a suitcase. Stand tall and walk without leaning to the weighted side - your obliques must work hard to keep you upright. Walk for time or distance, then switch hands. Excellent anti-lateral flexion core work."},
+  {name:"Front Rack Carry",cat:"carry",equip:["kettlebell"],muscles:["core","shoulders"],types:["strength","functional"],diff:2,
+   info:"Clean two kettlebells to the front rack position (bells resting on forearms, elbows tight). Walk with control, keeping your torso upright. The front-loaded position challenges your core and upper back. Breathe behind the bells. Walk for time or distance."},
+  {name:"Overhead Carry",cat:"carry",equip:["dumbbell","kettlebell"],muscles:["shoulders","core"],types:["strength","functional"],diff:2,
+   info:"Press a weight overhead to full lockout. Lock your elbow, pack your shoulder, and walk with control. Keep your ribs down and core braced - don't arch your back. Walk for time or distance. This builds shoulder stability and overhead strength. Can be done single or double arm."},
+  {name:"Bear Hug Carry",cat:"carry",equip:["medicine ball"],muscles:["core","arms"],types:["conditioning","functional"],diff:1,
+   info:"Wrap both arms around a medicine ball or heavy object, hugging it tight to your chest. Walk with deliberate steps. The bear hug position challenges your grip, biceps, and core while simulating a real-world carrying pattern. Keep the object high on your chest."},
 
   // Plyometrics
-  {name:"Box Jumps",cat:"plyo",equip:["bench"],muscles:["quads","glutes"],types:["hiit","conditioning","functional"],diff:2},
-  {name:"Broad Jumps",cat:"plyo",equip:["bodyweight"],muscles:["quads","glutes"],types:["hiit","conditioning"],diff:2},
-  {name:"Tuck Jumps",cat:"plyo",equip:["bodyweight"],muscles:["quads","glutes","core"],types:["hiit","conditioning"],diff:2},
-  {name:"Skater Jumps",cat:"plyo",equip:["bodyweight"],muscles:["quads","glutes"],types:["hiit","conditioning","functional"],diff:1},
-  {name:"Clap Push-Ups",cat:"plyo",equip:["bodyweight","mat"],muscles:["chest","triceps"],types:["hiit"],diff:3},
-  {name:"Medicine Ball Slams",cat:"plyo",equip:["medicine ball"],muscles:["full body"],types:["hiit","conditioning"],diff:1},
-  {name:"Medicine Ball Throws",cat:"plyo",equip:["medicine ball"],muscles:["full body"],types:["hiit","conditioning","functional"],diff:1},
+  {name:"Box Jumps",cat:"plyo",equip:["bench"],muscles:["quads","glutes"],types:["hiit","conditioning","functional"],diff:2,
+   info:"Stand facing a bench or box. Swing your arms and jump up, landing softly on top with both feet. Stand fully upright on the box. Step back down (don't jump down - protect your joints). The key is a soft, quiet landing. Start with a lower height and progress."},
+  {name:"Broad Jumps",cat:"plyo",equip:["bodyweight"],muscles:["quads","glutes"],types:["hiit","conditioning"],diff:2,
+   info:"Stand with feet hip-width. Swing your arms back, hinge slightly, then explode forward and upward. Jump as far as you can, landing softly with bent knees. Stick the landing before the next rep. This builds horizontal power - think sprinting acceleration."},
+  {name:"Tuck Jumps",cat:"plyo",equip:["bodyweight"],muscles:["quads","glutes","core"],types:["hiit","conditioning"],diff:2,
+   info:"Stand with feet hip-width. Jump straight up as high as you can, pulling your knees to your chest at the peak. Land softly with bent knees and immediately jump again. Keep your chest up throughout. High-intensity and demanding on the cardio system."},
+  {name:"Skater Jumps",cat:"plyo",equip:["bodyweight"],muscles:["quads","glutes"],types:["hiit","conditioning","functional"],diff:1,
+   info:"Stand on one leg. Jump laterally to the opposite side, landing on the other foot. Swing your arms across your body for momentum, like a speed skater. Touch the trailing foot behind the landing leg. Immediately jump back. Stay low and athletic throughout."},
+  {name:"Clap Push-Ups",cat:"plyo",equip:["bodyweight","mat"],muscles:["chest","triceps"],types:["hiit"],diff:3,
+   info:"Start in push-up position. Lower your chest to the floor, then push up explosively. At the top, clap your hands before catching yourself and lowering into the next rep. Requires significant pressing power. Build a solid push-up base first. Land with soft elbows."},
+  {name:"Medicine Ball Slams",cat:"plyo",equip:["medicine ball"],muscles:["full body"],types:["hiit","conditioning"],diff:1,
+   info:"Hold a medicine ball overhead. Brace your core and slam the ball into the ground as hard as you can, hinging at the hips. Catch the bounce (or pick it up) and repeat. Drive the slam with your whole body - lats, core, and hip flexion. Great for releasing energy and conditioning."},
+  {name:"Medicine Ball Throws",cat:"plyo",equip:["medicine ball"],muscles:["full body"],types:["hiit","conditioning","functional"],diff:1,
+   info:"Stand facing a wall. Hold the ball at chest or overhead position. Explosively throw it against the wall using your whole body. Catch the rebound and immediately repeat. Can be done as chest passes, overhead throws, or rotational throws. Generate power from your hips, not just arms."},
 
   // Conditioning / Cardio
-  {name:"Skipping Rope",cat:"cardio",equip:["skipping rope"],muscles:["calves","cardio"],types:["hiit","conditioning"],diff:1},
-  {name:"High Knees",cat:"cardio",equip:["bodyweight"],muscles:["quads","cardio"],types:["hiit","conditioning"],diff:1},
-  {name:"Butt Kicks",cat:"cardio",equip:["bodyweight"],muscles:["hamstrings","cardio"],types:["hiit","conditioning"],diff:1},
-  {name:"Sprint Intervals",cat:"cardio",equip:["bodyweight"],muscles:["full body","cardio"],types:["hiit","conditioning"],diff:2},
-  {name:"Shuttle Runs",cat:"cardio",equip:["bodyweight"],muscles:["full body","cardio"],types:["hiit","conditioning"],diff:2},
-  {name:"Bear Crawls",cat:"cardio",equip:["bodyweight","mat"],muscles:["shoulders","core","cardio"],types:["conditioning","functional"],diff:2},
-  {name:"Crab Walks",cat:"cardio",equip:["bodyweight","mat"],muscles:["triceps","core","cardio"],types:["conditioning","functional"],diff:1},
+  {name:"Skipping Rope",cat:"cardio",equip:["skipping rope"],muscles:["calves","cardio"],types:["hiit","conditioning"],diff:1,
+   info:"Hold the rope handles at hip height, elbows close to your body. Turn the rope using your wrists (not shoulders). Jump just high enough to clear the rope - stay on the balls of your feet. Keep a consistent rhythm. For HIIT: alternate fast bursts with slower recovery. A supremely efficient cardio tool."},
+  {name:"High Knees",cat:"cardio",equip:["bodyweight"],muscles:["quads","cardio"],types:["hiit","conditioning"],diff:1,
+   info:"Run in place, driving your knees up to hip height (or higher) with each step. Pump your arms. Stay on the balls of your feet. Move as fast as you can while getting your knees up. Keep your core tight and posture upright - don't lean back."},
+  {name:"Butt Kicks",cat:"cardio",equip:["bodyweight"],muscles:["hamstrings","cardio"],types:["hiit","conditioning"],diff:1,
+   info:"Run in place, kicking your heels up toward your glutes with each step. Keep your thighs relatively vertical - the motion is in the lower leg. Pump your arms. This warms up the hamstrings and gets your heart rate up. Stay light on your feet."},
+  {name:"Sprint Intervals",cat:"cardio",equip:["bodyweight"],muscles:["full body","cardio"],types:["hiit","conditioning"],diff:2,
+   info:"Sprint at maximum effort for the work period, then rest. If space is limited, sprint in place with high knees and arm drive. Focus on explosive acceleration. Recover completely during rest periods. Sprint mechanics: lean slightly forward, drive knees high, pump arms powerfully."},
+  {name:"Shuttle Runs",cat:"cardio",equip:["bodyweight"],muscles:["full body","cardio"],types:["hiit","conditioning"],diff:2,
+   info:"Set two markers 5-10 metres apart. Sprint to one marker, touch the ground, sprint back. Repeat for the duration. The deceleration and direction change makes this harder than straight sprints. Stay low when changing direction. Great for agility and conditioning."},
+  {name:"Bear Crawls",cat:"cardio",equip:["bodyweight","mat"],muscles:["shoulders","core","cardio"],types:["conditioning","functional"],diff:2,
+   info:"Start on all fours with knees hovering just above the ground. Move forward by stepping opposite hand and foot together (right hand, left foot). Keep your hips low and back flat. Move slowly and deliberately - this is harder than it looks. Works shoulders, core, and coordination."},
+  {name:"Crab Walks",cat:"cardio",equip:["bodyweight","mat"],muscles:["triceps","core","cardio"],types:["conditioning","functional"],diff:1,
+   info:"Sit on the floor, place hands behind you, fingers pointing toward feet. Lift your hips off the ground. Walk backward or forward by moving opposite hand and foot. Keep hips elevated throughout. This works triceps, shoulders, and core in a way nothing else does."},
 
   // Mobility
-  {name:"Hip Openers (90/90)",cat:"mobility",equip:["mat"],muscles:["hips"],types:["functional"],diff:1},
-  {name:"World's Greatest Stretch",cat:"mobility",equip:["mat"],muscles:["full body"],types:["functional"],diff:1},
-  {name:"Deep Squat Hold",cat:"mobility",equip:["bodyweight"],muscles:["hips","ankles"],types:["functional"],diff:1},
-  {name:"Cat-Cow",cat:"mobility",equip:["mat"],muscles:["spine"],types:["functional"],diff:1},
-  {name:"Downward Dog",cat:"mobility",equip:["mat"],muscles:["hamstrings","shoulders"],types:["functional"],diff:1},
-  {name:"Thoracic Rotations",cat:"mobility",equip:["mat"],muscles:["spine","core"],types:["functional"],diff:1},
-  {name:"Couch Stretch",cat:"mobility",equip:["mat"],muscles:["hip flexors","quads"],types:["functional"],diff:1},
+  {name:"Hip Openers (90/90)",cat:"mobility",equip:["mat"],muscles:["hips"],types:["functional"],diff:1,
+   info:"Sit with one leg bent 90 degrees in front and the other 90 degrees behind you. Sit tall. Slowly rotate to switch which leg is in front and which is behind. Move with control. This opens the hip internal and external rotators. Spend time in each position, don't rush."},
+  {name:"World's Greatest Stretch",cat:"mobility",equip:["mat"],muscles:["full body"],types:["functional"],diff:1,
+   info:"Step into a deep lunge. Place the hand opposite your front foot on the ground. Rotate your torso and reach your other arm toward the ceiling. Hold. Return hand to floor, straighten your front leg for a hamstring stretch. Step through and repeat on the other side. Hits everything."},
+  {name:"Deep Squat Hold",cat:"mobility",equip:["bodyweight"],muscles:["hips","ankles"],types:["functional"],diff:1,
+   info:"Drop into the deepest squat you can manage with feet flat on the floor. Hold this position. Use your elbows to gently push your knees out. Keep your chest up. Breathe deeply and try to relax into the position. Hold a doorframe or post for balance if needed. Aim for 30-60 seconds."},
+  {name:"Cat-Cow",cat:"mobility",equip:["mat"],muscles:["spine"],types:["functional"],diff:1,
+   info:"Start on all fours. Cow: drop your belly toward the floor, lift your chest and tailbone, look up. Cat: round your spine toward the ceiling, tuck your chin and pelvis. Flow slowly between the two positions with your breath. Inhale for cow, exhale for cat. Great for spinal mobility."},
+  {name:"Downward Dog",cat:"mobility",equip:["mat"],muscles:["hamstrings","shoulders"],types:["functional"],diff:1,
+   info:"From all fours, tuck toes and lift hips high, forming an inverted V. Push your chest toward your thighs, straighten your legs as much as possible. Press your heels toward the floor. Spread fingers wide and push the floor away. Pedal your feet to warm up calves and hamstrings."},
+  {name:"Thoracic Rotations",cat:"mobility",equip:["mat"],muscles:["spine","core"],types:["functional"],diff:1,
+   info:"Start on all fours or in a side-lying position. Place one hand behind your head. Rotate your upper back to open your chest toward the ceiling, following your elbow with your eyes. Reverse back down. Move slowly and feel the rotation in your mid-back, not your lower back."},
+  {name:"Couch Stretch",cat:"mobility",equip:["mat"],muscles:["hip flexors","quads"],types:["functional"],diff:1,
+   info:"Kneel facing away from a wall. Place one foot against the wall behind you with knee on the floor. Step the other foot forward into a lunge. Keep your torso upright and squeeze the glute of the back leg. You should feel a deep stretch in your hip flexor and quad. Hold 30-60 seconds per side."},
 
   // Isometric / Stability
-  {name:"Wall Sits",cat:"isometric",equip:["bodyweight"],muscles:["quads"],types:["strength","conditioning"],diff:1},
-  {name:"Plank Shoulder Taps",cat:"isometric",equip:["bodyweight","mat"],muscles:["core","shoulders"],types:["conditioning","functional"],diff:2},
-  {name:"Hollow Holds",cat:"isometric",equip:["mat","bodyweight"],muscles:["core"],types:["strength"],diff:2},
-  {name:"L-Sit",cat:"isometric",equip:["bench"],muscles:["core","triceps"],types:["strength"],diff:3},
-  {name:"Single-Leg Balance",cat:"isometric",equip:["bodyweight"],muscles:["ankles","core"],types:["functional"],diff:1},
+  {name:"Wall Sits",cat:"isometric",equip:["bodyweight"],muscles:["quads"],types:["strength","conditioning"],diff:1,
+   info:"Stand with your back flat against a wall. Slide down until your thighs are parallel to the floor, knees at 90 degrees. Hold this position. Keep your back pressed into the wall and weight in your heels. Don't rest your hands on your thighs. Breathe steadily. Your quads will burn."},
+  {name:"Plank Shoulder Taps",cat:"isometric",equip:["bodyweight","mat"],muscles:["core","shoulders"],types:["conditioning","functional"],diff:2,
+   info:"Start in a push-up position, hands under shoulders. Lift one hand and tap the opposite shoulder, then switch. The challenge is keeping your hips completely still - resist the urge to rotate. Widen your feet for more stability. Move slowly and deliberately."},
+  {name:"Hollow Holds",cat:"isometric",equip:["mat","bodyweight"],muscles:["core"],types:["strength"],diff:2,
+   info:"Lie on your back. Press your lower back into the floor. Lift shoulders and legs slightly off the ground, arms extended overhead. Hold this banana-shaped position. Your lower back must stay glued to the floor. If it lifts, bend your knees or lower your arms to scale down."},
+  {name:"L-Sit",cat:"isometric",equip:["bench"],muscles:["core","triceps"],types:["strength"],diff:3,
+   info:"Place hands on the edge of a bench (or parallettes), arms straight. Lift your body off the bench and extend your legs straight in front of you, forming an L-shape. Hold. This requires significant core, hip flexor, and tricep strength. Start with tucked knees if needed."},
+  {name:"Single-Leg Balance",cat:"isometric",equip:["bodyweight"],muscles:["ankles","core"],types:["functional"],diff:1,
+   info:"Stand on one leg with a slight knee bend. Hold your balance for the duration. Keep your hips level. For more difficulty: close your eyes, stand on a soft surface, or add arm movements. This builds ankle stability and proprioception. Simple but surprisingly challenging."},
 
   // Animal Movement
-  {name:"Bear Crawl",cat:"animal",equip:["bodyweight","mat"],muscles:["shoulders","core"],types:["conditioning","functional"],diff:2},
-  {name:"Leopard Crawl",cat:"animal",equip:["bodyweight","mat"],muscles:["full body"],types:["conditioning"],diff:2},
-  {name:"Frog Jumps",cat:"animal",equip:["bodyweight"],muscles:["quads","glutes"],types:["hiit","conditioning"],diff:2},
-  {name:"Ape Walk",cat:"animal",equip:["bodyweight"],muscles:["full body"],types:["conditioning","functional"],diff:2},
-  {name:"Crab Reach",cat:"animal",equip:["bodyweight","mat"],muscles:["shoulders","core"],types:["conditioning","functional"],diff:1},
+  {name:"Bear Crawl",cat:"animal",equip:["bodyweight","mat"],muscles:["shoulders","core"],types:["conditioning","functional"],diff:2,
+   info:"Start on all fours, knees hovering just off the ground. Crawl forward moving opposite hand and foot simultaneously. Keep hips low and level. Move slowly and deliberately. This torches your shoulders, core, and coordination. Try crawling backward for an extra challenge."},
+  {name:"Leopard Crawl",cat:"animal",equip:["bodyweight","mat"],muscles:["full body"],types:["conditioning"],diff:2,
+   info:"Like a bear crawl but lower to the ground - nearly flat. Alternate reaching one arm forward while driving the opposite knee toward that elbow. Stay as close to the ground as possible. This is military-style crawling and works your entire body. Great for conditioning."},
+  {name:"Frog Jumps",cat:"animal",equip:["bodyweight"],muscles:["quads","glutes"],types:["hiit","conditioning"],diff:2,
+   info:"Start in a deep squat position, hands touching the floor between your feet. Explode forward and upward in a jumping motion, landing back in the deep squat. Use your arms for momentum. Cover as much ground as possible with each jump. Land softly and go again."},
+  {name:"Ape Walk",cat:"animal",equip:["bodyweight"],muscles:["full body"],types:["conditioning","functional"],diff:2,
+   info:"Start in a deep squat. Reach forward and place both hands on the ground. Jump or step your feet toward your hands, landing in a deep squat. Repeat, moving forward. Stay low throughout. This opens the hips while challenging your upper body and coordination."},
+  {name:"Crab Reach",cat:"animal",equip:["bodyweight","mat"],muscles:["shoulders","core"],types:["conditioning","functional"],diff:1,
+   info:"Start in a crab position (hips elevated, hands behind you). Lift one hand and reach it over and behind you while driving your hips up toward the ceiling. You should feel a stretch across your chest and shoulders. Return and repeat on the other side. Great for thoracic mobility and shoulder opening."},
 ];
 
 // ═══════════════════════════════════════════════════
@@ -441,6 +594,7 @@ const DB = [
 let config = { type:'hiit', duration:30, intensity:'moderate', workSec:45, restSec:15 };
 let workout = [];
 let timerState = { running:false, paused:false, idx:0, phase:'work', remaining:0, intervalId:null, startedAt:null };
+let wasPausedBeforeInfo = false;
 
 // ═══════════════════════════════════════════════════
 // AUDIO
@@ -464,6 +618,43 @@ function beepWork() { beep(880, 0.15); setTimeout(()=>beep(880,0.15),200); }
 function beepRest() { beep(440, 0.3); }
 function beepDone() { beep(660,0.15); setTimeout(()=>beep(880,0.15),200); setTimeout(()=>beep(1100,0.3),400); }
 function beepCountdown() { beep(660, 0.08, 0.15); }
+
+// ═══════════════════════════════════════════════════
+// INFO MODAL
+// ═══════════════════════════════════════════════════
+function showInfo(exerciseName) {
+  const ex = DB.find(e => e.name === exerciseName);
+  if (!ex) return;
+
+  // Pause timer if running
+  if (timerState.running && !timerState.paused) {
+    wasPausedBeforeInfo = false;
+    timerState.paused = true;
+    updateTimerUI();
+  } else {
+    wasPausedBeforeInfo = true;
+  }
+
+  document.getElementById('modal-title').textContent = ex.name;
+  document.getElementById('modal-meta').innerHTML =
+    '<strong>Equipment:</strong> ' + ex.equip.join(', ') +
+    ' &middot; <strong>Muscles:</strong> ' + ex.muscles.join(', ');
+  document.getElementById('modal-body').innerHTML = '<p>' + ex.info + '</p>';
+  document.getElementById('info-modal').classList.add('active');
+}
+
+function closeInfo() {
+  document.getElementById('info-modal').classList.remove('active');
+  // Resume timer if we paused it
+  if (timerState.running && !wasPausedBeforeInfo) {
+    timerState.paused = false;
+    updateTimerUI();
+  }
+}
+
+function closeInfoIfBg(event) {
+  if (event.target === document.getElementById('info-modal')) closeInfo();
+}
 
 // ═══════════════════════════════════════════════════
 // UI
@@ -569,6 +760,11 @@ function generateWorkout() {
   showScreen('preview');
 }
 
+function infoBtn(name) {
+  const safeName = name.replace(/'/g, "\\'");
+  return '<button class="info-btn" onclick="event.stopPropagation();showInfo(\''+safeName+'\')" aria-label="Info">i</button>';
+}
+
 function renderPreview() {
   const totalWork = workout.reduce((s,w) => s + w.workSec, 0);
   const totalRest = workout.reduce((s,w) => s + w.restSec, 0);
@@ -587,7 +783,7 @@ function renderPreview() {
     return '<div class="exercise-item" data-idx="'+i+'">'+
       '<span class="ex-num">'+(i+1)+'</span>'+
       '<div class="ex-info">'+
-        '<div class="ex-name">'+w.exercise.name+'<span class="section-badge '+w.section+'">'+w.section+'</span></div>'+
+        '<div class="ex-name">'+w.exercise.name+' '+infoBtn(w.exercise.name)+'<span class="section-badge '+w.section+'">'+w.section+'</span></div>'+
         '<div class="ex-detail">'+w.workSec+'s work / '+w.restSec+'s rest &middot; '+equipStr+' &middot; '+muscleStr+'</div>'+
       '</div>'+
       '<button class="ex-remove" onclick="removeExercise('+i+')">&times;</button>'+
@@ -661,7 +857,13 @@ function updateTimerUI() {
   phaseEl.textContent = timerState.phase === 'work' ? 'WORK' : 'REST';
   phaseEl.className = 'timer-phase ' + timerState.phase;
 
-  document.getElementById('t-name').textContent = timerState.phase === 'work' ? w.exercise.name : 'Rest';
+  const nameEl = document.getElementById('t-name');
+  if (timerState.phase === 'work') {
+    nameEl.innerHTML = w.exercise.name + ' ' + infoBtn(w.exercise.name);
+  } else {
+    nameEl.innerHTML = 'Rest';
+  }
+
   document.getElementById('t-detail').textContent = timerState.phase === 'work'
     ? w.exercise.equip.join(', ') + ' - ' + w.exercise.muscles.join(', ')
     : 'Next: ' + (timerState.idx + 1 < workout.length ? workout[timerState.idx + 1].exercise.name : 'Done!');
