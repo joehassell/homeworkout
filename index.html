@@ -184,8 +184,15 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   font-size: 0.75rem; color: var(--text-dim); opacity: 0.7;
   margin-bottom: 32px; min-height: 1em;
 }
-.timer-controls { display: flex; gap: 12px; }
-.timer-controls .btn { min-width: 100px; }
+.timer-controls { display: flex; gap: 8px; justify-content: center; }
+.timer-controls .btn { min-width: 90px; flex: 1; }
+.timer-nav { margin-bottom: 8px; }
+.timer-nav .btn {
+  font-size: 0.9rem; padding: 10px 12px; min-width: 72px;
+}
+.timer-nav .btn:disabled {
+  opacity: 0.3; cursor: not-allowed;
+}
 .btn-add-rest {
   background: var(--surface2); color: var(--accent); border: 2px solid var(--accent);
   font-size: 1.1rem; font-weight: 700; padding: 14px 32px; border-radius: 12px;
@@ -341,10 +348,14 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   <div class="timer-ex-progress" id="t-ex-progress">Exercise 1 of 12</div>
   <div class="timer-set-progress" id="t-set-progress"></div>
   <button class="btn-add-rest" id="t-add-rest" onclick="addRest()">+10s Rest</button>
+  <div class="timer-controls timer-nav">
+    <button class="btn btn-ghost" onclick="prevExercise()" id="t-prev" aria-label="Previous exercise">&#x25C0; Prev</button>
+    <button class="btn btn-ghost" onclick="restartExercise()" aria-label="Restart current exercise">&#x21BB; Restart</button>
+    <button class="btn btn-ghost" onclick="skipPhase()" aria-label="Skip">Skip &#x25B6;</button>
+  </div>
   <div class="timer-controls">
     <button class="btn btn-ghost" onclick="togglePause()" id="t-pause">Pause</button>
     <button class="btn btn-danger" onclick="stopWorkout()">Stop</button>
-    <button class="btn btn-ghost" onclick="skipPhase()">Skip</button>
   </div>
   <div class="timer-upcoming">
     <div class="timer-upcoming-label">Up Next</div>
@@ -1017,6 +1028,7 @@ function updateTimerUI() {
   document.getElementById('t-next').textContent = nextIdx < workout.length ? workout[nextIdx].exercise.name : 'Finish';
 
   document.getElementById('t-pause').textContent = timerState.paused ? 'Resume' : 'Pause';
+  document.getElementById('t-prev').disabled = timerState.idx === 0;
 
   const addRestBtn = document.getElementById('t-add-rest');
   if (timerState.phase === 'rest') addRestBtn.classList.add('visible');
@@ -1052,6 +1064,35 @@ function skipPhase() {
   timerState.remaining = 0;
   advancePhase();
   if (timerState.running) updateTimerUI();
+}
+
+function unskip(idx) {
+  // Drop one occurrence of idx from skippedExercises (preserves dupes if any).
+  const i = timerState.skippedExercises.indexOf(idx);
+  if (i >= 0) timerState.skippedExercises.splice(i, 1);
+}
+
+function restartExercise() {
+  if (!timerState.running) return;
+  const w = workout[timerState.idx];
+  unskip(timerState.idx);
+  timerState.phase = 'work';
+  timerState.remaining = w.workSec;
+  beepWork();
+  speak(w.exercise.name);
+  updateTimerUI();
+}
+
+function prevExercise() {
+  if (!timerState.running || timerState.idx === 0) return;
+  timerState.idx--;
+  unskip(timerState.idx);
+  const w = workout[timerState.idx];
+  timerState.phase = 'work';
+  timerState.remaining = w.workSec;
+  beepWork();
+  speak(w.exercise.name);
+  updateTimerUI();
 }
 
 function stopWorkout() {
