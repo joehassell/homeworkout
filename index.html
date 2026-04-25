@@ -441,6 +441,16 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   cursor: pointer; touch-action: manipulation; min-width: 72px;
 }
 .settings-toggle.on { background: var(--accent-glow); color: var(--accent); border-color: var(--accent); }
+.settings-row-stack { flex-direction: column; align-items: stretch; gap: 10px; }
+.settings-actions { display: flex; gap: 8px; }
+.settings-action {
+  flex: 1; text-align: center;
+  background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+  padding: 10px 14px; border-radius: 8px; font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; touch-action: manipulation;
+}
+.settings-action:active { background: var(--border); }
+.settings-hint { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -633,6 +643,15 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
     <label class="settings-label" for="set-voice">Voice</label>
     <button type="button" id="set-voice" class="settings-toggle" onclick="toggleVoiceFromSettings()">On</button>
   </div>
+  <div class="settings-row settings-row-stack">
+    <label class="settings-label">Backup</label>
+    <div class="settings-actions">
+      <button type="button" class="settings-action" onclick="exportBackup()">Export</button>
+      <label class="settings-action" for="import-file">Import</label>
+      <input type="file" id="import-file" accept="application/json,.json" onchange="if(this.files[0]) importBackup(this.files[0]); this.value='';" hidden>
+    </div>
+  </div>
+  <div class="settings-hint">Export downloads a JSON file with your sessions, equipment, and toggles. Import replaces all three.</div>
 </div>
 
 <!-- INFO MODAL -->
@@ -1047,6 +1066,46 @@ function loadAppSettings() {
   } catch (e) {}
   syncSoundUI();
   syncVoiceUI();
+}
+
+function exportBackup() {
+  const data = window.storage.exportData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'homeworkout-' + new Date().toISOString().slice(0, 10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function importBackup(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    let data;
+    try {
+      data = JSON.parse(e.target.result);
+    } catch (err) {
+      alert('Could not parse file: ' + err.message);
+      return;
+    }
+    const count = Array.isArray(data.sessions) ? data.sessions.length : 0;
+    if (!confirm('Replace your current data with ' + count + ' session(s) from this file? This cannot be undone.')) return;
+    try {
+      window.storage.importData(data);
+    } catch (err) {
+      alert('Import failed: ' + err.message);
+      return;
+    }
+    // Re-sync in-memory state and UI from disk
+    loadEquipmentSelection();
+    loadAppSettings();
+    if (window.history_view) window.history_view.refresh();
+    alert('Imported ' + count + ' session(s).');
+  };
+  reader.readAsText(file);
 }
 
 function saveAppSettings() {

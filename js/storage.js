@@ -45,6 +45,38 @@
     return sessions[i];
   }
 
+  function readJSON(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+
+  function exportData() {
+    return {
+      version: SCHEMA_VERSION,
+      kind: 'homeworkout-backup',
+      exportedAt: new Date().toISOString(),
+      sessions: loadSessions(),
+      equipment: readJSON('wk_equipment'),
+      settings: readJSON('wk_settings'),
+    };
+  }
+
+  function importData(payload) {
+    if (!payload || typeof payload !== 'object') throw new Error('Not a JSON object');
+    if (payload.kind && payload.kind !== 'homeworkout-backup') throw new Error('Not a homeworkout backup');
+    if (!Array.isArray(payload.sessions)) throw new Error('Missing or invalid sessions array');
+    saveSessions(payload.sessions);
+    if (Array.isArray(payload.equipment)) {
+      localStorage.setItem('wk_equipment', JSON.stringify(payload.equipment));
+    }
+    if (payload.settings && typeof payload.settings === 'object') {
+      localStorage.setItem('wk_settings', JSON.stringify(payload.settings));
+    }
+    return { sessions: payload.sessions.length };
+  }
+
   window.storage = {
     SCHEMA_VERSION,
     MAX_SESSIONS,
@@ -52,5 +84,7 @@
     saveSessions,
     appendSession,
     updateSession,
+    exportData,
+    importData,
   };
 })();
