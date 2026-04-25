@@ -36,11 +36,21 @@
     return enriched;
   }
 
+  function updateSession(id, patch) {
+    const sessions = loadSessions();
+    const i = sessions.findIndex(s => s.id === id);
+    if (i < 0) return null;
+    sessions[i] = { ...sessions[i], ...patch };
+    saveSessions(sessions);
+    return sessions[i];
+  }
+
   window.storage = {
     SCHEMA_VERSION,
     MAX_SESSIONS,
     loadSessions,
     saveSessions,
     appendSession,
+    updateSession,
   };
 })();
