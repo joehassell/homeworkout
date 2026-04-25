@@ -83,9 +83,19 @@
     return INTER_SET_REST[intensity] || INTER_SET_REST.moderate;
   }
 
+  // Strength-mode rep target by exercise difficulty.
+  // Lower diff = sustainable movement, higher reps.
+  // Higher diff = heavier compound, fewer reps.
+  function repTarget(diff) {
+    if (diff === 3) return '3-5 reps';
+    if (diff === 2) return '6-8 reps';
+    return '10-12 reps';
+  }
+
   window.builder = {
     pickIntervals,
     pickInterSetRest,
+    repTarget,
     // exposed for tests / future tuning UI
     BASE, TYPE_MOD, DIFF_MOD, INTENSITY_MOD, INTER_SET_REST,
   };

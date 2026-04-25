@@ -91,6 +91,7 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .exercise-item .ex-info { flex: 1; }
 .exercise-item .ex-name { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .exercise-item .ex-detail { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
+.exercise-item .ex-reps { color: var(--accent); font-weight: 600; }
 .exercise-item .ex-remove {
   width: 32px; height: 32px; border-radius: 8px; border: none;
   background: transparent; color: var(--red); font-size: 1.2rem;
@@ -232,6 +233,40 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 }
 .btn-add-rest:active { background: var(--accent-glow); transform: scale(0.96); }
 .btn-add-rest.visible { display: inline-flex; }
+
+.btn-strength-done {
+  background: var(--green); color: var(--bg);
+  border: none; font-size: 1.2rem; font-weight: 800;
+  padding: 16px 40px; border-radius: 12px;
+  margin-bottom: 18px; display: none; cursor: pointer; touch-action: manipulation;
+  transition: all 0.15s; min-width: 200px;
+}
+.btn-strength-done:active { transform: scale(0.96); opacity: 0.9; }
+.btn-strength-done.visible { display: inline-flex; align-items: center; justify-content: center; }
+
+.strength-rep-target {
+  font-size: 0.85rem; font-weight: 600; color: var(--accent);
+  margin-bottom: 18px; min-height: 1em; text-align: center;
+}
+.strength-weight-input {
+  display: none; flex-direction: column; align-items: center; gap: 6px;
+  margin-bottom: 18px;
+}
+.strength-weight-input.visible { display: flex; }
+.strength-weight-input label {
+  font-size: 0.7rem; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.strength-weight-row { display: flex; gap: 8px; align-items: center; }
+.strength-weight-input input {
+  width: 110px; padding: 10px 14px; border-radius: 10px;
+  background: var(--surface); border: 2px solid var(--border);
+  color: var(--text); font-size: 1.1rem; font-weight: 600;
+  text-align: center; -webkit-appearance: none; outline: none;
+  font-family: inherit;
+}
+.strength-weight-input input:focus { border-color: var(--accent); }
+.strength-weight-saved { font-size: 0.75rem; color: var(--green); min-width: 50px; }
 .timer-upcoming {
   position: absolute; bottom: max(env(safe-area-inset-bottom, 20px), 20px);
   left: 20px; right: 20px; text-align: center;
@@ -511,7 +546,16 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   <div class="timer-progress"><div class="timer-progress-bar" id="t-bar"></div></div>
   <div class="timer-ex-progress" id="t-ex-progress">Exercise 1 of 12</div>
   <div class="timer-set-progress" id="t-set-progress"></div>
+  <div class="strength-rep-target" id="t-rep-target"></div>
   <button class="btn-add-rest" id="t-add-rest" onclick="addRest()">+10s Rest</button>
+  <button class="btn-strength-done" id="t-strength-done" onclick="finishStrengthSet()">Done</button>
+  <div class="strength-weight-input" id="t-weight-input">
+    <label for="t-weight-val">Weight (kg)</label>
+    <div class="strength-weight-row">
+      <input type="number" inputmode="decimal" step="0.5" id="t-weight-val" placeholder="--" oninput="saveSetWeight()">
+      <span class="strength-weight-saved" id="t-weight-saved"></span>
+    </div>
+  </div>
   <div class="timer-controls timer-nav">
     <button class="btn btn-ghost" onclick="prevExercise()" id="t-prev" aria-label="Previous exercise">&#x25C0; Prev</button>
     <button class="btn btn-ghost" onclick="restartExercise()" aria-label="Restart current exercise">&#x21BB; Restart</button>
@@ -1320,7 +1364,12 @@ function renderPreview() {
         '<span class="ex-num">'+(i+1)+'</span>'+
         '<div class="ex-info">'+
           nameHtml +
-          '<div class="ex-detail">'+w.workSec+'s work / '+w.restSec+'s rest &middot; '+escapeHtml(equipStr)+' &middot; '+escapeHtml(muscleStr)+'</div>'+
+          '<div class="ex-detail">'+
+            (w.section === 'main' && config.type === 'strength'
+              ? '<span class="ex-reps">'+window.builder.repTarget(w.exercise.diff)+'</span> &middot; '+w.restSec+'s rest'
+              : w.workSec+'s work / '+w.restSec+'s rest') +
+            ' &middot; '+escapeHtml(equipStr)+' &middot; '+escapeHtml(muscleStr)+
+          '</div>'+
         '</div>'+
         controls +
       '</div>';
@@ -1445,12 +1494,18 @@ function chooseSwap(name) {
 // ═══════════════════════════════════════════════════
 let wakeLock = null;
 
+function isStrengthWorkPhase() {
+  if (!timerState.running || timerState.phase !== 'work') return false;
+  const e = workout[timerState.idx];
+  return !!(e && e.section === 'main' && config.type === 'strength');
+}
+
 function startWorkout() {
   if (workout.length === 0) return;
   ensureAudio();
   timerState = {
     running:true, paused:false, idx:0, phase:'work',
-    remaining:workout[0].workSec, intervalId:null,
+    remaining:workout[0].workSec, elapsed:0, intervalId:null,
     startedAt:Date.now(), pausedAt:null, pausedAccumMs:0,
     extraRestSec:0, skippedExercises:[]
   };
@@ -1473,10 +1528,24 @@ async function requestWakeLock() {
 
 function tick() {
   if (timerState.paused || !timerState.running) return;
-  timerState.remaining--;
-  if (timerState.remaining <= 3 && timerState.remaining > 0) beepCountdown();
-  if (timerState.remaining <= 0) advancePhase();
+  if (isStrengthWorkPhase()) {
+    // Count up; user taps Done to end the set.
+    timerState.elapsed = (timerState.elapsed || 0) + 1;
+  } else {
+    timerState.remaining--;
+    if (timerState.remaining <= 3 && timerState.remaining > 0) beepCountdown();
+    if (timerState.remaining <= 0) advancePhase();
+  }
   updateTimerUI();
+}
+
+function finishStrengthSet() {
+  if (!isStrengthWorkPhase()) return;
+  const entry = workout[timerState.idx];
+  if (entry) entry.actualWorkSec = timerState.elapsed || 0;
+  timerState.remaining = 0;
+  advancePhase();
+  if (timerState.running) updateTimerUI();
 }
 
 function advancePhase() {
@@ -1506,6 +1575,7 @@ function advanceExercise() {
   if (timerState.idx >= workout.length) { finishWorkout(); return; }
   timerState.phase = 'work';
   timerState.remaining = workout[timerState.idx].workSec;
+  timerState.elapsed = 0;
   beepWork();
   speak(workout[timerState.idx].exercise.name);
 }
@@ -1530,26 +1600,40 @@ function updateTimerUI() {
     ? w.exercise.equip.join(', ') + ' - ' + w.exercise.muscles.join(', ')
     : 'Next: ' + (timerState.idx + 1 < workout.length ? workout[timerState.idx + 1].exercise.name : 'Done!');
 
-  const mins = Math.floor(timerState.remaining / 60);
-  const secs = timerState.remaining % 60;
+  const strengthWork = isStrengthWorkPhase();
+  const displaySec = strengthWork ? (timerState.elapsed || 0) : timerState.remaining;
+  const mins = Math.floor(displaySec / 60);
+  const secs = displaySec % 60;
   document.getElementById('t-time').textContent = mins + ':' + String(secs).padStart(2,'0');
 
-  let totalRem = timerState.remaining;
-  for (let i = timerState.idx; i < workout.length; i++) {
-    if (i === timerState.idx) {
-      if (timerState.phase === 'work') totalRem += workout[i].restSec;
-    } else {
-      totalRem += workout[i].workSec + workout[i].restSec;
+  // Total-remaining is meaningless during strength count-up (work duration is unknown),
+  // so we only show it for non-strength flows.
+  const totalEl = document.getElementById('t-total');
+  if (strengthWork) {
+    totalEl.textContent = '';
+  } else {
+    let totalRem = timerState.remaining;
+    for (let i = timerState.idx; i < workout.length; i++) {
+      if (i === timerState.idx) {
+        if (timerState.phase === 'work') totalRem += workout[i].restSec;
+      } else {
+        totalRem += workout[i].workSec + workout[i].restSec;
+      }
     }
+    const tMins = Math.floor(totalRem / 60);
+    const tSecs = totalRem % 60;
+    totalEl.textContent = tMins + ':' + String(tSecs).padStart(2,'0') + ' remaining';
   }
-  const tMins = Math.floor(totalRem / 60);
-  const tSecs = totalRem % 60;
-  document.getElementById('t-total').textContent = tMins + ':' + String(tSecs).padStart(2,'0') + ' remaining';
 
-  const maxSec = timerState.phase === 'work' ? w.workSec : w.restSec;
-  const pct = maxSec > 0 ? ((maxSec - timerState.remaining) / maxSec) * 100 : 0;
   const bar = document.getElementById('t-bar');
-  bar.style.width = pct + '%';
+  if (strengthWork) {
+    // No defined target; pulse-fill subtly using elapsed mod 60s as a moving indicator.
+    bar.style.width = ((timerState.elapsed || 0) % 60) / 60 * 100 + '%';
+  } else {
+    const maxSec = timerState.phase === 'work' ? w.workSec : w.restSec;
+    const pct = maxSec > 0 ? ((maxSec - timerState.remaining) / maxSec) * 100 : 0;
+    bar.style.width = pct + '%';
+  }
   bar.className = 'timer-progress-bar ' + timerState.phase;
 
   document.getElementById('t-ex-progress').textContent = 'Exercise ' + (timerState.idx + 1) + ' of ' + workout.length;
@@ -1570,6 +1654,43 @@ function updateTimerUI() {
   const addRestBtn = document.getElementById('t-add-rest');
   if (timerState.phase === 'rest') addRestBtn.classList.add('visible');
   else addRestBtn.classList.remove('visible');
+
+  // Strength-mode: show Done button during work; show rep target + weight input during rest.
+  const doneBtn = document.getElementById('t-strength-done');
+  const repEl = document.getElementById('t-rep-target');
+  const wEl = document.getElementById('t-weight-input');
+  const wInput = document.getElementById('t-weight-val');
+  const wSaved = document.getElementById('t-weight-saved');
+  const isStrengthMain = w && w.section === 'main' && config.type === 'strength';
+  if (isStrengthMain && timerState.phase === 'work') {
+    doneBtn.classList.add('visible');
+    repEl.textContent = 'Target: ' + window.builder.repTarget(w.exercise.diff);
+    wEl.classList.remove('visible');
+  } else if (isStrengthMain && timerState.phase === 'rest') {
+    doneBtn.classList.remove('visible');
+    repEl.textContent = '';
+    wEl.classList.add('visible');
+    // Sync the input value to the entry's saved weight so navigation between exercises preserves it.
+    wInput.value = w.actualWeightKg != null ? w.actualWeightKg : '';
+    wSaved.textContent = w.actualWeightKg != null ? 'saved' : '';
+  } else {
+    doneBtn.classList.remove('visible');
+    repEl.textContent = '';
+    wEl.classList.remove('visible');
+  }
+}
+
+function saveSetWeight() {
+  const w = workout[timerState.idx];
+  if (!w) return;
+  const val = parseFloat(document.getElementById('t-weight-val').value);
+  if (Number.isFinite(val) && val >= 0) {
+    w.actualWeightKg = val;
+    document.getElementById('t-weight-saved').textContent = 'saved';
+  } else {
+    delete w.actualWeightKg;
+    document.getElementById('t-weight-saved').textContent = '';
+  }
 }
 
 function addRest() {
@@ -1615,6 +1736,7 @@ function restartExercise() {
   unskip(timerState.idx);
   timerState.phase = 'work';
   timerState.remaining = w.workSec;
+  timerState.elapsed = 0;
   beepWork();
   speak(w.exercise.name);
   updateTimerUI();
@@ -1627,6 +1749,7 @@ function prevExercise() {
   const w = workout[timerState.idx];
   timerState.phase = 'work';
   timerState.remaining = w.workSec;
+  timerState.elapsed = 0;
   beepWork();
   speak(w.exercise.name);
   updateTimerUI();
@@ -1667,8 +1790,9 @@ function finishWorkout() {
       setIdx: w.setIdx ?? null,
       workSec: w.workSec,
       restSec: w.restSec,
+      actualWorkSec: w.actualWorkSec ?? null,
       completed: !skippedSet.has(i),
-      weightKg: null,
+      weightKg: w.actualWeightKg ?? null,
     })),
     rpe: null,
     note: null,
