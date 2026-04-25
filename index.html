@@ -178,7 +178,11 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .timer-progress-bar.work { background: var(--green); }
 .timer-progress-bar.rest { background: var(--accent); }
 .timer-ex-progress {
-  font-size: 0.8rem; color: var(--text-dim); margin-bottom: 32px;
+  font-size: 0.8rem; color: var(--text-dim); margin-bottom: 4px;
+}
+.timer-set-progress {
+  font-size: 0.75rem; color: var(--text-dim); opacity: 0.7;
+  margin-bottom: 32px; min-height: 1em;
 }
 .timer-controls { display: flex; gap: 12px; }
 .timer-controls .btn { min-width: 100px; }
@@ -213,6 +217,15 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .section-badge.warmup { background: #fbbf2422; color: var(--yellow); }
 .section-badge.main { background: #4f8cff22; color: var(--accent); }
 .section-badge.cooldown { background: #34d39922; color: var(--green); }
+
+.set-header {
+  font-size: 0.75rem; font-weight: 700; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 12px 4px 6px; margin-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.set-header:first-child { border-top: none; margin-top: 0; }
+.set-header .set-rest { color: var(--text-dim); opacity: 0.7; font-weight: 400; margin-left: 8px; }
 
 /* Audio/Voice toggle icons */
 .timer-toggles {
@@ -279,26 +292,12 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   </div>
 
   <div class="option-group">
-    <label>Work Period</label>
-    <div class="option-pills" id="work-pills">
-      <div class="pill" data-value="20" onclick="selectPill(this)">20<span class="pill-sub">sec</span></div>
-      <div class="pill" data-value="30" onclick="selectPill(this)">30<span class="pill-sub">sec</span></div>
-      <div class="pill" data-value="40" onclick="selectPill(this)">40<span class="pill-sub">sec</span></div>
-      <div class="pill selected" data-value="45" onclick="selectPill(this)">45<span class="pill-sub">sec</span></div>
-      <div class="pill" data-value="60" onclick="selectPill(this)">60<span class="pill-sub">sec</span></div>
-      <div class="pill" data-value="90" onclick="selectPill(this)">90<span class="pill-sub">sec</span></div>
-    </div>
-  </div>
-
-  <div class="option-group">
-    <label>Rest Period</label>
-    <div class="option-pills" id="rest-pills">
-      <div class="pill" data-value="10" onclick="selectPill(this)">10<span class="pill-sub">sec</span></div>
-      <div class="pill selected" data-value="15" onclick="selectPill(this)">15<span class="pill-sub">sec</span></div>
-      <div class="pill" data-value="20" onclick="selectPill(this)">20<span class="pill-sub">sec</span></div>
-      <div class="pill" data-value="30" onclick="selectPill(this)">30<span class="pill-sub">sec</span></div>
-      <div class="pill" data-value="45" onclick="selectPill(this)">45<span class="pill-sub">sec</span></div>
-      <div class="pill" data-value="60" onclick="selectPill(this)">60<span class="pill-sub">sec</span></div>
+    <label>Sets</label>
+    <div class="option-pills" id="sets-pills">
+      <div class="pill" data-value="1" onclick="selectPill(this)">1<span class="pill-sub">set</span></div>
+      <div class="pill" data-value="2" onclick="selectPill(this)">2<span class="pill-sub">sets</span></div>
+      <div class="pill selected" data-value="3" onclick="selectPill(this)">3<span class="pill-sub">sets</span></div>
+      <div class="pill" data-value="4" onclick="selectPill(this)">4<span class="pill-sub">sets</span></div>
     </div>
   </div>
 
@@ -340,6 +339,7 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   <div class="timer-total" id="t-total">Total: 12:30 remaining</div>
   <div class="timer-progress"><div class="timer-progress-bar" id="t-bar"></div></div>
   <div class="timer-ex-progress" id="t-ex-progress">Exercise 1 of 12</div>
+  <div class="timer-set-progress" id="t-set-progress"></div>
   <button class="btn-add-rest" id="t-add-rest" onclick="addRest()">+10s Rest</button>
   <div class="timer-controls">
     <button class="btn btn-ghost" onclick="togglePause()" id="t-pause">Pause</button>
@@ -374,6 +374,7 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   </div>
 </div>
 
+<script src="js/builder.js"></script>
 <script src="js/storage.js"></script>
 <script>
 // ═══════════════════════════════════════════════════
@@ -622,7 +623,7 @@ const DB = [
 // ═══════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════
-let config = { type:'hiit', duration:30, intensity:'moderate', workSec:45, restSec:15 };
+let config = { type:'hiit', duration:30, intensity:'moderate', sets:3 };
 let workout = [];
 let timerState = { running:false, paused:false, idx:0, phase:'work', remaining:0, intervalId:null, startedAt:null };
 let wasPausedBeforeInfo = false;
@@ -752,40 +753,15 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
-const TYPE_DEFAULTS = {
-  strength:    {work:50, rest:75},
-  hiit:        {work:30, rest:15},
-  conditioning:{work:40, rest:12},
-  functional:  {work:45, rest:30},
-};
-
-function selectPillByValue(groupId, value) {
-  const pills = document.getElementById(groupId).querySelectorAll('.pill');
-  let best = null, bestDiff = Infinity;
-  pills.forEach(p => {
-    p.classList.remove('selected');
-    const diff = Math.abs(parseInt(p.dataset.value) - value);
-    if (diff < bestDiff) { bestDiff = diff; best = p; }
-  });
-  if (best) best.classList.add('selected');
-  return parseInt(best.dataset.value);
-}
-
 function selectPill(el) {
   el.parentElement.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
   el.classList.add('selected');
   const group = el.parentElement.id;
   const val = el.dataset.value;
-  if (group === 'type-pills') {
-    config.type = val;
-    const defaults = TYPE_DEFAULTS[val];
-    config.workSec = selectPillByValue('work-pills', defaults.work);
-    config.restSec = selectPillByValue('rest-pills', defaults.rest);
-  }
+  if (group === 'type-pills') config.type = val;
   if (group === 'duration-pills') config.duration = parseInt(val);
   if (group === 'intensity-pills') config.intensity = val;
-  if (group === 'work-pills') config.workSec = parseInt(val);
-  if (group === 'rest-pills') config.restSec = parseInt(val);
+  if (group === 'sets-pills') config.sets = parseInt(val);
 }
 
 // ═══════════════════════════════════════════════════
@@ -806,14 +782,26 @@ const COOLDOWN_CATS = ['mobility'];
 
 function pickExercises(pool, count) { return shuffle([...pool]).slice(0, count); }
 
+function buildEntry(exercise, section) {
+  const { workSec, restSec } = window.builder.pickIntervals(
+    exercise.cat, exercise.diff, config.type, config.intensity, section
+  );
+  return { exercise, workSec, restSec, section };
+}
+
 function generateWorkout() {
   const warmupCount = 3, cooldownCount = 2;
+  const sets = config.sets || 1;
+  const interSetRest = window.builder.pickInterSetRest(config.intensity);
   const totalSec = config.duration * 60;
-  const warmupSec = warmupCount * (30 + 15);
-  const cooldownSec = cooldownCount * (30 + 10);
-  const mainSec = totalSec - warmupSec - cooldownSec;
-  const perExSec = config.workSec + config.restSec;
-  const mainCount = Math.max(4, Math.floor(mainSec / perExSec));
+
+  // Rough budget for picking main count; actual times come from pickIntervals per exercise.
+  const warmupSec = warmupCount * (30 + 12);
+  const cooldownSec = cooldownCount * (30 + 7);
+  const interSetSec = (sets - 1) * interSetRest;
+  const mainBudgetSec = Math.max(60, totalSec - warmupSec - cooldownSec - interSetSec);
+  const perSetSec = mainBudgetSec / sets;
+  const mainCount = Math.max(4, Math.round(perSetSec / 55));
 
   const typePool = DB.filter(e => e.types.includes(config.type));
 
@@ -840,9 +828,20 @@ function generateWorkout() {
   const cooldowns = pickExercises(cooldownPool, cooldownCount);
 
   workout = [];
-  warmups.forEach(e => workout.push({exercise:e, workSec:30, restSec:15, section:'warmup'}));
-  mainExercises.forEach(e => workout.push({exercise:e, workSec:config.workSec, restSec:config.restSec, section:'main'}));
-  cooldowns.forEach(e => workout.push({exercise:e, workSec:30, restSec:10, section:'cooldown'}));
+  warmups.forEach(e => workout.push(buildEntry(e, 'warmup')));
+  for (let s = 0; s < sets; s++) {
+    mainExercises.forEach((e, i) => {
+      const entry = buildEntry(e, 'main');
+      entry.setIdx = s;
+      // Last exercise in each non-final set gets the inter-set rest instead of normal rest.
+      if (i === mainExercises.length - 1 && s < sets - 1) {
+        entry.restSec = interSetRest;
+        entry.isInterSetRest = true;
+      }
+      workout.push(entry);
+    });
+  }
+  cooldowns.forEach(e => workout.push(buildEntry(e, 'cooldown')));
 
   renderPreview();
   showScreen('preview');
@@ -857,25 +856,34 @@ function renderPreview() {
   const totalWork = workout.reduce((s,w) => s + w.workSec, 0);
   const totalRest = workout.reduce((s,w) => s + w.restSec, 0);
   const totalMin = Math.ceil((totalWork + totalRest) / 60);
+  const sets = config.sets || 1;
+  const mainPerSet = workout.filter(w => w.section === 'main' && (w.setIdx ?? 0) === 0).length;
 
   document.getElementById('preview-meta').innerHTML =
     '<span class="meta-tag">'+config.type.toUpperCase()+'</span>'+
     '<span class="meta-tag">'+config.intensity+'</span>'+
     '<span class="meta-tag">~'+totalMin+' min</span>'+
-    '<span class="meta-tag">'+workout.length+' exercises</span>';
+    '<span class="meta-tag">'+sets+' &times; '+mainPerSet+' exercises</span>';
 
   const list = document.getElementById('exercise-list');
+  let lastSetIdx = -1;
   list.innerHTML = workout.map((w, i) => {
     const equipStr = w.exercise.equip.join(', ');
     const muscleStr = w.exercise.muscles.join(', ');
-    return '<div class="exercise-item" data-idx="'+i+'">'+
-      '<span class="ex-num">'+(i+1)+'</span>'+
-      '<div class="ex-info">'+
-        '<div class="ex-name">'+w.exercise.name+' '+infoBtn(w.exercise.name)+'<span class="section-badge '+w.section+'">'+w.section+'</span></div>'+
-        '<div class="ex-detail">'+w.workSec+'s work / '+w.restSec+'s rest &middot; '+equipStr+' &middot; '+muscleStr+'</div>'+
-      '</div>'+
-      '<button class="ex-remove" onclick="removeExercise('+i+')">&times;</button>'+
-    '</div>';
+    let header = '';
+    if (w.section === 'main' && w.setIdx !== lastSetIdx) {
+      lastSetIdx = w.setIdx;
+      header = '<div class="set-header">Set ' + (w.setIdx + 1) + ' of ' + sets + '</div>';
+    }
+    return header +
+      '<div class="exercise-item" data-idx="'+i+'">'+
+        '<span class="ex-num">'+(i+1)+'</span>'+
+        '<div class="ex-info">'+
+          '<div class="ex-name">'+w.exercise.name+' '+infoBtn(w.exercise.name)+'<span class="section-badge '+w.section+'">'+w.section+'</span></div>'+
+          '<div class="ex-detail">'+w.workSec+'s work / '+w.restSec+'s rest &middot; '+equipStr+' &middot; '+muscleStr+'</div>'+
+        '</div>'+
+        '<button class="ex-remove" onclick="removeExercise('+i+')">&times;</button>'+
+      '</div>';
   }).join('');
 }
 
@@ -998,6 +1006,13 @@ function updateTimerUI() {
 
   document.getElementById('t-ex-progress').textContent = 'Exercise ' + (timerState.idx + 1) + ' of ' + workout.length;
 
+  const setEl = document.getElementById('t-set-progress');
+  if (w.section === 'main' && config.sets > 1) {
+    setEl.textContent = 'Set ' + ((w.setIdx ?? 0) + 1) + ' of ' + config.sets;
+  } else {
+    setEl.textContent = w.section === 'warmup' ? 'Warmup' : (w.section === 'cooldown' ? 'Cooldown' : '');
+  }
+
   const nextIdx = timerState.idx + 1;
   document.getElementById('t-next').textContent = nextIdx < workout.length ? workout[nextIdx].exercise.name : 'Finish';
 
@@ -1063,14 +1078,15 @@ function finishWorkout() {
     date: new Date(timerState.startedAt).toISOString(),
     type: config.type,
     intensity: config.intensity,
-    workSec: config.workSec,
-    restSec: config.restSec,
+    sets: config.sets,
+    interSetRestSec: window.builder.pickInterSetRest(config.intensity),
     plannedDurationMin: config.duration,
     actualDurationSec,
     exercises: workout.map((w, i) => ({
       name: w.exercise.name,
       category: w.exercise.cat,
       section: w.section,
+      setIdx: w.setIdx ?? null,
       workSec: w.workSec,
       restSec: w.restSec,
       completed: !skippedSet.has(i),
