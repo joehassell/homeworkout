@@ -34,6 +34,8 @@ body { display:flex; flex-direction:column; }
 
 .screen { display:none; flex-direction:column; min-height:100vh; padding: 20px; padding-bottom: env(safe-area-inset-bottom, 20px); }
 .screen.active { display:flex; }
+.screen.has-nav { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+.screen-header { margin-bottom: 16px; }
 h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
 h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom: 12px; }
 .btn {
@@ -305,12 +307,84 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Bottom nav */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: none;
+  background: var(--surface); border-top: 1px solid var(--border);
+  padding: 6px 4px env(safe-area-inset-bottom, 6px);
+  z-index: 50;
+}
+.bottom-nav.visible { display: flex; }
+.bottom-nav .nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: none; border: none; color: var(--text-dim);
+  font-size: 0.7rem; padding: 8px 4px; cursor: pointer; touch-action: manipulation;
+  transition: color 0.15s;
+}
+.bottom-nav .nav-item.active { color: var(--accent); }
+.bottom-nav .nav-item:active { transform: scale(0.95); }
+
+/* History */
+.hist-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+.hist-stat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 6px; text-align: center; min-width: 0; }
+.hist-stat-val { font-size: 1.1rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-stat-lbl { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+.hist-section-label { font-size: 0.75rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.hist-heatmap-wrap { margin-bottom: 24px; }
+.heatmap {
+  display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-flow: column;
+  grid-template-rows: repeat(7, 1fr); gap: 3px;
+  background: var(--surface); padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+}
+.heatmap-cell { aspect-ratio: 1; border-radius: 3px; background: var(--surface2); }
+.heatmap-cell.hm-1 { background: #14532d; }
+.heatmap-cell.hm-2 { background: #166534; }
+.heatmap-cell.hm-3 { background: #16a34a; }
+.heatmap-cell.hm-4 { background: #4ade80; }
+
+.hist-list-wrap { margin-bottom: 8px; }
+.hist-empty { color: var(--text-dim); padding: 24px 0; text-align: center; font-size: 0.9rem; }
+.hist-row { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+.hist-row-head { padding: 12px 14px; cursor: pointer; touch-action: manipulation; }
+.hist-row-head:active { background: var(--surface2); }
+.hist-row-date { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+.hist-row-meta { display: flex; gap: 8px; font-size: 0.75rem; color: var(--text-dim); align-items: center; flex-wrap: wrap; }
+.hist-type { font-weight: 700; padding: 2px 6px; border-radius: 4px; background: var(--surface2); color: var(--text); }
+.hist-type.hiit { background: #4f8cff22; color: var(--accent); }
+.hist-type.strength { background: #fbbf2422; color: var(--yellow); }
+.hist-type.conditioning { background: #fb923c22; color: var(--orange); }
+.hist-type.functional { background: #34d39922; color: var(--green); }
+.hist-rpe { padding: 2px 6px; border-radius: 4px; background: var(--surface2); }
+.hist-note-badge { padding: 2px 6px; border-radius: 4px; background: var(--surface2); font-style: italic; }
+.hist-row-body { display: none; padding: 0 14px 12px; }
+.hist-row.expanded .hist-row-body { display: block; }
+.hist-row-note { font-size: 0.85rem; color: var(--text); padding: 8px 0; border-top: 1px solid var(--border); margin-bottom: 8px; }
+.hist-ex-list { list-style: none; padding: 0; margin: 0; font-size: 0.85rem; color: var(--text-dim); }
+.hist-ex-list li { padding: 4px 0; border-bottom: 1px solid var(--border); }
+.hist-ex-list li:last-child { border-bottom: none; }
+.hist-ex-meta { font-size: 0.75rem; opacity: 0.7; margin-left: 4px; }
+
+/* Settings */
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.settings-label { font-size: 1rem; color: var(--text); }
+.settings-toggle {
+  background: var(--surface2); color: var(--text-dim); border: 2px solid var(--border);
+  padding: 8px 20px; border-radius: 999px; font-weight: 700; font-size: 0.85rem;
+  cursor: pointer; touch-action: manipulation; min-width: 72px;
+}
+.settings-toggle.on { background: var(--accent-glow); color: var(--accent); border-color: var(--accent); }
 </style>
 </head>
 <body>
 
 <!-- SETUP -->
-<div id="setup" class="screen active">
+<div id="setup" class="screen has-nav active">
   <div class="setup-header">
     <h1>Workout Builder</h1>
     <p>Build your session</p>
@@ -459,6 +533,37 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   <button class="done-skip" onclick="skipFinish()">Skip</button>
 </div>
 
+<!-- HISTORY -->
+<div id="history" class="screen has-nav">
+  <div class="screen-header">
+    <h1>History</h1>
+  </div>
+  <div class="hist-stats" id="hist-stats"></div>
+  <div class="hist-heatmap-wrap">
+    <div class="hist-section-label">Last 12 weeks</div>
+    <div id="hist-heatmap"></div>
+  </div>
+  <div class="hist-list-wrap">
+    <div class="hist-section-label">Sessions</div>
+    <div id="hist-list"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings" class="screen has-nav">
+  <div class="screen-header">
+    <h1>Settings</h1>
+  </div>
+  <div class="settings-row">
+    <label class="settings-label" for="set-sound">Sound</label>
+    <button type="button" id="set-sound" class="settings-toggle" onclick="toggleSoundFromSettings()">On</button>
+  </div>
+  <div class="settings-row">
+    <label class="settings-label" for="set-voice">Voice</label>
+    <button type="button" id="set-voice" class="settings-toggle" onclick="toggleVoiceFromSettings()">On</button>
+  </div>
+</div>
+
 <!-- INFO MODAL -->
 <div class="modal-overlay" id="info-modal" onclick="closeInfoIfBg(event)">
   <div class="modal-content">
@@ -469,8 +574,25 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   </div>
 </div>
 
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="nav-item active" data-screen="setup" onclick="navTo('setup')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/></svg>
+    <span>Build</span>
+  </button>
+  <button class="nav-item" data-screen="history" onclick="navTo('history')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    <span>History</span>
+  </button>
+  <button class="nav-item" data-screen="settings" onclick="navTo('settings')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    <span>Settings</span>
+  </button>
+</nav>
+
 <script src="js/builder.js"></script>
 <script src="js/storage.js"></script>
+<script src="js/history.js"></script>
 <script>
 // ═══════════════════════════════════════════════════
 // EXERCISE DATABASE WITH INSTRUCTIONS
@@ -796,16 +918,61 @@ function speak(text) {
   speechSynthesis.speak(u);
 }
 
+function syncSoundUI() {
+  const t = document.getElementById('t-sound');
+  if (t) t.classList.toggle('active', soundEnabled);
+  const s = document.getElementById('set-sound');
+  if (s) {
+    s.classList.toggle('on', soundEnabled);
+    s.textContent = soundEnabled ? 'On' : 'Off';
+  }
+}
+
+function syncVoiceUI() {
+  const t = document.getElementById('t-voice');
+  if (t) t.classList.toggle('active', voiceEnabled);
+  const s = document.getElementById('set-voice');
+  if (s) {
+    s.classList.toggle('on', voiceEnabled);
+    s.textContent = voiceEnabled ? 'On' : 'Off';
+  }
+}
+
 function toggleSound() {
   soundEnabled = !soundEnabled;
-  document.getElementById('t-sound').classList.toggle('active', soundEnabled);
+  syncSoundUI();
+  saveAppSettings();
   if (soundEnabled) beep(880, 0.1, 0.2);
 }
 
 function toggleVoice() {
   voiceEnabled = !voiceEnabled;
-  document.getElementById('t-voice').classList.toggle('active', voiceEnabled);
+  syncVoiceUI();
+  saveAppSettings();
   if (voiceEnabled) speak('Voice on');
+}
+
+// Settings screen calls into the same toggles so timer + settings stay in sync.
+function toggleSoundFromSettings() { toggleSound(); }
+function toggleVoiceFromSettings() { toggleVoice(); }
+
+function loadAppSettings() {
+  try {
+    const raw = localStorage.getItem('wk_settings');
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (typeof s.soundEnabled === 'boolean') soundEnabled = s.soundEnabled;
+      if (typeof s.voiceEnabled === 'boolean') voiceEnabled = s.voiceEnabled;
+    }
+  } catch (e) {}
+  syncSoundUI();
+  syncVoiceUI();
+}
+
+function saveAppSettings() {
+  try {
+    localStorage.setItem('wk_settings', JSON.stringify({ soundEnabled, voiceEnabled }));
+  } catch (e) {}
 }
 
 // ═══════════════════════════════════════════════════
@@ -850,7 +1017,18 @@ function closeInfoIfBg(event) {
 // ═══════════════════════════════════════════════════
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  const target = document.getElementById(id);
+  target.classList.add('active');
+  const nav = document.getElementById('bottom-nav');
+  if (nav) nav.classList.toggle('visible', target.classList.contains('has-nav'));
+  document.querySelectorAll('.bottom-nav .nav-item').forEach(b => {
+    b.classList.toggle('active', b.dataset.screen === id);
+  });
+}
+
+function navTo(screen) {
+  if (screen === 'history' && window.history_view) window.history_view.refresh();
+  showScreen(screen);
 }
 function selectPill(el) {
   el.parentElement.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
@@ -1311,6 +1489,10 @@ document.addEventListener('visibilitychange', () => {
 });
 
 loadEquipmentSelection();
+loadAppSettings();
+// Make the bottom nav visible immediately on the initial active (setup) screen.
+document.getElementById('bottom-nav').classList.toggle('visible',
+  document.querySelector('.screen.active')?.classList.contains('has-nav'));
 </script>
 </body>
 </html>
