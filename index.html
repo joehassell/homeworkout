@@ -98,6 +98,33 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   touch-action: manipulation; flex-shrink: 0;
 }
 .exercise-item .ex-remove:active { background: #f8717122; }
+.exercise-item .ex-name-link { cursor: pointer; touch-action: manipulation; }
+.exercise-item .ex-name-link:active { opacity: 0.6; }
+.exercise-item.non-canonical { opacity: 0.55; }
+.exercise-item.non-canonical .ex-num { opacity: 0.6; }
+.ex-reorder { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+.ex-arrow {
+  width: 28px; height: 22px; padding: 0;
+  background: var(--surface2); color: var(--text-dim);
+  border: 1px solid var(--border); border-radius: 6px;
+  font-size: 0.6rem; line-height: 1;
+  cursor: pointer; touch-action: manipulation;
+  display: flex; align-items: center; justify-content: center;
+}
+.ex-arrow:active { background: var(--border); color: var(--text); }
+.ex-arrow:disabled { opacity: 0.25; cursor: default; }
+
+.swap-list { max-height: 50vh; overflow-y: auto; margin: 12px 0; display: flex; flex-direction: column; gap: 6px; }
+.swap-item {
+  text-align: left; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; color: var(--text);
+  cursor: pointer; touch-action: manipulation; transition: background 0.15s;
+}
+.swap-item:active { background: var(--border); }
+.swap-item-name { font-weight: 600; font-size: 0.95rem; }
+.swap-item-meta { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
+.swap-empty { color: var(--text-dim); font-size: 0.9rem; padding: 16px 0; text-align: center; }
+
 .preview-actions { display: flex; gap: 10px; }
 .preview-actions .btn { flex: 1; }
 
@@ -571,6 +598,15 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
     <div class="modal-meta" id="modal-meta"></div>
     <div class="modal-instructions" id="modal-body"></div>
     <button class="modal-close" onclick="closeInfo()">Got it</button>
+  </div>
+</div>
+
+<!-- SWAP MODAL -->
+<div class="modal-overlay" id="swap-modal" onclick="closeSwapIfBg(event)">
+  <div class="modal-content">
+    <h2 id="swap-title">Swap exercise</h2>
+    <div class="swap-list" id="swap-list"></div>
+    <button class="modal-close" onclick="closeSwap()">Cancel</button>
   </div>
 </div>
 
@@ -1164,12 +1200,73 @@ function infoBtn(name) {
   return '<button class="info-btn" onclick="event.stopPropagation();showInfo(\''+safeName+'\')" aria-label="Info">i</button>';
 }
 
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// ── Workout structure helpers ────────────────────────────────
+// All assume the layout: [warmup...][main set 0...][main set 1...]...[cooldown...]
+function getMainStructure() {
+  const sets = config.sets || 1;
+  const mainEntries = workout.filter(w => w.section === 'main');
+  const warmupIdx = workout.findIndex(w => w.section === 'main');
+  return {
+    sets,
+    mainPerSet: sets > 0 ? Math.round(mainEntries.length / sets) : 0,
+    warmupCount: warmupIdx < 0 ? workout.filter(w => w.section === 'warmup').length : warmupIdx,
+  };
+}
+function mainPosOfIdx(idx) {
+  const w = workout[idx];
+  if (!w || w.section !== 'main') return null;
+  const { warmupCount, mainPerSet } = getMainStructure();
+  if (mainPerSet === 0) return null;
+  const offset = idx - warmupCount;
+  return { set: Math.floor(offset / mainPerSet), pos: offset % mainPerSet };
+}
+function mainIdxAt(set, pos) {
+  const { warmupCount, mainPerSet } = getMainStructure();
+  return warmupCount + set * mainPerSet + pos;
+}
+function lockstepIndices(idx) {
+  const info = mainPosOfIdx(idx);
+  if (!info) return [idx];
+  const { sets } = getMainStructure();
+  const out = [];
+  for (let s = 0; s < sets; s++) out.push(mainIdxAt(s, info.pos));
+  return out;
+}
+// Reapply rest values: pickIntervals per entry, then bake inter-set rest into the
+// last main entry of each non-final set.
+function applyInterSetRest() {
+  const { warmupCount, mainPerSet, sets } = getMainStructure();
+  const interSetRest = window.builder.pickInterSetRest(config.intensity);
+  for (let s = 0; s < sets; s++) {
+    for (let p = 0; p < mainPerSet; p++) {
+      const idx = warmupCount + s * mainPerSet + p;
+      const entry = workout[idx];
+      if (!entry) continue;
+      const { workSec, restSec } = window.builder.pickIntervals(
+        entry.exercise.cat, entry.exercise.diff, config.type, config.intensity, 'main'
+      );
+      entry.workSec = workSec;
+      if (p === mainPerSet - 1 && s < sets - 1) {
+        entry.restSec = interSetRest;
+        entry.isInterSetRest = true;
+      } else {
+        entry.restSec = restSec;
+        delete entry.isInterSetRest;
+      }
+    }
+  }
+}
+
 function renderPreview() {
   const totalWork = workout.reduce((s,w) => s + w.workSec, 0);
   const totalRest = workout.reduce((s,w) => s + w.restSec, 0);
   const totalMin = Math.ceil((totalWork + totalRest) / 60);
   const sets = config.sets || 1;
-  const mainPerSet = workout.filter(w => w.section === 'main' && (w.setIdx ?? 0) === 0).length;
+  const { mainPerSet } = getMainStructure();
 
   document.getElementById('preview-meta').innerHTML =
     '<span class="meta-tag">'+config.type.toUpperCase()+'</span>'+
@@ -1187,20 +1284,159 @@ function renderPreview() {
       lastSetIdx = w.setIdx;
       header = '<div class="set-header">Set ' + (w.setIdx + 1) + ' of ' + sets + '</div>';
     }
+
+    // Canonical row: editable. Warmup, cooldown, and main set 0 only.
+    const canonical = w.section !== 'main' || (w.setIdx ?? 0) === 0;
+
+    let canUp = false, canDown = false;
+    if (canonical) {
+      if (w.section === 'main') {
+        const info = mainPosOfIdx(i);
+        canUp = info && info.pos > 0;
+        canDown = info && info.pos < mainPerSet - 1;
+      } else {
+        const prev = workout[i-1], next = workout[i+1];
+        canUp = !!(prev && prev.section === w.section);
+        canDown = !!(next && next.section === w.section);
+      }
+    }
+
+    const nameInner = escapeHtml(w.exercise.name) + ' ' + infoBtn(w.exercise.name) +
+      '<span class="section-badge '+w.section+'">'+w.section+'</span>';
+    const nameHtml = canonical
+      ? '<div class="ex-name ex-name-link" onclick="openSwapPicker('+i+')">'+nameInner+'</div>'
+      : '<div class="ex-name">'+nameInner+'</div>';
+
+    const controls = canonical
+      ? ('<div class="ex-reorder">' +
+           '<button class="ex-arrow" '+(canUp?'':'disabled ')+'onclick="moveUp('+i+')" aria-label="Move up">&#x25B2;</button>' +
+           '<button class="ex-arrow" '+(canDown?'':'disabled ')+'onclick="moveDown('+i+')" aria-label="Move down">&#x25BC;</button>' +
+         '</div>' +
+         '<button class="ex-remove" onclick="removeExercise('+i+')" aria-label="Remove">&times;</button>')
+      : '';
+
     return header +
-      '<div class="exercise-item" data-idx="'+i+'">'+
+      '<div class="exercise-item'+(canonical?'':' non-canonical')+'" data-idx="'+i+'">'+
         '<span class="ex-num">'+(i+1)+'</span>'+
         '<div class="ex-info">'+
-          '<div class="ex-name">'+w.exercise.name+' '+infoBtn(w.exercise.name)+'<span class="section-badge '+w.section+'">'+w.section+'</span></div>'+
-          '<div class="ex-detail">'+w.workSec+'s work / '+w.restSec+'s rest &middot; '+equipStr+' &middot; '+muscleStr+'</div>'+
+          nameHtml +
+          '<div class="ex-detail">'+w.workSec+'s work / '+w.restSec+'s rest &middot; '+escapeHtml(equipStr)+' &middot; '+escapeHtml(muscleStr)+'</div>'+
         '</div>'+
-        '<button class="ex-remove" onclick="removeExercise('+i+')">&times;</button>'+
+        controls +
       '</div>';
   }).join('');
 }
 
 function removeExercise(idx) {
-  workout.splice(idx, 1);
+  const w = workout[idx];
+  if (!w) return;
+  if (w.section === 'main') {
+    // Drop all set occurrences at the same position. Remove descending so earlier splices don't shift later targets.
+    const targets = lockstepIndices(idx).sort((a, b) => b - a);
+    targets.forEach(i => workout.splice(i, 1));
+    applyInterSetRest();
+  } else {
+    workout.splice(idx, 1);
+  }
+  renderPreview();
+}
+
+function moveUp(idx) {
+  const w = workout[idx];
+  if (!w) return;
+  if (w.section === 'main') {
+    const info = mainPosOfIdx(idx);
+    if (!info || info.pos === 0) return;
+    const { sets } = getMainStructure();
+    for (let s = 0; s < sets; s++) {
+      const a = mainIdxAt(s, info.pos), b = mainIdxAt(s, info.pos - 1);
+      [workout[a], workout[b]] = [workout[b], workout[a]];
+    }
+    applyInterSetRest();
+  } else {
+    const prev = workout[idx - 1];
+    if (!prev || prev.section !== w.section) return;
+    [workout[idx - 1], workout[idx]] = [workout[idx], workout[idx - 1]];
+  }
+  renderPreview();
+}
+
+function moveDown(idx) {
+  const w = workout[idx];
+  if (!w) return;
+  if (w.section === 'main') {
+    const info = mainPosOfIdx(idx);
+    const { sets, mainPerSet } = getMainStructure();
+    if (!info || info.pos >= mainPerSet - 1) return;
+    for (let s = 0; s < sets; s++) {
+      const a = mainIdxAt(s, info.pos), b = mainIdxAt(s, info.pos + 1);
+      [workout[a], workout[b]] = [workout[b], workout[a]];
+    }
+    applyInterSetRest();
+  } else {
+    const next = workout[idx + 1];
+    if (!next || next.section !== w.section) return;
+    [workout[idx + 1], workout[idx]] = [workout[idx], workout[idx + 1]];
+  }
+  renderPreview();
+}
+
+// ── Swap picker modal ────────────────────────────────────────
+let pendingSwapIdx = null;
+
+function openSwapPicker(idx) {
+  const entry = workout[idx];
+  if (!entry) return;
+  pendingSwapIdx = idx;
+  const cat = entry.exercise.cat;
+  const baseFilter = e => e.cat === cat && exerciseAvailable(e) && e.name !== entry.exercise.name;
+  const alts = entry.section === 'main'
+    ? DB.filter(e => baseFilter(e) && e.types.includes(config.type))
+    : DB.filter(baseFilter);
+  document.getElementById('swap-title').textContent = 'Swap "' + entry.exercise.name + '"';
+  const list = document.getElementById('swap-list');
+  if (alts.length === 0) {
+    list.innerHTML = '<div class="swap-empty">No alternatives match your equipment selection.</div>';
+  } else {
+    list.innerHTML = alts.map(e => {
+      const safeName = e.name.replace(/'/g, "\\'");
+      return '<button class="swap-item" onclick="chooseSwap(\'' + safeName + '\')">' +
+        '<div class="swap-item-name">' + escapeHtml(e.name) + '</div>' +
+        '<div class="swap-item-meta">' + escapeHtml(e.equip.join(', ')) + ' &middot; ' + escapeHtml(e.muscles.join(', ')) + '</div>' +
+      '</button>';
+    }).join('');
+  }
+  document.getElementById('swap-modal').classList.add('active');
+}
+
+function closeSwap() {
+  pendingSwapIdx = null;
+  document.getElementById('swap-modal').classList.remove('active');
+}
+
+function closeSwapIfBg(event) {
+  if (event.target.id === 'swap-modal') closeSwap();
+}
+
+function chooseSwap(name) {
+  if (pendingSwapIdx == null) { closeSwap(); return; }
+  const idx = pendingSwapIdx;
+  const entry = workout[idx];
+  const newEx = DB.find(e => e.name === name);
+  if (!entry || !newEx) { closeSwap(); return; }
+  const targets = entry.section === 'main' ? lockstepIndices(idx) : [idx];
+  targets.forEach(i => {
+    const t = workout[i];
+    if (!t) return;
+    t.exercise = newEx;
+    const { workSec, restSec } = window.builder.pickIntervals(
+      newEx.cat, newEx.diff, config.type, config.intensity, t.section
+    );
+    t.workSec = workSec;
+    t.restSec = restSec;
+  });
+  if (entry.section === 'main') applyInterSetRest();
+  closeSwap();
   renderPreview();
 }
 
