@@ -374,6 +374,7 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   </div>
 </div>
 
+<script src="js/storage.js"></script>
 <script>
 // ═══════════════════════════════════════════════════
 // EXERCISE DATABASE WITH INSTRUCTIONS
@@ -891,7 +892,12 @@ let wakeLock = null;
 function startWorkout() {
   if (workout.length === 0) return;
   ensureAudio();
-  timerState = { running:true, paused:false, idx:0, phase:'work', remaining:workout[0].workSec, intervalId:null, startedAt:Date.now() };
+  timerState = {
+    running:true, paused:false, idx:0, phase:'work',
+    remaining:workout[0].workSec, intervalId:null,
+    startedAt:Date.now(), pausedAt:null, pausedAccumMs:0,
+    extraRestSec:0, skippedExercises:[]
+  };
   showScreen('timer');
   // Reset toggle UI state
   document.getElementById('t-sound').classList.toggle('active', soundEnabled);
@@ -1006,6 +1012,7 @@ function addRest() {
   if (timerState.phase === 'rest' && timerState.running) {
     timerState.remaining += 10;
     workout[timerState.idx].restSec += 10;
+    timerState.extraRestSec += 10;
     updateTimerUI();
     beep(550, 0.1, 0.2);
   }
@@ -1013,10 +1020,20 @@ function addRest() {
 
 function togglePause() {
   timerState.paused = !timerState.paused;
+  if (timerState.paused) {
+    timerState.pausedAt = Date.now();
+  } else if (timerState.pausedAt) {
+    timerState.pausedAccumMs += Date.now() - timerState.pausedAt;
+    timerState.pausedAt = null;
+  }
   updateTimerUI();
 }
 
 function skipPhase() {
+  // Skipping during work counts the current exercise as skipped (not completed).
+  if (timerState.phase === 'work' && timerState.remaining > 0) {
+    timerState.skippedExercises.push(timerState.idx);
+  }
   timerState.remaining = 0;
   advancePhase();
   if (timerState.running) updateTimerUI();
@@ -1035,9 +1052,36 @@ function finishWorkout() {
   releaseWakeLock();
   beepDone();
 
-  const elapsed = Math.round((Date.now() - timerState.startedAt) / 1000);
-  const eMins = Math.floor(elapsed / 60);
-  const eSecs = elapsed % 60;
+  // Wall-clock minus paused-ms (per Sprint 1 plan).
+  const pausedMs = timerState.pausedAccumMs + (timerState.pausedAt ? Date.now() - timerState.pausedAt : 0);
+  const actualDurationSec = Math.max(0, Math.round((Date.now() - timerState.startedAt - pausedMs) / 1000));
+  const eMins = Math.floor(actualDurationSec / 60);
+  const eSecs = actualDurationSec % 60;
+
+  const skippedSet = new Set(timerState.skippedExercises);
+  const session = {
+    date: new Date(timerState.startedAt).toISOString(),
+    type: config.type,
+    intensity: config.intensity,
+    workSec: config.workSec,
+    restSec: config.restSec,
+    plannedDurationMin: config.duration,
+    actualDurationSec,
+    exercises: workout.map((w, i) => ({
+      name: w.exercise.name,
+      category: w.exercise.cat,
+      section: w.section,
+      workSec: w.workSec,
+      restSec: w.restSec,
+      completed: !skippedSet.has(i),
+      weightKg: null,
+    })),
+    rpe: null,
+    note: null,
+    skippedCount: timerState.skippedExercises.length,
+    extraRestSec: timerState.extraRestSec,
+  };
+  try { window.storage && window.storage.appendSession(session); } catch (e) {}
 
   document.getElementById('d-exercises').textContent = workout.length;
   document.getElementById('d-time').textContent = eMins + ':' + String(eSecs).padStart(2,'0');
