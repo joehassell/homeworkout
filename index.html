@@ -69,6 +69,8 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .pill:active { transform: scale(0.96); }
 .pill .pill-sub { display: block; font-size: 0.7rem; color: var(--text-dim); margin-top: 2px; }
 .pill.selected .pill-sub { color: var(--accent); opacity: 0.7; }
+.option-pills-multi .pill { flex: 0 1 auto; min-width: 0; padding: 8px 14px; font-size: 0.85rem; }
+.option-pills-multi .pill:not(.selected) { opacity: 0.5; }
 .generate-section { margin-top: auto; padding-top: 20px; }
 
 /* Preview */
@@ -305,6 +307,21 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
       <div class="pill" data-value="2" onclick="selectPill(this)">2<span class="pill-sub">sets</span></div>
       <div class="pill selected" data-value="3" onclick="selectPill(this)">3<span class="pill-sub">sets</span></div>
       <div class="pill" data-value="4" onclick="selectPill(this)">4<span class="pill-sub">sets</span></div>
+    </div>
+  </div>
+
+  <div class="option-group">
+    <label>Equipment Available</label>
+    <div class="option-pills option-pills-multi" id="equipment-pills">
+      <div class="pill selected" data-value="bodyweight" onclick="toggleEquipmentPill(this)">Bodyweight</div>
+      <div class="pill selected" data-value="mat" onclick="toggleEquipmentPill(this)">Mat</div>
+      <div class="pill selected" data-value="dumbbell" onclick="toggleEquipmentPill(this)">Dumbbell</div>
+      <div class="pill selected" data-value="kettlebell" onclick="toggleEquipmentPill(this)">Kettlebell</div>
+      <div class="pill selected" data-value="barbell" onclick="toggleEquipmentPill(this)">Barbell</div>
+      <div class="pill selected" data-value="bench" onclick="toggleEquipmentPill(this)">Bench</div>
+      <div class="pill selected" data-value="chinup bar" onclick="toggleEquipmentPill(this)">Chin-up Bar</div>
+      <div class="pill selected" data-value="medicine ball" onclick="toggleEquipmentPill(this)">Medicine Ball</div>
+      <div class="pill selected" data-value="skipping rope" onclick="toggleEquipmentPill(this)">Skipping Rope</div>
     </div>
   </div>
 
@@ -635,6 +652,8 @@ const DB = [
 // STATE
 // ═══════════════════════════════════════════════════
 let config = { type:'hiit', duration:30, intensity:'moderate', sets:3 };
+const ALL_EQUIPMENT = ['bodyweight','mat','dumbbell','kettlebell','barbell','bench','chinup bar','medicine ball','skipping rope'];
+let selectedEquipment = new Set(ALL_EQUIPMENT);
 let workout = [];
 let timerState = { running:false, paused:false, idx:0, phase:'work', remaining:0, intervalId:null, startedAt:null };
 let wasPausedBeforeInfo = false;
@@ -775,6 +794,41 @@ function selectPill(el) {
   if (group === 'sets-pills') config.sets = parseInt(val);
 }
 
+function toggleEquipmentPill(el) {
+  const val = el.dataset.value;
+  if (selectedEquipment.has(val)) {
+    selectedEquipment.delete(val);
+    el.classList.remove('selected');
+  } else {
+    selectedEquipment.add(val);
+    el.classList.add('selected');
+  }
+  saveEquipmentSelection();
+}
+
+function loadEquipmentSelection() {
+  try {
+    const raw = localStorage.getItem('wk_equipment');
+    if (!raw) return; // default = all selected
+    const arr = JSON.parse(raw);
+    if (Array.isArray(arr)) selectedEquipment = new Set(arr);
+  } catch (e) {}
+  // Sync pill UI to the loaded set
+  document.querySelectorAll('#equipment-pills .pill').forEach(p => {
+    p.classList.toggle('selected', selectedEquipment.has(p.dataset.value));
+  });
+}
+
+function saveEquipmentSelection() {
+  try {
+    localStorage.setItem('wk_equipment', JSON.stringify([...selectedEquipment]));
+  } catch (e) {}
+}
+
+function exerciseAvailable(e) {
+  return e.equip.every(eq => selectedEquipment.has(eq));
+}
+
 // ═══════════════════════════════════════════════════
 // GENERATION
 // ═══════════════════════════════════════════════════
@@ -814,9 +868,9 @@ function generateWorkout() {
   const perSetSec = mainBudgetSec / sets;
   const mainCount = Math.max(4, Math.round(perSetSec / 55));
 
-  const typePool = DB.filter(e => e.types.includes(config.type));
+  const typePool = DB.filter(e => e.types.includes(config.type) && exerciseAvailable(e));
 
-  const warmupPool = DB.filter(e => WARMUP_CATS.includes(e.cat));
+  const warmupPool = DB.filter(e => WARMUP_CATS.includes(e.cat) && exerciseAvailable(e));
   const warmups = pickExercises(warmupPool, warmupCount);
 
   let mainExercises = [];
@@ -835,7 +889,7 @@ function generateWorkout() {
   }
   mainExercises = shuffle(mainExercises);
 
-  const cooldownPool = DB.filter(e => COOLDOWN_CATS.includes(e.cat));
+  const cooldownPool = DB.filter(e => COOLDOWN_CATS.includes(e.cat) && exerciseAvailable(e));
   const cooldowns = pickExercises(cooldownPool, cooldownCount);
 
   workout = [];
@@ -1153,6 +1207,8 @@ function releaseWakeLock() {
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && timerState.running) requestWakeLock();
 });
+
+loadEquipmentSelection();
 </script>
 </body>
 </html>
