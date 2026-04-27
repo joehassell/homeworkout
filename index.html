@@ -281,6 +281,29 @@ html.is-native .ios-fs-hint { display: none !important; }
   padding-top: 24px;
 }
 
+/* Setup screen: internal scroll with always-visible CTA */
+#setup.active {
+  overflow: hidden;
+  min-height: 0;
+  height: 100vh; height: 100dvh;
+  padding: 0;
+}
+#setup .setup-scroll-area {
+  flex: 1 1 0%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px;
+  padding-bottom: 8px;
+  min-height: 0;
+}
+#setup .generate-section {
+  flex-shrink: 0;
+  margin-top: 0;
+  padding: 12px 20px calc(62px + env(safe-area-inset-bottom, 0px) + 12px);
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+
 /* Preview */
 #preview { gap: 0; }
 .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
@@ -715,6 +738,7 @@ html.is-native .ios-fs-hint { display: none !important; }
 
 <!-- SETUP -->
 <div id="setup" class="screen has-nav active">
+  <div class="setup-scroll-area">
   <div class="setup-header">
     <h1>Workout Builder</h1>
     <p>Build your session</p>
@@ -787,6 +811,7 @@ html.is-native .ios-fs-hint { display: none !important; }
     </div>
   </div>
 
+  </div><!-- /.setup-scroll-area -->
   <div class="generate-section">
     <div class="gen-error" id="gen-error"></div>
     <button class="btn btn-primary btn-full" onclick="generateWorkout()" style="font-size:1.1rem;padding:16px;">Generate Workout</button>
