@@ -164,9 +164,13 @@ html, body {
 }
 body { display:flex; flex-direction:column; }
 
-.screen { display:none; flex-direction:column; min-height:100vh; padding: 20px; padding-bottom: env(safe-area-inset-bottom, 20px); }
+/* Use dvh (dynamic viewport) where supported so iOS Safari's URL-bar dance doesn't
+   stretch content past the visible area; fall back to vh for older browsers. */
+.screen { display:none; flex-direction:column; min-height:100vh; min-height:100dvh; padding: 20px; padding-bottom: env(safe-area-inset-bottom, 20px); }
 .screen.active { display:flex; }
-.screen.has-nav { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+/* Generous bottom clearance: nav (~62-96px depending on safe-area) + a clear ~50px gap
+   so the last in-flow control (Generate Workout) is unambiguously above the nav. */
+.screen.has-nav { padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
 .screen-header { margin-bottom: 16px; }
 h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
 h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom: 12px; }
