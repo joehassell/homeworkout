@@ -273,16 +273,9 @@ html.is-native .ios-fs-hint { display: none !important; }
   font-size: 0.8rem; font-weight: 600; cursor: pointer;
 }
 .generate-section {
-  position: fixed;
-  left: 16px; right: 16px;
-  bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 8px);
-  z-index: 40;
-  padding: 14px 0 0;
-  background: linear-gradient(to bottom, transparent, var(--bg) 35%, var(--bg));
+  margin-top: auto;
+  padding-top: 24px;
 }
-/* When the Generate footer is fixed, give the setup screen extra bottom padding
-   so its scrollable content doesn't slide under the CTA. */
-#setup.has-nav { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 88px); }
 
 /* Preview */
 #preview { gap: 0; }
