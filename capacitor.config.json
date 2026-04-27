@@ -1,0 +1,25 @@
+{
+  "appId": "com.nomaen.homeworkout",
+  "appName": "SimpleWorkoutGen",
+  "webDir": "www",
+  "server": {
+    "iosScheme": "ionic"
+  },
+  "ios": {
+    "scheme": "App",
+    "contentInset": "always",
+    "limitsNavigationsToAppBoundDomains": false,
+    "preferredContentMode": "mobile"
+  },
+  "plugins": {
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0a0a0f",
+      "overlaysWebView": false
+    },
+    "Keyboard": {
+      "resize": "native",
+      "style": "DARK"
+    }
+  }
+}
