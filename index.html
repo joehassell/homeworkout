@@ -1689,11 +1689,6 @@ function focusOrderedPool(pool) {
   return expanded.filter(e => !seen.has(e.name) && seen.add(e.name));
 }
 
-function pickFromCats(pool, cats, count, exclude) {
-  const filtered = pool.filter(e => cats.includes(e.cat) && !exclude.has(e.name));
-  return shuffle([...filtered]).slice(0, count);
-}
-
 function pickPulseRaiser(equipment) {
   // Prefer skipping rope when available; else any cardio.
   const skip = DB.find(e => e.name === 'Skipping Rope' && e.equip.every(eq => equipment.has(eq)));
@@ -1868,19 +1863,22 @@ function generateWorkout() {
   // Solve for mainCount per set so total ≈ totalSec.
   // Work block budget = totalSec - warmup - 60 - 300.
   const mainBudget = totalSec - wDur - POST_WARMUP_REST - COOLDOWN_DUR;
-  // Estimate average per-exercise time to size the per-set count.
+  // Estimate per-exercise time at intensity-scaled rest for normal sizing,
+  // then again at minimum rest for the upper cap (so reconcile can pad upward).
   const sample = focusOrderedPool(typePool).slice(0, 12);
-  const avgPer = sample.length
-    ? sample.reduce((acc, ex) => {
-        const intensity = deriveIntensity(ex, config.type, config.intensity);
-        const r = config.type === 'strength' ? 30 : window.builder.pickIntervals(ex.cat, ex.diff, config.type, config.intensity, 'main').workSec;
-        const work = ex.single_sided ? r * 2 : r;
-        return acc + work + SET_REST[intensity];
-      }, 0) / sample.length
-    : 90;
-  let mainCount = Math.max(2, Math.round((mainBudget / sets) / avgPer));
-  // Cap so we don't over-pack: at most one of each from typePool.
-  mainCount = Math.min(mainCount, typePool.length, 10);
+  function avgWith(restPicker) {
+    if (!sample.length) return 90;
+    return sample.reduce((acc, ex) => {
+      const r = config.type === 'strength' ? 30 : window.builder.pickIntervals(ex.cat, ex.diff, config.type, config.intensity, 'main').workSec;
+      const work = ex.single_sided ? r * 2 : r;
+      return acc + work + restPicker(ex);
+    }, 0) / sample.length;
+  }
+  const avgPer = avgWith(ex => SET_REST[deriveIntensity(ex, config.type, config.intensity)]);
+  const minPer = avgWith(_ => SET_REST.light); // 60s floor
+  let mainCount = Math.max(1, Math.round((mainBudget / sets) / avgPer));
+  const maxThatFits = Math.max(1, Math.floor((mainBudget / sets) / minPer));
+  mainCount = Math.min(mainCount, maxThatFits, typePool.length, 10);
 
   // Pick mainExercises distributed across body groups (region cats), focus-weighted.
   const ordered = focusOrderedPool(typePool);
@@ -1923,12 +1921,21 @@ function generateWorkout() {
   }
   cooldownEntries.forEach(e => workout.push(e));
 
-  // Reconcile total time exactly: pad/trim by adjusting the LAST main entry's restSec.
+  // Reconcile total time. reconcileTotalTime zeroes the last-main rest first
+  // (cooldown follows directly), then absorbs delta in earlier main rests + last cooldown.
   reconcileTotalTime(totalSec);
 
-  // The last main entry rests into cooldown — 0 it out so cooldown follows immediately.
-  const lastMainIdx = workout.map(w => w.section).lastIndexOf('main');
-  if (lastMainIdx >= 0) workout[lastMainIdx].restSec = 0;
+  // If we still can't fit the requested duration, refuse rather than silently overshoot.
+  // Strength sessions skip this check (count-up work has unknown duration).
+  if (config.type !== 'strength') {
+    const final = workoutScheduledSec();
+    const tolSec = 30;
+    if (final > totalSec + tolSec) {
+      showGenError('Cannot fit ' + sets + ' set' + (sets===1?'':'s') + ' in ' + config.duration + ' min with the minimum rest. Try fewer sets or a longer session.');
+      workout = [];
+      return;
+    }
+  }
 
   renderPreview();
   showScreen('preview');
@@ -1943,21 +1950,25 @@ function workoutScheduledSec() {
 }
 
 function reconcileTotalTime(targetSec) {
-  if (config.type === 'strength') return; // count-up sets have unknown duration; skip
+  // Last main entry rests directly into cooldown — zero it first so it isn't a knob.
+  const lastMainIdx = workout.map(w => w.section).lastIndexOf('main');
+  if (lastMainIdx >= 0) workout[lastMainIdx].restSec = 0;
+
+  if (config.type === 'strength') return; // count-up sets have unknown duration; only zero last-main
+
   const cur = workoutScheduledSec();
   let delta = targetSec - cur;
   if (delta === 0) return;
-  // Find the last main entry with non-zero restSec (we'll adjust it).
-  for (let i = workout.length - 1; i >= 0; i--) {
+  // Adjust earlier main rests within the 60-180s band (PDR §6.4).
+  for (let i = lastMainIdx - 1; i >= 0; i--) {
     const w = workout[i];
     if (w.section !== 'main') continue;
-    // PDR §6.4 allows 60-180s for set rest; honor the band as much as possible.
     const newRest = Math.max(60, Math.min(180, (w.restSec || 0) + delta));
     delta -= (newRest - (w.restSec || 0));
     w.restSec = newRest;
     if (delta === 0) break;
   }
-  // Any residual: lengthen the last cooldown movement (PDR §9 gap policy).
+  // Residual: lengthen the last cooldown movement (PDR §9 gap policy).
   if (delta !== 0) {
     for (let i = workout.length - 1; i >= 0; i--) {
       if (workout[i].section === 'cooldown') {
