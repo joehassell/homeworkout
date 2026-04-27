@@ -270,11 +270,16 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   font-size: 0.8rem; font-weight: 600; cursor: pointer;
 }
 .generate-section {
-  position: sticky;
-  bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 12px);
-  margin-top: auto; padding: 16px 0 0; z-index: 10;
-  background: linear-gradient(to bottom, transparent, var(--bg) 35%);
+  position: fixed;
+  left: 16px; right: 16px;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 8px);
+  z-index: 40;
+  padding: 14px 0 0;
+  background: linear-gradient(to bottom, transparent, var(--bg) 35%, var(--bg));
 }
+/* When the Generate footer is fixed, give the setup screen extra bottom padding
+   so its scrollable content doesn't slide under the CTA. */
+#setup.has-nav { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 88px); }
 
 /* Preview */
 #preview { gap: 0; }
@@ -469,16 +474,19 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .strength-weight-input input:focus { border-color: var(--accent); }
 .strength-weight-saved { font-size: 0.75rem; color: var(--green); min-width: 50px; }
 .timer-upcoming {
-  position: absolute; bottom: max(env(safe-area-inset-bottom, 20px), 20px);
-  left: 20px; right: 20px; text-align: center;
+  margin-top: auto;
+  width: 100%; max-width: 500px;
+  padding: 16px 4px max(env(safe-area-inset-bottom, 12px), 12px);
+  text-align: center; align-self: center;
 }
 .timer-upcoming-label { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
 .timer-upcoming-name { font-size: 1.25rem; font-weight: 700; color: var(--text); margin-top: 4px; line-height: 1.2; }
 .timer-upcoming-info {
-  font-size: 0.8rem; color: var(--text-dim); opacity: 0.85;
-  margin-top: 8px; max-height: 38vh; overflow-y: auto;
+  font-size: 0.8rem; color: var(--text-dim); opacity: 0.9;
+  margin-top: 10px; max-height: 30vh; overflow-y: auto;
   text-align: left; line-height: 1.4;
-  padding: 0 4px;
+  padding: 8px 10px; border-radius: 8px;
+  background: var(--surface); border: 1px solid var(--border);
 }
 .timer-upcoming-info:empty { display: none; }
 .btn-with-icon { gap: 8px; }
@@ -1702,7 +1710,7 @@ function buildWarmup(type, equipment, totalSec, usedNames) {
   const pulse = pickPulseRaiser(equipment);
   const out = [];
   if (pulse) {
-    out.push({ exercise: pulse, workSec: PULSE_RAISER_DUR, restSec: 0, section: 'warmup', continuous: true });
+    out.push({ exercise: pulse, workSec: PULSE_RAISER_DUR, restSec: 0, section: 'warmup', continuous: true, single_sided: !!pulse.single_sided });
     usedNames.add(pulse.name);
   }
   let remaining = totalSec - (pulse ? PULSE_RAISER_DUR : 0);
@@ -1730,8 +1738,12 @@ function buildWarmup(type, equipment, totalSec, usedNames) {
   }
   for (const ex of ordered) {
     if (remaining <= 0) break;
-    const dur = Math.min(WARMUP_PER_MOVE, remaining);
-    out.push({ exercise: ex, workSec: dur, restSec: 0, section: 'warmup', continuous: true });
+    const baseDur = Math.min(WARMUP_PER_MOVE, remaining);
+    // Single-sided warmup: double base if there's room, else fall back to baseDur.
+    const dur = ex.single_sided && remaining >= WARMUP_PER_MOVE * 2
+      ? WARMUP_PER_MOVE * 2
+      : baseDur;
+    out.push({ exercise: ex, workSec: dur, restSec: 0, section: 'warmup', continuous: true, single_sided: !!ex.single_sided });
     usedNames.add(ex.name);
     remaining -= dur;
   }
@@ -1765,8 +1777,11 @@ function buildCooldown(equipment, mainMuscles, usedNames) {
   let remaining = COOLDOWN_DUR;
   for (const ex of ranked) {
     if (remaining <= 0) break;
-    const dur = Math.min(COOLDOWN_PER_MOVE, remaining);
-    out.push({ exercise: ex, workSec: dur, restSec: 0, section: 'cooldown', continuous: true });
+    const baseDur = Math.min(COOLDOWN_PER_MOVE, remaining);
+    const dur = ex.single_sided && remaining >= COOLDOWN_PER_MOVE * 2
+      ? COOLDOWN_PER_MOVE * 2
+      : baseDur;
+    out.push({ exercise: ex, workSec: dur, restSec: 0, section: 'cooldown', continuous: true, single_sided: !!ex.single_sided });
     usedNames.add(ex.name);
     remaining -= dur;
   }
@@ -1774,7 +1789,7 @@ function buildCooldown(equipment, mainMuscles, usedNames) {
   if (out.length === 0) {
     const fallback = DB.filter(e => COOLDOWN_CATS.includes(e.cat) && e.equip.every(eq => equipment.has(eq)));
     if (fallback.length) {
-      out.push({ exercise: fallback[0], workSec: COOLDOWN_DUR, restSec: 0, section: 'cooldown', continuous: true });
+      out.push({ exercise: fallback[0], workSec: COOLDOWN_DUR, restSec: 0, section: 'cooldown', continuous: true, single_sided: !!fallback[0].single_sided });
     }
   } else if (remaining > 0) {
     out[out.length - 1].workSec += remaining;
@@ -1784,19 +1799,23 @@ function buildCooldown(equipment, mainMuscles, usedNames) {
 
 function buildMainEntry(exercise, type, intensitySetting, setIdx) {
   const intensity = deriveIntensity(exercise, type, intensitySetting);
-  // Strength: workSec is a placeholder (count-up); for others, reuse pickIntervals.
-  let workSec;
+  // Strength uses a count-up timer; others get proportional work seconds.
+  // Two rest values: intraRest (between exercises within a set, proportional)
+  // and the eventual inter-set rest (filled per-position by applyInterSetRest).
+  let workSec, intraRest;
   if (type === 'strength') {
-    workSec = 0; // count-up; user taps Done
+    workSec = 0;
+    intraRest = 60; // light recovery between different lifts within a set
   } else {
     const r = window.builder.pickIntervals(exercise.cat, exercise.diff, type, intensitySetting, 'main');
     workSec = exercise.single_sided ? r.workSec * 2 : r.workSec;
+    intraRest = r.restSec;
   }
   return {
     exercise,
     workSec,
-    restSec: SET_REST[intensity],
-    restReason: SET_REST_REASON[intensity],
+    restSec: intraRest,
+    intraRestSec: intraRest,
     section: 'main',
     setIdx,
     intensity,
@@ -1863,22 +1882,28 @@ function generateWorkout() {
   // Solve for mainCount per set so total ≈ totalSec.
   // Work block budget = totalSec - warmup - 60 - 300.
   const mainBudget = totalSec - wDur - POST_WARMUP_REST - COOLDOWN_DUR;
-  // Estimate per-exercise time at intensity-scaled rest for normal sizing,
-  // then again at minimum rest for the upper cap (so reconcile can pad upward).
+  // Each set contributes mainCount × (work + intraRest) plus one inter-set rest at the boundary
+  // (except the final set which goes straight to cooldown). Estimate both:
   const sample = focusOrderedPool(typePool).slice(0, 12);
-  function avgWith(restPicker) {
-    if (!sample.length) return 90;
-    return sample.reduce((acc, ex) => {
-      const r = config.type === 'strength' ? 30 : window.builder.pickIntervals(ex.cat, ex.diff, config.type, config.intensity, 'main').workSec;
-      const work = ex.single_sided ? r * 2 : r;
-      return acc + work + restPicker(ex);
-    }, 0) / sample.length;
-  }
-  const avgPer = avgWith(ex => SET_REST[deriveIntensity(ex, config.type, config.intensity)]);
-  const minPer = avgWith(_ => SET_REST.light); // 60s floor
-  let mainCount = Math.max(1, Math.round((mainBudget / sets) / avgPer));
-  const maxThatFits = Math.max(1, Math.floor((mainBudget / sets) / minPer));
-  mainCount = Math.min(mainCount, maxThatFits, typePool.length, 10);
+  const avgEntry = sample.length
+    ? sample.reduce((acc, ex) => {
+        let work, intraRest;
+        if (config.type === 'strength') { work = 30; intraRest = 60; }
+        else {
+          const r = window.builder.pickIntervals(ex.cat, ex.diff, config.type, config.intensity, 'main');
+          work = ex.single_sided ? r.workSec * 2 : r.workSec;
+          intraRest = r.restSec;
+        }
+        return acc + work + intraRest;
+      }, 0) / sample.length
+    : 90;
+  const avgInterSet = sample.length
+    ? sample.reduce((acc, ex) => acc + SET_REST[deriveIntensity(ex, config.type, config.intensity)], 0) / sample.length
+    : 90;
+  const interSetTotal = (sets - 1) * avgInterSet;
+  const remainingForMain = Math.max(avgEntry, mainBudget - interSetTotal);
+  let mainCount = Math.max(1, Math.round(remainingForMain / (sets * avgEntry)));
+  mainCount = Math.min(mainCount, typePool.length, 10);
 
   // Pick mainExercises distributed across body groups (region cats), focus-weighted.
   const ordered = focusOrderedPool(typePool);
@@ -1921,8 +1946,9 @@ function generateWorkout() {
   }
   cooldownEntries.forEach(e => workout.push(e));
 
-  // Reconcile total time. reconcileTotalTime zeroes the last-main rest first
-  // (cooldown follows directly), then absorbs delta in earlier main rests + last cooldown.
+  // Apply the intra/inter-set rest pattern based on position.
+  applyInterSetRest();
+  // Reconcile total time so it matches the user-selected duration.
   reconcileTotalTime(totalSec);
 
   // If we still can't fit the requested duration, refuse rather than silently overshoot.
@@ -1950,19 +1976,15 @@ function workoutScheduledSec() {
 }
 
 function reconcileTotalTime(targetSec) {
-  // Last main entry rests directly into cooldown — zero it first so it isn't a knob.
-  const lastMainIdx = workout.map(w => w.section).lastIndexOf('main');
-  if (lastMainIdx >= 0) workout[lastMainIdx].restSec = 0;
+  if (config.type === 'strength') return; // count-up sets have unknown duration
 
-  if (config.type === 'strength') return; // count-up sets have unknown duration; only zero last-main
-
-  const cur = workoutScheduledSec();
-  let delta = targetSec - cur;
+  let delta = targetSec - workoutScheduledSec();
   if (delta === 0) return;
-  // Adjust earlier main rests within the 60-180s band (PDR §6.4).
-  for (let i = lastMainIdx - 1; i >= 0; i--) {
+
+  // First lever: inter-set rests (those with restReason set), kept inside the 60-180s band.
+  for (let i = workout.length - 1; i >= 0; i--) {
     const w = workout[i];
-    if (w.section !== 'main') continue;
+    if (w.section !== 'main' || !w.restReason) continue;
     const newRest = Math.max(60, Math.min(180, (w.restSec || 0) + delta));
     delta -= (newRest - (w.restSec || 0));
     w.restSec = newRest;
@@ -2021,7 +2043,9 @@ function lockstepIndices(idx) {
   return out;
 }
 // Recompute timing on every main entry from its exercise + current settings.
-// Last main entry rests directly into cooldown (restSec = 0).
+// Within a set, rest is proportional (intraRest) — feels like normal HIIT/conditioning pacing.
+// At set boundaries (last entry of a non-final set), use SET_REST[intensity] for the long
+// recovery the PDR §6.4 table specifies. Final last-main rests into cooldown directly (0).
 function applyInterSetRest() {
   const { warmupCount, mainPerSet, sets } = getMainStructure();
   for (let s = 0; s < sets; s++) {
@@ -2030,19 +2054,31 @@ function applyInterSetRest() {
       const entry = workout[idx];
       if (!entry) continue;
       const intensity = deriveIntensity(entry.exercise, config.type, config.intensity);
-      let workSec;
+      let workSec, intraRest;
       if (config.type === 'strength') {
         workSec = 0;
+        intraRest = 60;
       } else {
         const r = window.builder.pickIntervals(entry.exercise.cat, entry.exercise.diff, config.type, config.intensity, 'main');
         workSec = entry.exercise.single_sided ? r.workSec * 2 : r.workSec;
+        intraRest = r.restSec;
       }
       entry.workSec = workSec;
       entry.intensity = intensity;
+      entry.intraRestSec = intraRest;
       entry.single_sided = !!entry.exercise.single_sided;
-      const isLast = (s === sets - 1) && (p === mainPerSet - 1);
-      entry.restSec = isLast ? 0 : SET_REST[intensity];
-      entry.restReason = isLast ? null : SET_REST_REASON[intensity];
+      const isLastOfSet = (p === mainPerSet - 1);
+      const isLastOverall = isLastOfSet && (s === sets - 1);
+      if (isLastOverall) {
+        entry.restSec = 0;
+        entry.restReason = null;
+      } else if (isLastOfSet) {
+        entry.restSec = SET_REST[intensity];
+        entry.restReason = SET_REST_REASON[intensity];
+      } else {
+        entry.restSec = intraRest;
+        entry.restReason = null;
+      }
     }
   }
   // Refresh post-warmup rest on the last warmup entry (in case warmups were reordered/swapped).
@@ -2286,7 +2322,12 @@ function startWorkout() {
   document.getElementById('t-sound').classList.toggle('active', soundEnabled);
   document.getElementById('t-voice').classList.toggle('active', voiceEnabled);
   updateTimerUI();
-  speak(workout[0].exercise.name);
+  const first = workout[0];
+  if (first.section === 'main' && first.single_sided) {
+    speak(first.exercise.name + '. Start with right side.');
+  } else {
+    speak(first.exercise.name);
+  }
   beepWork();
   timerState.intervalId = setInterval(tick, 1000);
   requestWakeLock();
@@ -2331,9 +2372,11 @@ function fireSwitchSidesCue() {
   // Audio chime fires regardless of voice setting (PDR §6.9 Q6).
   beep(880, 0.18, 0.32);
   setTimeout(() => beep(660, 0.18, 0.32), 220);
-  speak('Switch sides');
+  speak('Switch to left side');
   const ov = document.getElementById('switch-overlay');
   if (ov) {
+    const span = ov.querySelector('span');
+    if (span) span.textContent = 'Switch to left';
     ov.classList.remove('visible');
     void ov.offsetWidth; // restart animation
     ov.classList.add('visible');
@@ -2397,12 +2440,18 @@ function advanceExercise() {
   timerState.idx++;
   if (timerState.idx >= workout.length) { finishWorkout(); return; }
   timerState.phase = 'work';
-  timerState.remaining = workout[timerState.idx].workSec;
+  const w = workout[timerState.idx];
+  timerState.remaining = w.workSec;
   timerState.elapsed = 0;
   timerState.switchFiredForIdx = null;
   timerState.strengthSide = 0;
   beepWork();
-  speak(workout[timerState.idx].exercise.name);
+  // Single-sided cue: announce the starting side after the exercise name.
+  if (w.section === 'main' && w.single_sided) {
+    speak(w.exercise.name + '. Start with right side.');
+  } else {
+    speak(w.exercise.name);
+  }
 }
 
 function phaseLabelFor(w, phase) {
@@ -2546,7 +2595,7 @@ function updateTimerUI() {
   const isStrengthMain = w && w.section === 'main' && config.type === 'strength';
   if (isStrengthMain && timerState.phase === 'work') {
     doneBtn.classList.add('visible');
-    const sideLabel = w.single_sided ? 'Side ' + (timerState.strengthSide + 1) + ' of 2 · ' : '';
+    const sideLabel = w.single_sided ? (timerState.strengthSide === 0 ? 'Right side · ' : 'Left side · ') : '';
     repEl.textContent = sideLabel + 'Target: ' + window.builder.repTarget(w.exercise.diff);
     wEl.classList.remove('visible');
   } else if (isStrengthMain && timerState.phase === 'rest') {
