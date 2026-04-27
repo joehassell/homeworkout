@@ -205,6 +205,70 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .pill.selected .pill-sub { color: var(--accent); opacity: 0.7; }
 .option-pills-multi .pill { flex: 0 1 auto; min-width: 0; padding: 8px 14px; font-size: 0.85rem; }
 .option-pills-multi .pill:not(.selected) { opacity: 0.5; }
+.focus-hint { font-size: 0.65rem; font-weight: 400; color: var(--text-dim); text-transform: none; letter-spacing: 0; margin-left: 8px; }
+.focus-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.focus-pills .focus-pill {
+  flex: 0 1 auto; min-width: 0; padding: 10px 14px; font-size: 0.85rem;
+  border-width: 2px;
+}
+.focus-pill.fs-include { border-color: var(--include); background: var(--surface); color: var(--text); }
+.focus-pill.fs-increase { border-color: var(--increase); background: var(--green-soft); color: var(--increase); }
+.focus-pill.fs-exclude { border-color: var(--exclude); background: var(--red-soft); color: var(--exclude); opacity: 0.65; }
+.focus-pill.fs-increase::before { content: "+ "; font-weight: 800; }
+.focus-pill.fs-exclude { text-decoration: line-through; }
+.gen-error { color: var(--exclude); font-size: 0.85rem; padding: 6px 10px; border-radius: 8px;
+  background: var(--red-soft); border: 1px solid var(--exclude); margin-bottom: 8px; display: none; }
+.gen-error.visible { display: block; }
+.rest-reason {
+  display: inline-block; font-size: 0.75rem; font-weight: 600;
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent);
+  margin-bottom: 18px;
+}
+.timer-display.countdown-final {
+  font-size: 11rem; color: var(--accent); transition: font-size 0.15s, color 0.15s;
+  text-shadow: 0 0 24px var(--accent-glow);
+}
+@media (max-width: 400px) { .timer-display.countdown-final { font-size: 7.5rem; } }
+.switch-overlay {
+  position: fixed; inset: 0; z-index: 200; display: none;
+  align-items: center; justify-content: center; pointer-events: none;
+  background: var(--switch-overlay);
+  animation: switchPulse 2s ease-out forwards;
+}
+.switch-overlay.visible { display: flex; }
+.switch-overlay span {
+  font-size: 3rem; font-weight: 900; color: #0a0a0f;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+@keyframes switchPulse {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.fs-toggle {
+  position: absolute; top: max(env(safe-area-inset-top, 16px), 16px);
+  left: 20px; z-index: 11;
+  width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: var(--surface); color: var(--text-dim);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; touch-action: manipulation;
+}
+.fs-toggle:active { transform: scale(0.92); }
+.ios-fs-hint {
+  position: fixed; bottom: 88px; left: 16px; right: 16px;
+  z-index: 60; padding: 12px 14px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--accent);
+  color: var(--text); font-size: 0.85rem; line-height: 1.4;
+  display: none; box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+.ios-fs-hint.visible { display: block; }
+.ios-fs-hint button {
+  margin-top: 8px; padding: 6px 12px; border-radius: 6px;
+  background: var(--accent); color: #fff; border: none;
+  font-size: 0.8rem; font-weight: 600; cursor: pointer;
+}
 .generate-section {
   position: sticky;
   bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 12px);
@@ -689,6 +753,18 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   </div>
 
   <div class="option-group">
+    <label>Focus<span class="focus-hint">tap to cycle: include → boost → exclude</span></label>
+    <div class="focus-pills" id="focus-pills">
+      <div class="pill focus-pill fs-include" data-region="upper_push" onclick="cycleFocus(this)">Push</div>
+      <div class="pill focus-pill fs-include" data-region="upper_pull" onclick="cycleFocus(this)">Pull</div>
+      <div class="pill focus-pill fs-include" data-region="lower" onclick="cycleFocus(this)">Lower</div>
+      <div class="pill focus-pill fs-include" data-region="core" onclick="cycleFocus(this)">Core</div>
+      <div class="pill focus-pill fs-include" data-region="full_body" onclick="cycleFocus(this)">Full body</div>
+      <div class="pill focus-pill fs-include" data-region="posterior" onclick="cycleFocus(this)">Mobility</div>
+    </div>
+  </div>
+
+  <div class="option-group">
     <label>Equipment Available</label>
     <div class="option-pills option-pills-multi" id="equipment-pills">
       <div class="pill selected" data-value="bodyweight" onclick="toggleEquipmentPill(this)">Bodyweight</div>
@@ -704,6 +780,7 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   </div>
 
   <div class="generate-section">
+    <div class="gen-error" id="gen-error"></div>
     <button class="btn btn-primary btn-full" onclick="generateWorkout()" style="font-size:1.1rem;padding:16px;">Generate Workout</button>
   </div>
 </div>
@@ -724,6 +801,9 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 
 <!-- TIMER -->
 <div id="timer" class="screen">
+  <button class="fs-toggle" id="t-fs-toggle" onclick="toggleFullscreen()" aria-label="Toggle fullscreen">
+    <svg id="t-fs-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V3h6"/><path d="M21 9V3h-6"/><path d="M3 15v6h6"/><path d="M21 15v6h-6"/></svg>
+  </button>
   <div class="timer-toggles">
     <button class="toggle-btn active" id="t-sound" onclick="toggleSound()" aria-label="Toggle sound">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
@@ -737,6 +817,7 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   <div class="timer-phase" id="t-phase">WORK</div>
   <div class="timer-exercise-name" id="t-name">Air Squat</div>
   <div class="timer-exercise-detail" id="t-detail">Bodyweight - Quads, Glutes</div>
+  <div class="rest-reason" id="t-rest-reason" style="display:none;"></div>
   <div class="timer-display" id="t-time">0:45</div>
   <div class="timer-total" id="t-total">Total: 12:30 remaining</div>
   <div class="timer-progress"><div class="timer-progress-bar" id="t-bar"></div></div>
@@ -866,6 +947,15 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   <div class="settings-hint">Export downloads a JSON file with your sessions, equipment, and toggles. Import replaces all three.</div>
 </div>
 
+<!-- SWITCH SIDES OVERLAY -->
+<div class="switch-overlay" id="switch-overlay"><span>Switch sides</span></div>
+
+<!-- iOS FULLSCREEN HINT -->
+<div class="ios-fs-hint" id="ios-fs-hint">
+  <div>For true fullscreen on iOS, add this app to your Home Screen (Share → Add to Home Screen).</div>
+  <button onclick="dismissIosFsHint()">Got it</button>
+</div>
+
 <!-- INFO MODAL -->
 <div class="modal-overlay" id="info-modal" onclick="closeInfoIfBg(event)">
   <div class="modal-content">
@@ -920,9 +1010,9 @@ const DB = [
    info:"Rack the barbell across front delts with elbows high (or hold KBs in front rack). Squat down keeping torso very upright. The front load demands more core and quad engagement. Drive up through heels keeping elbows high throughout."},
   {name:"Zercher Squat",cat:"lower-squat",equip:["barbell"],muscles:["quads","glutes","core","arms"],types:["strength","functional"],diff:3,
    info:"Hold the barbell in the crook of your elbows, arms bent, bar against your torso. Squat down keeping the bar close to your body. This position forces an upright torso and heavily loads the core and biceps. Drive up through heels."},
-  {name:"Split Squat",cat:"lower-squat",equip:["bodyweight","dumbbell"],muscles:["quads","glutes"],types:["strength","functional","conditioning"],diff:2,
+  {name:"Split Squat",cat:"lower-squat",equip:["bodyweight","dumbbell"],muscles:["quads","glutes"],types:["strength","functional","conditioning"],diff:2,single_sided:true,
    info:"Stand in a staggered stance, one foot forward, one back. Lower your back knee toward the floor while keeping front shin vertical. Front knee stays over ankle. Push through the front heel to stand. Complete all reps on one side before switching."},
-  {name:"Bulgarian Split Squat",cat:"lower-squat",equip:["bodyweight","dumbbell","bench"],muscles:["quads","glutes"],types:["strength","functional"],diff:3,
+  {name:"Bulgarian Split Squat",cat:"lower-squat",equip:["bodyweight","dumbbell","bench"],muscles:["quads","glutes"],types:["strength","functional"],diff:3,single_sided:true,
    info:"Place your rear foot on a bench behind you, laces down. Lower your back knee toward the floor while keeping your front shin vertical. Keep torso upright. Push through the front heel to stand. This is a single-leg dominant movement - expect it to burn."},
   {name:"Step-Ups",cat:"lower-squat",equip:["bench","dumbbell"],muscles:["quads","glutes"],types:["strength","conditioning","functional"],diff:2,
    info:"Stand facing a bench. Step one foot fully onto the bench. Drive through that heel to stand up on top. Step back down with control. Avoid pushing off the back foot - the working leg should do all the work. Alternate legs or complete one side first."},
@@ -944,7 +1034,7 @@ const DB = [
    info:"Hold the weight in front of your thighs. With a slight knee bend, hinge at the hips pushing your butt back. Lower the weight along your legs until you feel a deep hamstring stretch. Keep your back flat. Squeeze glutes to return to standing. Don't round your back."},
   {name:"Stiff-Leg Deadlift",cat:"lower-hinge",equip:["barbell","dumbbell"],muscles:["hamstrings","glutes"],types:["strength"],diff:2,
    info:"Similar to an RDL but with straighter legs. Hold the weight and hinge forward from the hips, keeping legs nearly straight (soft knees). Lower until you feel a strong hamstring stretch. Flat back throughout. This variation hits the hamstrings harder than a standard RDL."},
-  {name:"Single-Leg RDL",cat:"lower-hinge",equip:["dumbbell","kettlebell"],muscles:["hamstrings","glutes"],types:["strength","functional"],diff:2,
+  {name:"Single-Leg RDL",cat:"lower-hinge",equip:["dumbbell","kettlebell"],muscles:["hamstrings","glutes"],types:["strength","functional"],diff:2,single_sided:true,
    info:"Stand on one leg holding a weight in the opposite hand. Hinge forward at the hip, extending the free leg behind you for counterbalance. Lower until your torso is nearly parallel to the floor. Keep hips square. Squeeze the standing glute to return upright. Great for balance."},
   {name:"Kettlebell Deadlift",cat:"lower-hinge",equip:["kettlebell"],muscles:["hamstrings","glutes","back"],types:["strength","functional"],diff:1,
    info:"Stand over a kettlebell with feet hip-width apart. Hinge at hips, bend knees, grip the handle with both hands. Flat back, chest up. Drive through heels to stand tall. Squeeze glutes at the top. Lower with control. A great entry point for learning the hinge pattern."},
@@ -994,7 +1084,7 @@ const DB = [
   // Upper Pull Horizontal
   {name:"Bent-Over Row",cat:"pull-h",equip:["barbell"],muscles:["back","biceps"],types:["strength"],diff:2,
    info:"Stand with feet hip-width, hinge forward about 45 degrees. Grip the barbell with arms hanging straight down. Pull the bar to your lower ribcage, squeezing your shoulder blades together. Lower with control. Keep your back flat and core braced throughout. Don't jerk the weight."},
-  {name:"Dumbbell Row",cat:"pull-h",equip:["dumbbell","bench"],muscles:["back","biceps"],types:["strength","functional"],diff:2,
+  {name:"Dumbbell Row",cat:"pull-h",equip:["dumbbell","bench"],muscles:["back","biceps"],types:["strength","functional"],diff:2,single_sided:true,
    info:"Place one hand and knee on a bench, other foot on the floor. Hold a dumbbell in the free hand, arm hanging straight down. Pull the dumbbell to your hip, driving your elbow past your torso. Squeeze your shoulder blade at the top. Lower with control. Keep your back flat."},
   {name:"Renegade Row",cat:"pull-h",equip:["dumbbell"],muscles:["back","biceps","core"],types:["hiit","conditioning","functional"],diff:2,
    info:"Start in push-up position with hands on dumbbells. Row one dumbbell to your hip while stabilising with the other arm. Place it down and row the other side. Keep hips square to the floor - resist rotation. This is as much a core exercise as it is a back exercise."},
@@ -1018,7 +1108,7 @@ const DB = [
   // Core
   {name:"Front Plank",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["strength","conditioning","functional"],diff:1,
    info:"Support yourself on forearms and toes, body in a straight line. Engage your core by pulling your belly button toward your spine. Don't let hips sag or pike up. Squeeze your glutes. Breathe steadily. Hold for the duration. To make it harder, move elbows further from your body."},
-  {name:"Side Plank",cat:"core",equip:["mat","bodyweight"],muscles:["core","obliques"],types:["strength","functional"],diff:1,
+  {name:"Side Plank",cat:"core",equip:["mat","bodyweight"],muscles:["core","obliques"],types:["strength","functional"],diff:1,single_sided:true,
    info:"Lie on your side, propped on your forearm. Stack your feet and lift your hips so your body forms a straight line. Hold this position. Keep your top hip stacked directly over the bottom - don't rotate forward. Switch sides. For an easier version, bend your bottom knee."},
   {name:"Dead Bug",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["functional","conditioning"],diff:1,
    info:"Lie on your back, arms extended toward the ceiling, knees bent at 90 degrees. Press your lower back into the floor. Slowly extend one arm overhead while extending the opposite leg, keeping your back flat. Return and repeat on the other side. If your back arches, you've gone too far."},
@@ -1048,7 +1138,7 @@ const DB = [
    info:"Hold weights in the front rack position (at shoulders). Squat to full depth. As you drive up out of the squat, use that momentum to press the weight overhead in one fluid motion. Lower the weight back to shoulders as you descend into the next squat. One seamless movement."},
   {name:"Kettlebell Clean",cat:"full-body",equip:["kettlebell"],muscles:["full body"],types:["strength","functional"],diff:2,
    info:"Start with the KB between your feet. Hike it back, then snap your hips to swing it up. As it rises, pull your elbow back and rotate your hand around the bell to catch it in the front rack (bell resting on your forearm, elbow tight to your body). The clean should be smooth, not a crash."},
-  {name:"Dumbbell Snatch",cat:"full-body",equip:["dumbbell"],muscles:["full body"],types:["hiit","functional"],diff:2,
+  {name:"Dumbbell Snatch",cat:"full-body",equip:["dumbbell"],muscles:["full body"],types:["hiit","functional"],diff:2,single_sided:true,
    info:"Start with a dumbbell between your feet. Hinge and grip it with one hand. Explosively extend your hips and pull the dumbbell overhead in one motion, punching up at the top. Lower to the start position. This is a fast, explosive, full-body movement. Alternate arms each set."},
   {name:"Kettlebell Snatch",cat:"full-body",equip:["kettlebell"],muscles:["full body"],types:["hiit","conditioning","functional"],diff:3,
    info:"Swing the KB back between your legs, then drive hips forward explosively. As the KB rises, pull your hand back and punch up, letting the bell rotate over your hand to lockout overhead. The path should be close to your body. This is advanced - master the swing and clean first."},
@@ -1066,11 +1156,11 @@ const DB = [
   // Carries
   {name:"Farmer's Carry",cat:"carry",equip:["dumbbell","kettlebell"],muscles:["grip","core","traps"],types:["strength","conditioning","functional"],diff:1,
    info:"Pick up a heavy weight in each hand. Stand tall with shoulders back and down. Walk with controlled, deliberate steps. Keep your core braced and resist leaning to either side. Walk for time or distance. This builds grip, core stability, and total body resilience. Go heavy."},
-  {name:"Suitcase Carry",cat:"carry",equip:["dumbbell","kettlebell"],muscles:["core","grip","obliques"],types:["strength","functional"],diff:2,
+  {name:"Suitcase Carry",cat:"carry",equip:["dumbbell","kettlebell"],muscles:["core","grip","obliques"],types:["strength","functional"],diff:2,single_sided:true,
    info:"Hold a heavy weight in one hand only, like carrying a suitcase. Stand tall and walk without leaning to the weighted side - your obliques must work hard to keep you upright. Walk for time or distance, then switch hands. Excellent anti-lateral flexion core work."},
   {name:"Front Rack Carry",cat:"carry",equip:["kettlebell"],muscles:["core","shoulders"],types:["strength","functional"],diff:2,
    info:"Clean two kettlebells to the front rack position (bells resting on forearms, elbows tight). Walk with control, keeping your torso upright. The front-loaded position challenges your core and upper back. Breathe behind the bells. Walk for time or distance."},
-  {name:"Overhead Carry",cat:"carry",equip:["dumbbell","kettlebell"],muscles:["shoulders","core"],types:["strength","functional"],diff:2,
+  {name:"Overhead Carry",cat:"carry",equip:["dumbbell","kettlebell"],muscles:["shoulders","core"],types:["strength","functional"],diff:2,single_sided:true,
    info:"Press a weight overhead to full lockout. Lock your elbow, pack your shoulder, and walk with control. Keep your ribs down and core braced - don't arch your back. Walk for time or distance. This builds shoulder stability and overhead strength. Can be done single or double arm."},
   {name:"Bear Hug Carry",cat:"carry",equip:["medicine ball"],muscles:["core","arms"],types:["conditioning","functional"],diff:1,
    info:"Wrap both arms around a medicine ball or heavy object, hugging it tight to your chest. Walk with deliberate steps. The bear hug position challenges your grip, biceps, and core while simulating a real-world carrying pattern. Keep the object high on your chest."},
@@ -1120,7 +1210,7 @@ const DB = [
    info:"From all fours, tuck toes and lift hips high, forming an inverted V. Push your chest toward your thighs, straighten your legs as much as possible. Press your heels toward the floor. Spread fingers wide and push the floor away. Pedal your feet to warm up calves and hamstrings."},
   {name:"Thoracic Rotations",cat:"mobility",equip:["mat"],muscles:["spine","core"],types:["functional"],diff:1,
    info:"Start on all fours or in a side-lying position. Place one hand behind your head. Rotate your upper back to open your chest toward the ceiling, following your elbow with your eyes. Reverse back down. Move slowly and feel the rotation in your mid-back, not your lower back."},
-  {name:"Couch Stretch",cat:"mobility",equip:["mat"],muscles:["hip flexors","quads"],types:["functional"],diff:1,
+  {name:"Couch Stretch",cat:"mobility",equip:["mat"],muscles:["hip flexors","quads"],types:["functional"],diff:1,single_sided:true,
    info:"Kneel facing away from a wall. Place one foot against the wall behind you with knee on the floor. Step the other foot forward into a lunge. Keep your torso upright and squeeze the glute of the back leg. You should feel a deep stretch in your hip flexor and quad. Hold 30-60 seconds per side."},
 
   // Isometric / Stability
@@ -1132,7 +1222,7 @@ const DB = [
    info:"Lie on your back. Press your lower back into the floor. Lift shoulders and legs slightly off the ground, arms extended overhead. Hold this banana-shaped position. Your lower back must stay glued to the floor. If it lifts, bend your knees or lower your arms to scale down."},
   {name:"L-Sit",cat:"isometric",equip:["bench"],muscles:["core","triceps"],types:["strength"],diff:3,
    info:"Place hands on the edge of a bench (or parallettes), arms straight. Lift your body off the bench and extend your legs straight in front of you, forming an L-shape. Hold. This requires significant core, hip flexor, and tricep strength. Start with tucked knees if needed."},
-  {name:"Single-Leg Balance",cat:"isometric",equip:["bodyweight"],muscles:["ankles","core"],types:["functional"],diff:1,
+  {name:"Single-Leg Balance",cat:"isometric",equip:["bodyweight"],muscles:["ankles","core"],types:["functional"],diff:1,single_sided:true,
    info:"Stand on one leg with a slight knee bend. Hold your balance for the duration. Keep your hips level. For more difficulty: close your eyes, stand on a soft surface, or add arm movements. This builds ankle stability and proprioception. Simple but surprisingly challenging."},
 
   // Animal Movement
@@ -1468,87 +1558,414 @@ function exerciseAvailable(e) {
   return e.equip.every(eq => selectedEquipment.has(eq));
 }
 
+// ── Focus area state (PDR §6.5) ─────────────────────────────
+function cycleFocus(el) {
+  const region = el.dataset.region;
+  if (!region) return;
+  const cur = focusState[region] || 'include';
+  const next = FOCUS_STATES[(FOCUS_STATES.indexOf(cur) + 1) % FOCUS_STATES.length];
+  focusState[region] = next;
+  el.className = 'pill focus-pill fs-' + next;
+  saveFocus();
+}
+
+function loadFocus() {
+  try {
+    const raw = localStorage.getItem('wk_focus');
+    if (raw) {
+      const f = JSON.parse(raw);
+      if (f && typeof f === 'object') {
+        Object.keys(focusState).forEach(k => {
+          if (FOCUS_STATES.includes(f[k])) focusState[k] = f[k];
+        });
+      }
+    }
+  } catch (e) {}
+  syncFocusUI();
+}
+
+function syncFocusUI() {
+  document.querySelectorAll('#focus-pills .focus-pill').forEach(el => {
+    const region = el.dataset.region;
+    const state = focusState[region] || 'include';
+    el.className = 'pill focus-pill fs-' + state;
+  });
+}
+
+function saveFocus() {
+  try { localStorage.setItem('wk_focus', JSON.stringify(focusState)); } catch (e) {}
+}
+
 // ═══════════════════════════════════════════════════
-// GENERATION
+// GENERATION (v2)
 // ═══════════════════════════════════════════════════
 function shuffle(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
 
-const BODY_GROUPS = [
-  ['lower-squat'],
-  ['lower-hinge'],
-  ['push-h','push-v'],
-  ['pull-h','pull-v'],
-  ['core','isometric'],
-  ['full-body','carry','plyo','cardio','animal'],
-];
-const WARMUP_CATS = ['mobility','cardio'];
-const COOLDOWN_CATS = ['mobility'];
+// Body region → exercise categories. PDR §6.5 region taxonomy mapped to existing cats.
+const REGIONS = {
+  upper_push: ['push-h', 'push-v'],
+  upper_pull: ['pull-h', 'pull-v'],
+  lower:      ['lower-squat', 'lower-hinge'],
+  core:       ['core', 'isometric'],
+  full_body:  ['full-body', 'plyo', 'carry', 'animal', 'cardio'],
+  posterior:  ['mobility'],
+};
+const FOCUS_STATES = ['include', 'increase', 'exclude'];
+let focusState = { upper_push:'include', upper_pull:'include', lower:'include', core:'include', full_body:'include', posterior:'include' };
 
-function pickExercises(pool, count) { return shuffle([...pool]).slice(0, count); }
+// Warmup category preferences per workout type (in priority order). Cardio always first → pulse raiser.
+const WARMUP_POOL_BY_TYPE = {
+  strength:     ['cardio', 'mobility', 'lower-squat', 'lower-hinge', 'core', 'push-h'],
+  hiit:         ['cardio', 'mobility', 'lower-squat', 'core'],
+  conditioning: ['cardio', 'mobility', 'lower-squat'],
+  functional:   ['cardio', 'mobility', 'lower-squat', 'core'],
+};
+const COOLDOWN_CATS = ['mobility', 'isometric'];
 
-function buildEntry(exercise, section) {
-  const { workSec, restSec } = window.builder.pickIntervals(
-    exercise.cat, exercise.diff, config.type, config.intensity, section
+// Per-set rest seconds keyed by derived intensity (PDR §6.4 mapping).
+const SET_REST = { light: 60, moderate: 90, high: 120, very_high: 180 };
+const SET_REST_REASON = {
+  light: 'Light set — 1 min',
+  moderate: 'Moderate set — 90 s',
+  high: 'High intensity — 2 min',
+  very_high: 'Top set — 3 min',
+};
+
+const POST_WARMUP_REST = 60;       // PDR §6.1, A.5.3
+const COOLDOWN_DUR = 300;          // PDR §6.2, fixed 5 min
+const COOLDOWN_PER_MOVE = 60;      // 5 holds at 60s = 300s
+const WARMUP_PER_MOVE = 30;        // baseline; first movement (pulse raiser) = 60
+const PULSE_RAISER_DUR = 60;
+const LOADED_EQUIP = ['dumbbell', 'kettlebell', 'barbell'];
+
+function warmupDuration(durationMin) {
+  // PDR Appendix A.5.1, hard floor 3 min.
+  if (durationMin >= 60) return 360;
+  if (durationMin >= 45) return 300;
+  if (durationMin >= 30) return 240;
+  return 180;
+}
+
+function deriveIntensity(exercise, type, intensitySetting) {
+  if (type === 'strength') {
+    if (exercise.diff === 3) return 'very_high';   // 3-5 reps
+    if (exercise.diff === 2) return 'high';        // 6-8 reps
+    return 'moderate';                              // 10-12 reps
+  }
+  if (type === 'hiit') {
+    if (intensitySetting === 'high' || exercise.cat === 'plyo' || exercise.diff === 3) return 'very_high';
+    if (exercise.diff === 2 || intensitySetting === 'moderate') return 'high';
+    return 'moderate';
+  }
+  // conditioning, functional
+  if (intensitySetting === 'high' || exercise.diff === 3) return 'high';
+  if (exercise.cat === 'mobility' || exercise.cat === 'isometric' || exercise.diff === 1) return 'light';
+  return 'moderate';
+}
+
+function catFocusState(cat) {
+  for (const [region, cats] of Object.entries(REGIONS)) {
+    if (cats.includes(cat)) return focusState[region] || 'include';
+  }
+  return 'include';
+}
+
+function focusWeight(exercise) {
+  const s = catFocusState(exercise.cat);
+  if (s === 'exclude') return 0;
+  if (s === 'increase') return 2;
+  return 1;
+}
+
+// Expand a pool by focus weight, then shuffle, then dedupe by name preserving order.
+function focusOrderedPool(pool) {
+  const expanded = [];
+  pool.forEach(e => {
+    const w = focusWeight(e);
+    for (let i = 0; i < w; i++) expanded.push(e);
+  });
+  shuffle(expanded);
+  const seen = new Set();
+  return expanded.filter(e => !seen.has(e.name) && seen.add(e.name));
+}
+
+function pickFromCats(pool, cats, count, exclude) {
+  const filtered = pool.filter(e => cats.includes(e.cat) && !exclude.has(e.name));
+  return shuffle([...filtered]).slice(0, count);
+}
+
+function pickPulseRaiser(equipment) {
+  // Prefer skipping rope when available; else any cardio.
+  const skip = DB.find(e => e.name === 'Skipping Rope' && e.equip.every(eq => equipment.has(eq)));
+  if (skip) return skip;
+  const cardio = DB.filter(e => e.cat === 'cardio' && e.equip.every(eq => equipment.has(eq)));
+  return cardio[Math.floor(Math.random() * cardio.length)] || null;
+}
+
+function buildWarmup(type, equipment, totalSec, usedNames) {
+  // First movement is a pulse raiser (60s). Remaining time fills with curated cats.
+  const pulse = pickPulseRaiser(equipment);
+  const out = [];
+  if (pulse) {
+    out.push({ exercise: pulse, workSec: PULSE_RAISER_DUR, restSec: 0, section: 'warmup', continuous: true });
+    usedNames.add(pulse.name);
+  }
+  let remaining = totalSec - (pulse ? PULSE_RAISER_DUR : 0);
+  if (remaining < 0) remaining = 0;
+  const cats = WARMUP_POOL_BY_TYPE[type] || WARMUP_POOL_BY_TYPE.conditioning;
+  // Build a candidate pool from these cats, simpler diffs preferred for warmup.
+  const cands = DB.filter(e =>
+    cats.includes(e.cat) &&
+    e.diff <= 2 &&
+    e.equip.every(eq => equipment.has(eq)) &&
+    !usedNames.has(e.name)
   );
-  return { exercise, workSec, restSec, section };
+  // Order candidates by a simple round-robin across cats so the warmup feels varied.
+  const byCat = new Map();
+  cands.forEach(e => { if (!byCat.has(e.cat)) byCat.set(e.cat, []); byCat.get(e.cat).push(e); });
+  byCat.forEach(arr => shuffle(arr));
+  const ordered = [];
+  let added = true;
+  while (added) {
+    added = false;
+    for (const cat of cats) {
+      const arr = byCat.get(cat);
+      if (arr && arr.length) { ordered.push(arr.shift()); added = true; }
+    }
+  }
+  for (const ex of ordered) {
+    if (remaining <= 0) break;
+    const dur = Math.min(WARMUP_PER_MOVE, remaining);
+    out.push({ exercise: ex, workSec: dur, restSec: 0, section: 'warmup', continuous: true });
+    usedNames.add(ex.name);
+    remaining -= dur;
+  }
+  // If we still have leftover time and no more candidates, stretch last movement.
+  if (remaining > 0 && out.length > 0) {
+    out[out.length - 1].workSec += remaining;
+  }
+  // Last warmup movement carries the post-warmup rest.
+  if (out.length > 0) {
+    const last = out[out.length - 1];
+    last.restSec = POST_WARMUP_REST;
+    last.restLabel = 'Rest — get ready';
+  }
+  return out;
+}
+
+function buildCooldown(equipment, mainMuscles, usedNames) {
+  // Bias toward muscles loaded by main; PDR §6.2.
+  const pool = DB.filter(e =>
+    COOLDOWN_CATS.includes(e.cat) &&
+    e.equip.every(eq => equipment.has(eq)) &&
+    !usedNames.has(e.name)
+  );
+  const score = e => {
+    let s = 0;
+    e.muscles.forEach(m => { if (mainMuscles.has(m)) s += 2; });
+    return s + Math.random() * 0.5;
+  };
+  const ranked = [...pool].sort((a, b) => score(b) - score(a));
+  const out = [];
+  let remaining = COOLDOWN_DUR;
+  for (const ex of ranked) {
+    if (remaining <= 0) break;
+    const dur = Math.min(COOLDOWN_PER_MOVE, remaining);
+    out.push({ exercise: ex, workSec: dur, restSec: 0, section: 'cooldown', continuous: true });
+    usedNames.add(ex.name);
+    remaining -= dur;
+  }
+  // If pool was tiny, recycle from broader mobility pool ignoring dedup as last resort.
+  if (out.length === 0) {
+    const fallback = DB.filter(e => COOLDOWN_CATS.includes(e.cat) && e.equip.every(eq => equipment.has(eq)));
+    if (fallback.length) {
+      out.push({ exercise: fallback[0], workSec: COOLDOWN_DUR, restSec: 0, section: 'cooldown', continuous: true });
+    }
+  } else if (remaining > 0) {
+    out[out.length - 1].workSec += remaining;
+  }
+  return out;
+}
+
+function buildMainEntry(exercise, type, intensitySetting, setIdx) {
+  const intensity = deriveIntensity(exercise, type, intensitySetting);
+  // Strength: workSec is a placeholder (count-up); for others, reuse pickIntervals.
+  let workSec;
+  if (type === 'strength') {
+    workSec = 0; // count-up; user taps Done
+  } else {
+    const r = window.builder.pickIntervals(exercise.cat, exercise.diff, type, intensitySetting, 'main');
+    workSec = exercise.single_sided ? r.workSec * 2 : r.workSec;
+  }
+  return {
+    exercise,
+    workSec,
+    restSec: SET_REST[intensity],
+    restReason: SET_REST_REASON[intensity],
+    section: 'main',
+    setIdx,
+    intensity,
+    single_sided: !!exercise.single_sided,
+  };
+}
+
+function showGenError(msg) {
+  const el = document.getElementById('gen-error');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+function clearGenError() {
+  const el = document.getElementById('gen-error');
+  if (el) el.classList.remove('visible');
 }
 
 function generateWorkout() {
-  const warmupCount = 3, cooldownCount = 2;
+  clearGenError();
   const sets = config.sets || 1;
-  const interSetRest = window.builder.pickInterSetRest(config.intensity);
   const totalSec = config.duration * 60;
-
-  // Rough budget for picking main count; actual times come from pickIntervals per exercise.
-  const warmupSec = warmupCount * (30 + 12);
-  const cooldownSec = cooldownCount * (30 + 7);
-  const interSetSec = (sets - 1) * interSetRest;
-  const mainBudgetSec = Math.max(60, totalSec - warmupSec - cooldownSec - interSetSec);
-  const perSetSec = mainBudgetSec / sets;
-  const mainCount = Math.max(4, Math.round(perSetSec / 55));
-
-  const typePool = DB.filter(e => e.types.includes(config.type) && exerciseAvailable(e));
-
-  const warmupPool = DB.filter(e => WARMUP_CATS.includes(e.cat) && exerciseAvailable(e));
-  const warmups = pickExercises(warmupPool, warmupCount);
-
-  let mainExercises = [];
-  const perGroup = Math.max(1, Math.floor(mainCount / BODY_GROUPS.length));
-  let remaining = mainCount;
-  for (const cats of BODY_GROUPS) {
-    const groupPool = typePool.filter(e => cats.includes(e.cat));
-    const pick = pickExercises(groupPool, Math.min(perGroup, remaining));
-    mainExercises.push(...pick);
-    remaining -= pick.length;
+  const wDur = warmupDuration(config.duration);
+  const minMain = 60; // at least 1 minute of main work
+  const minTotal = wDur + POST_WARMUP_REST + minMain + COOLDOWN_DUR;
+  if (totalSec < minTotal) {
+    showGenError('Session too short for a full warm-up + cooldown. Try at least ' + Math.ceil(minTotal / 60) + ' min.');
+    return;
   }
-  if (remaining > 0) {
-    const used = new Set(mainExercises.map(e=>e.name));
-    const extra = shuffle(typePool.filter(e => !used.has(e.name))).slice(0, remaining);
-    mainExercises.push(...extra);
+
+  // Check that at least one region is includable.
+  const someIncluded = Object.values(focusState).some(s => s !== 'exclude');
+  if (!someIncluded) {
+    showGenError('All regions are excluded. Tap a focus chip to include at least one.');
+    return;
   }
-  mainExercises = shuffle(mainExercises);
 
-  const cooldownPool = DB.filter(e => COOLDOWN_CATS.includes(e.cat) && exerciseAvailable(e));
-  const cooldowns = pickExercises(cooldownPool, cooldownCount);
+  const usedNames = new Set();
 
-  workout = [];
-  warmups.forEach(e => workout.push(buildEntry(e, 'warmup')));
-  for (let s = 0; s < sets; s++) {
-    mainExercises.forEach((e, i) => {
-      const entry = buildEntry(e, 'main');
-      entry.setIdx = s;
-      // Last exercise in each non-final set gets the inter-set rest instead of normal rest.
-      if (i === mainExercises.length - 1 && s < sets - 1) {
-        entry.restSec = interSetRest;
-        entry.isInterSetRest = true;
+  // Warm-up.
+  const warmupEntries = buildWarmup(config.type, selectedEquipment, wDur, usedNames);
+  if (warmupEntries.length === 0) {
+    showGenError('No warm-up movements available for the selected equipment.');
+    return;
+  }
+
+  // Main: filter type pool, apply focus.
+  const excludedCats = new Set();
+  Object.entries(focusState).forEach(([region, st]) => {
+    if (st === 'exclude') (REGIONS[region] || []).forEach(c => excludedCats.add(c));
+  });
+  const typePool = DB.filter(e =>
+    e.types.includes(config.type) &&
+    e.equip.every(eq => selectedEquipment.has(eq)) &&
+    !excludedCats.has(e.cat) &&
+    !usedNames.has(e.name)
+  );
+  if (typePool.length === 0) {
+    showGenError('No exercises match this type, equipment, and focus combination. Try fewer exclusions.');
+    return;
+  }
+
+  // Solve for mainCount per set so total ≈ totalSec.
+  // Work block budget = totalSec - warmup - 60 - 300.
+  const mainBudget = totalSec - wDur - POST_WARMUP_REST - COOLDOWN_DUR;
+  // Estimate average per-exercise time to size the per-set count.
+  const sample = focusOrderedPool(typePool).slice(0, 12);
+  const avgPer = sample.length
+    ? sample.reduce((acc, ex) => {
+        const intensity = deriveIntensity(ex, config.type, config.intensity);
+        const r = config.type === 'strength' ? 30 : window.builder.pickIntervals(ex.cat, ex.diff, config.type, config.intensity, 'main').workSec;
+        const work = ex.single_sided ? r * 2 : r;
+        return acc + work + SET_REST[intensity];
+      }, 0) / sample.length
+    : 90;
+  let mainCount = Math.max(2, Math.round((mainBudget / sets) / avgPer));
+  // Cap so we don't over-pack: at most one of each from typePool.
+  mainCount = Math.min(mainCount, typePool.length, 10);
+
+  // Pick mainExercises distributed across body groups (region cats), focus-weighted.
+  const ordered = focusOrderedPool(typePool);
+  // Round-robin across cats for variety.
+  const buckets = new Map();
+  ordered.forEach(e => { if (!buckets.has(e.cat)) buckets.set(e.cat, []); buckets.get(e.cat).push(e); });
+  const catList = [...buckets.keys()];
+  shuffle(catList);
+  const mainExercises = [];
+  let added = true;
+  while (added && mainExercises.length < mainCount) {
+    added = false;
+    for (const cat of catList) {
+      const arr = buckets.get(cat);
+      if (arr && arr.length) {
+        mainExercises.push(arr.shift());
+        usedNames.add(mainExercises[mainExercises.length - 1].name);
+        added = true;
+        if (mainExercises.length >= mainCount) break;
       }
-      workout.push(entry);
-    });
+    }
   }
-  cooldowns.forEach(e => workout.push(buildEntry(e, 'cooldown')));
+  if (mainExercises.length === 0) {
+    showGenError('Could not assemble a main block. Try widening equipment or focus.');
+    return;
+  }
+
+  // Cooldown — exclude warmup + main names; bias toward main muscle groups.
+  const mainMuscles = new Set();
+  mainExercises.forEach(ex => ex.muscles.forEach(m => mainMuscles.add(m)));
+  const cooldownEntries = buildCooldown(selectedEquipment, mainMuscles, usedNames);
+  if (cooldownEntries.length === 0) {
+    showGenError('No cooldown movements available. Make sure a mat is selected.');
+    return;
+  }
+
+  workout = [...warmupEntries];
+  for (let s = 0; s < sets; s++) {
+    mainExercises.forEach(ex => workout.push(buildMainEntry(ex, config.type, config.intensity, s)));
+  }
+  cooldownEntries.forEach(e => workout.push(e));
+
+  // Reconcile total time exactly: pad/trim by adjusting the LAST main entry's restSec.
+  reconcileTotalTime(totalSec);
+
+  // The last main entry rests into cooldown — 0 it out so cooldown follows immediately.
+  const lastMainIdx = workout.map(w => w.section).lastIndexOf('main');
+  if (lastMainIdx >= 0) workout[lastMainIdx].restSec = 0;
 
   renderPreview();
   showScreen('preview');
+}
+
+function workoutScheduledSec() {
+  // For strength count-up sets, work is unknown — exclude work from estimate but include rest.
+  return workout.reduce((acc, w) => {
+    const work = (w.section === 'main' && config.type === 'strength') ? 0 : (w.workSec || 0);
+    return acc + work + (w.restSec || 0);
+  }, 0);
+}
+
+function reconcileTotalTime(targetSec) {
+  if (config.type === 'strength') return; // count-up sets have unknown duration; skip
+  const cur = workoutScheduledSec();
+  let delta = targetSec - cur;
+  if (delta === 0) return;
+  // Find the last main entry with non-zero restSec (we'll adjust it).
+  for (let i = workout.length - 1; i >= 0; i--) {
+    const w = workout[i];
+    if (w.section !== 'main') continue;
+    // PDR §6.4 allows 60-180s for set rest; honor the band as much as possible.
+    const newRest = Math.max(60, Math.min(180, (w.restSec || 0) + delta));
+    delta -= (newRest - (w.restSec || 0));
+    w.restSec = newRest;
+    if (delta === 0) break;
+  }
+  // Any residual: lengthen the last cooldown movement (PDR §9 gap policy).
+  if (delta !== 0) {
+    for (let i = workout.length - 1; i >= 0; i--) {
+      if (workout[i].section === 'cooldown') {
+        workout[i].workSec = Math.max(15, (workout[i].workSec || 0) + delta);
+        break;
+      }
+    }
+  }
 }
 
 function infoBtn(name) {
@@ -1592,37 +2009,48 @@ function lockstepIndices(idx) {
   for (let s = 0; s < sets; s++) out.push(mainIdxAt(s, info.pos));
   return out;
 }
-// Reapply rest values: pickIntervals per entry, then bake inter-set rest into the
-// last main entry of each non-final set.
+// Recompute timing on every main entry from its exercise + current settings.
+// Last main entry rests directly into cooldown (restSec = 0).
 function applyInterSetRest() {
   const { warmupCount, mainPerSet, sets } = getMainStructure();
-  const interSetRest = window.builder.pickInterSetRest(config.intensity);
   for (let s = 0; s < sets; s++) {
     for (let p = 0; p < mainPerSet; p++) {
       const idx = warmupCount + s * mainPerSet + p;
       const entry = workout[idx];
       if (!entry) continue;
-      const { workSec, restSec } = window.builder.pickIntervals(
-        entry.exercise.cat, entry.exercise.diff, config.type, config.intensity, 'main'
-      );
-      entry.workSec = workSec;
-      if (p === mainPerSet - 1 && s < sets - 1) {
-        entry.restSec = interSetRest;
-        entry.isInterSetRest = true;
+      const intensity = deriveIntensity(entry.exercise, config.type, config.intensity);
+      let workSec;
+      if (config.type === 'strength') {
+        workSec = 0;
       } else {
-        entry.restSec = restSec;
-        delete entry.isInterSetRest;
+        const r = window.builder.pickIntervals(entry.exercise.cat, entry.exercise.diff, config.type, config.intensity, 'main');
+        workSec = entry.exercise.single_sided ? r.workSec * 2 : r.workSec;
       }
+      entry.workSec = workSec;
+      entry.intensity = intensity;
+      entry.single_sided = !!entry.exercise.single_sided;
+      const isLast = (s === sets - 1) && (p === mainPerSet - 1);
+      entry.restSec = isLast ? 0 : SET_REST[intensity];
+      entry.restReason = isLast ? null : SET_REST_REASON[intensity];
     }
   }
+  // Refresh post-warmup rest on the last warmup entry (in case warmups were reordered/swapped).
+  const warmups = workout.filter(w => w.section === 'warmup');
+  if (warmups.length > 0) {
+    workout.filter(w => w.section === 'warmup').forEach((w, i, arr) => {
+      w.restSec = (i === arr.length - 1) ? POST_WARMUP_REST : 0;
+      w.restLabel = (i === arr.length - 1) ? 'Rest — get ready' : null;
+    });
+  }
+  // Cooldown entries have no inter-rest.
+  workout.filter(w => w.section === 'cooldown').forEach(w => { w.restSec = 0; });
 }
 
 function renderPreview() {
-  const totalWork = workout.reduce((s,w) => s + w.workSec, 0);
-  const totalRest = workout.reduce((s,w) => s + w.restSec, 0);
-  const totalMin = Math.ceil((totalWork + totalRest) / 60);
   const sets = config.sets || 1;
   const { mainPerSet } = getMainStructure();
+  const totalSec = workoutScheduledSec();
+  const totalMin = Math.ceil(totalSec / 60);
 
   document.getElementById('preview-meta').innerHTML =
     '<span class="meta-tag">'+config.type.toUpperCase()+'</span>'+
@@ -1632,13 +2060,21 @@ function renderPreview() {
 
   const list = document.getElementById('exercise-list');
   let lastSetIdx = -1;
+  let warmupHeaderShown = false;
+  let cooldownHeaderShown = false;
   list.innerHTML = workout.map((w, i) => {
     const equipStr = w.exercise.equip.join(', ');
     const muscleStr = w.exercise.muscles.join(', ');
     let header = '';
-    if (w.section === 'main' && w.setIdx !== lastSetIdx) {
+    if (w.section === 'warmup' && !warmupHeaderShown) {
+      warmupHeaderShown = true;
+      header = '<div class="set-header">Warm-up <span class="set-rest">continuous · ' + Math.ceil(workout.filter(x => x.section==='warmup').reduce((s,x)=>s+x.workSec,0)/60) + ' min</span></div>';
+    } else if (w.section === 'main' && w.setIdx !== lastSetIdx) {
       lastSetIdx = w.setIdx;
       header = '<div class="set-header">Set ' + (w.setIdx + 1) + ' of ' + sets + '</div>';
+    } else if (w.section === 'cooldown' && !cooldownHeaderShown) {
+      cooldownHeaderShown = true;
+      header = '<div class="set-header">Cooldown <span class="set-rest">continuous · 5 min</span></div>';
     }
 
     // Canonical row: editable. Warmup, cooldown, and main set 0 only.
@@ -1657,8 +2093,10 @@ function renderPreview() {
       }
     }
 
+    const sideBadge = w.section === 'main' && w.exercise.single_sided
+      ? '<span class="section-badge cooldown" style="background:var(--accent-soft);color:var(--accent);">2× / side</span>' : '';
     const nameInner = escapeHtml(w.exercise.name) + ' ' + infoBtn(w.exercise.name) +
-      '<span class="section-badge '+w.section+'">'+w.section+'</span>';
+      '<span class="section-badge '+w.section+'">'+w.section+'</span>' + sideBadge;
     const nameHtml = canonical
       ? '<div class="ex-name ex-name-link" onclick="openSwapPicker('+i+')">'+nameInner+'</div>'
       : '<div class="ex-name">'+nameInner+'</div>';
@@ -1671,15 +2109,24 @@ function renderPreview() {
          '<button class="ex-remove" onclick="removeExercise('+i+')" aria-label="Remove">&times;</button>')
       : '';
 
+    let detailText;
+    if (w.section === 'warmup') {
+      detailText = w.workSec + 's' + (w.restLabel ? ' · then ' + w.restSec + 's ' + escapeHtml(w.restLabel) : '');
+    } else if (w.section === 'cooldown') {
+      detailText = w.workSec + 's hold';
+    } else if (w.section === 'main' && config.type === 'strength') {
+      detailText = '<span class="ex-reps">' + window.builder.repTarget(w.exercise.diff) + '</span> · ' + w.restSec + 's rest';
+    } else {
+      detailText = w.workSec + 's work / ' + w.restSec + 's rest';
+    }
+
     return header +
       '<div class="exercise-item'+(canonical?'':' non-canonical')+'" data-idx="'+i+'">'+
         '<span class="ex-num">'+(i+1)+'</span>'+
         '<div class="ex-info">'+
           nameHtml +
           '<div class="ex-detail">'+
-            (w.section === 'main' && config.type === 'strength'
-              ? '<span class="ex-reps">'+window.builder.repTarget(w.exercise.diff)+'</span> &middot; '+w.restSec+'s rest'
-              : w.workSec+'s work / '+w.restSec+'s rest') +
+            detailText +
             ' &middot; '+escapeHtml(equipStr)+' &middot; '+escapeHtml(muscleStr)+
           '</div>'+
         '</div>'+
@@ -1790,13 +2237,11 @@ function chooseSwap(name) {
     const t = workout[i];
     if (!t) return;
     t.exercise = newEx;
-    const { workSec, restSec } = window.builder.pickIntervals(
-      newEx.cat, newEx.diff, config.type, config.intensity, t.section
-    );
-    t.workSec = workSec;
-    t.restSec = restSec;
+    if (t.section === 'warmup') { t.workSec = WARMUP_PER_MOVE; }
+    else if (t.section === 'cooldown') { t.workSec = COOLDOWN_PER_MOVE; }
   });
   if (entry.section === 'main') applyInterSetRest();
+  else applyInterSetRest(); // also refreshes warmup/cooldown timing
   closeSwap();
   renderPreview();
 }
@@ -1819,7 +2264,11 @@ function startWorkout() {
     running:true, paused:false, idx:0, phase:'work',
     remaining:workout[0].workSec, elapsed:0, intervalId:null,
     startedAt:Date.now(), pausedAt:null, pausedAccumMs:0,
-    extraRestSec:0, skippedExercises:[]
+    extraRestSec:0, skippedExercises:[],
+    switchFiredForIdx:null,        // single-sided mid-way cue de-dupe
+    strengthSide:0,                // single-sided strength: 0 = side 1, 1 = side 2
+    rampUpShown:false,             // strength ramp-up prompt fires once
+    countdownVoiceFired:null,      // last index for which 3-2-1 voice fired
   };
   showScreen('timer');
   // Reset toggle UI state
@@ -1830,6 +2279,8 @@ function startWorkout() {
   beepWork();
   timerState.intervalId = setInterval(tick, 1000);
   requestWakeLock();
+  enterFullscreen();
+  maybeShowIosFsHint();
 }
 
 async function requestWakeLock() {
@@ -1845,16 +2296,61 @@ function tick() {
     timerState.elapsed = (timerState.elapsed || 0) + 1;
   } else {
     timerState.remaining--;
-    if (timerState.remaining <= 3 && timerState.remaining > 0) beepCountdown();
+    // Single-sided mid-way switch cue (timed work only).
+    const w = workout[timerState.idx];
+    if (
+      timerState.phase === 'work' && w && w.single_sided &&
+      timerState.switchFiredForIdx !== timerState.idx &&
+      timerState.remaining === Math.floor(w.workSec / 2) &&
+      timerState.remaining > 0
+    ) {
+      fireSwitchSidesCue();
+      timerState.switchFiredForIdx = timerState.idx;
+    }
+    if (timerState.remaining <= 3 && timerState.remaining > 0) {
+      beepCountdown();
+      speak(String(timerState.remaining));
+    }
     if (timerState.remaining <= 0) advancePhase();
   }
   updateTimerUI();
 }
 
+function fireSwitchSidesCue() {
+  // Audio chime fires regardless of voice setting (PDR §6.9 Q6).
+  beep(880, 0.18, 0.32);
+  setTimeout(() => beep(660, 0.18, 0.32), 220);
+  speak('Switch sides');
+  const ov = document.getElementById('switch-overlay');
+  if (ov) {
+    ov.classList.remove('visible');
+    void ov.offsetWidth; // restart animation
+    ov.classList.add('visible');
+    setTimeout(() => ov.classList.remove('visible'), 2100);
+  }
+}
+
 function finishStrengthSet() {
   if (!isStrengthWorkPhase()) return;
   const entry = workout[timerState.idx];
-  if (entry) entry.actualWorkSec = timerState.elapsed || 0;
+  // Single-sided strength: two Done taps per set (Side 1 then Side 2).
+  if (entry && entry.single_sided && timerState.strengthSide === 0) {
+    entry.actualWorkSecSide1 = timerState.elapsed || 0;
+    timerState.strengthSide = 1;
+    timerState.elapsed = 0;
+    fireSwitchSidesCue();
+    updateTimerUI();
+    return;
+  }
+  if (entry) {
+    if (entry.single_sided) {
+      entry.actualWorkSecSide2 = timerState.elapsed || 0;
+      entry.actualWorkSec = (entry.actualWorkSecSide1 || 0) + (entry.actualWorkSecSide2 || 0);
+    } else {
+      entry.actualWorkSec = timerState.elapsed || 0;
+    }
+  }
+  timerState.strengthSide = 0;
   timerState.remaining = 0;
   advancePhase();
   if (timerState.running) updateTimerUI();
@@ -1867,10 +2363,14 @@ function advancePhase() {
       timerState.phase = 'rest';
       timerState.remaining = w.restSec;
       beepRest();
-      // Announce next exercise during rest
+      // Post-warmup rest: special voice + maybe ramp-up prompt.
       const nextIdx = timerState.idx + 1;
-      if (nextIdx < workout.length) {
-        speak('Rest. Next up: ' + workout[nextIdx].exercise.name);
+      const nextEntry = workout[nextIdx];
+      if (w.section === 'warmup' && w.restLabel === 'Rest — get ready') {
+        speak('Warm-up done. Get ready.');
+      } else if (nextEntry) {
+        const sideHint = nextEntry.single_sided ? ' (single side)' : '';
+        speak('Rest. Next up: ' + nextEntry.exercise.name + sideHint);
       } else {
         speak('Rest. Last exercise done.');
       }
@@ -1888,8 +2388,30 @@ function advanceExercise() {
   timerState.phase = 'work';
   timerState.remaining = workout[timerState.idx].workSec;
   timerState.elapsed = 0;
+  timerState.switchFiredForIdx = null;
+  timerState.strengthSide = 0;
   beepWork();
   speak(workout[timerState.idx].exercise.name);
+}
+
+function phaseLabelFor(w, phase) {
+  if (!w) return phase.toUpperCase();
+  if (phase === 'rest') {
+    if (w.restLabel) return w.restLabel.toUpperCase();
+    return 'REST';
+  }
+  // work
+  if (w.section === 'warmup') {
+    const warmups = workout.filter(x => x.section === 'warmup');
+    const pos = warmups.indexOf(w) + 1;
+    return 'WARM-UP ' + pos + ' OF ' + warmups.length;
+  }
+  if (w.section === 'cooldown') {
+    const cools = workout.filter(x => x.section === 'cooldown');
+    const pos = cools.indexOf(w) + 1;
+    return 'COOLDOWN ' + pos + ' OF ' + cools.length;
+  }
+  return 'WORK';
 }
 
 function updateTimerUI() {
@@ -1898,7 +2420,7 @@ function updateTimerUI() {
   timerEl.className = 'screen active phase-' + timerState.phase;
 
   const phaseEl = document.getElementById('t-phase');
-  phaseEl.textContent = timerState.phase === 'work' ? 'WORK' : 'REST';
+  phaseEl.textContent = phaseLabelFor(w, timerState.phase);
   phaseEl.className = 'timer-phase ' + timerState.phase;
 
   const nameEl = document.getElementById('t-name');
@@ -1912,11 +2434,24 @@ function updateTimerUI() {
     ? w.exercise.equip.join(', ') + ' - ' + w.exercise.muscles.join(', ')
     : 'Next: ' + (timerState.idx + 1 < workout.length ? workout[timerState.idx + 1].exercise.name : 'Done!');
 
+  // Rest reason badge: shown during main rest (PDR §6.4 reason badge).
+  const reasonEl = document.getElementById('t-rest-reason');
+  if (timerState.phase === 'rest' && w.restReason) {
+    reasonEl.textContent = w.restReason;
+    reasonEl.style.display = 'inline-block';
+  } else {
+    reasonEl.style.display = 'none';
+  }
+
   const strengthWork = isStrengthWorkPhase();
   const displaySec = strengthWork ? (timerState.elapsed || 0) : timerState.remaining;
   const mins = Math.floor(displaySec / 60);
   const secs = displaySec % 60;
-  document.getElementById('t-time').textContent = mins + ':' + String(secs).padStart(2,'0');
+  const timeEl = document.getElementById('t-time');
+  timeEl.textContent = mins + ':' + String(secs).padStart(2,'0');
+  // Countdown enhancement: enlarge digits in final 3s of timed phases.
+  const inFinal = !strengthWork && timerState.phase !== 'done' && timerState.remaining > 0 && timerState.remaining <= 3;
+  timeEl.classList.toggle('countdown-final', inFinal);
 
   // Total-remaining is meaningless during strength count-up (work duration is unknown),
   // so we only show it for non-strength flows.
@@ -1962,8 +2497,20 @@ function updateTimerUI() {
   document.getElementById('t-next').textContent = nextEntry ? nextEntry.exercise.name : 'Finish';
 
   // Show the next exercise's description during rest only — gives the user a moment to read up.
+  // Strength ramp-up prompt overrides during the post-warmup rest if the first main is loaded.
   const nextInfoEl = document.getElementById('t-next-info');
-  nextInfoEl.textContent = (timerState.phase === 'rest' && nextEntry) ? (nextEntry.exercise.info || '') : '';
+  if (
+    timerState.phase === 'rest' && w.section === 'warmup' && w.restLabel === 'Rest — get ready' &&
+    config.type === 'strength' && nextEntry &&
+    nextEntry.exercise.equip.some(eq => LOADED_EQUIP.includes(eq))
+  ) {
+    nextInfoEl.innerHTML =
+      '<strong style="color:var(--accent);">Ramp-up:</strong> before your first working set of ' +
+      escapeHtml(nextEntry.exercise.name) +
+      ', do 2 light sets at ~50% and ~70% of your working weight.';
+  } else {
+    nextInfoEl.textContent = (timerState.phase === 'rest' && nextEntry) ? (nextEntry.exercise.info || '') : '';
+  }
 
   // Swap pause/play icon + label based on state.
   const pauseLabel = document.getElementById('t-pause-label');
@@ -1979,6 +2526,7 @@ function updateTimerUI() {
   else addRestBtn.classList.remove('visible');
 
   // Strength-mode: show Done button during work; show rep target + weight input during rest.
+  // Weight input must be hidden during warmup/cooldown (PDR §6.1, §6.2).
   const doneBtn = document.getElementById('t-strength-done');
   const repEl = document.getElementById('t-rep-target');
   const wEl = document.getElementById('t-weight-input');
@@ -1987,7 +2535,8 @@ function updateTimerUI() {
   const isStrengthMain = w && w.section === 'main' && config.type === 'strength';
   if (isStrengthMain && timerState.phase === 'work') {
     doneBtn.classList.add('visible');
-    repEl.textContent = 'Target: ' + window.builder.repTarget(w.exercise.diff);
+    const sideLabel = w.single_sided ? 'Side ' + (timerState.strengthSide + 1) + ' of 2 · ' : '';
+    repEl.textContent = sideLabel + 'Target: ' + window.builder.repTarget(w.exercise.diff);
     wEl.classList.remove('visible');
   } else if (isStrengthMain && timerState.phase === 'rest') {
     doneBtn.classList.remove('visible');
@@ -2060,6 +2609,8 @@ function restartExercise() {
   timerState.phase = 'work';
   timerState.remaining = w.workSec;
   timerState.elapsed = 0;
+  timerState.switchFiredForIdx = null;
+  timerState.strengthSide = 0;
   beepWork();
   speak(w.exercise.name);
   updateTimerUI();
@@ -2073,15 +2624,75 @@ function prevExercise() {
   timerState.phase = 'work';
   timerState.remaining = w.workSec;
   timerState.elapsed = 0;
+  timerState.switchFiredForIdx = null;
+  timerState.strengthSide = 0;
   beepWork();
   speak(w.exercise.name);
   updateTimerUI();
+}
+
+// ── Fullscreen (PDR §6.8) ────────────────────────────────────
+function isFullscreen() {
+  return !!(document.fullscreenElement || document.webkitFullscreenElement);
+}
+
+function enterFullscreen() {
+  const el = document.documentElement;
+  const req = el.requestFullscreen || el.webkitRequestFullscreen;
+  if (req) { try { req.call(el); } catch (e) {} }
+  syncFsIcon();
+}
+
+function exitFullscreen() {
+  const exit = document.exitFullscreen || document.webkitExitFullscreen;
+  if (exit && (document.fullscreenElement || document.webkitFullscreenElement)) {
+    try { exit.call(document); } catch (e) {}
+  }
+  syncFsIcon();
+}
+
+function toggleFullscreen() {
+  if (isFullscreen()) exitFullscreen();
+  else enterFullscreen();
+}
+
+function syncFsIcon() {
+  const icon = document.getElementById('t-fs-icon');
+  if (!icon) return;
+  icon.innerHTML = isFullscreen()
+    ? '<path d="M8 3v6H2"/><path d="M16 3v6h6"/><path d="M8 21v-6H2"/><path d="M16 21v-6h6"/>'
+    : '<path d="M3 9V3h6"/><path d="M21 9V3h-6"/><path d="M3 15v6h6"/><path d="M21 15v6h-6"/>';
+}
+document.addEventListener('fullscreenchange', syncFsIcon);
+document.addEventListener('webkitfullscreenchange', syncFsIcon);
+
+// iOS Safari can't requestFullscreen on arbitrary elements. Show a one-time hint
+// suggesting Add to Home Screen, unless already running standalone.
+function isIosBrowser() {
+  const ua = navigator.userAgent || '';
+  const isIos = /iPad|iPhone|iPod/.test(ua);
+  const standalone = window.navigator.standalone === true;
+  return isIos && !standalone;
+}
+
+function maybeShowIosFsHint() {
+  if (!isIosBrowser()) return;
+  if (localStorage.getItem('wk_ios_fs_dismissed') === '1') return;
+  const el = document.getElementById('ios-fs-hint');
+  if (el) el.classList.add('visible');
+}
+
+function dismissIosFsHint() {
+  const el = document.getElementById('ios-fs-hint');
+  if (el) el.classList.remove('visible');
+  try { localStorage.setItem('wk_ios_fs_dismissed', '1'); } catch (e) {}
 }
 
 function stopWorkout() {
   timerState.running = false;
   clearInterval(timerState.intervalId);
   releaseWakeLock();
+  exitFullscreen();
   showScreen('setup');
 }
 
@@ -2090,6 +2701,7 @@ function finishWorkout() {
   clearInterval(timerState.intervalId);
   releaseWakeLock();
   beepDone();
+  exitFullscreen();
 
   // Wall-clock minus paused-ms (per Sprint 1 plan).
   const pausedMs = timerState.pausedAccumMs + (timerState.pausedAt ? Date.now() - timerState.pausedAt : 0);
@@ -2098,25 +2710,62 @@ function finishWorkout() {
   const eSecs = actualDurationSec % 60;
 
   const skippedSet = new Set(timerState.skippedExercises);
+  const mainExercises = workout
+    .map((w, i) => ({ w, i }))
+    .filter(({ w }) => w.section === 'main')
+    .map(({ w, i }) => ({
+      name: w.exercise.name,
+      category: w.exercise.cat,
+      section: 'main',
+      setIdx: w.setIdx ?? null,
+      workSec: w.workSec,
+      restSec: w.restSec,
+      set_rest_seconds: w.restSec,
+      intensity: w.intensity,
+      single_sided: !!w.single_sided,
+      actualWorkSec: w.actualWorkSec ?? null,
+      completed: !skippedSet.has(i),
+      weightKg: w.actualWeightKg ?? null,
+    }));
+  const warmupExercises = workout
+    .map((w, i) => ({ w, i }))
+    .filter(({ w }) => w.section === 'warmup')
+    .map(({ w, i }) => ({
+      name: w.exercise.name,
+      category: w.exercise.cat,
+      section: 'warmup',
+      duration_seconds: w.workSec,
+      equipment: w.exercise.equip[0],
+      completed: !skippedSet.has(i),
+    }));
+  const cooldownExercises = workout
+    .map((w, i) => ({ w, i }))
+    .filter(({ w }) => w.section === 'cooldown')
+    .map(({ w, i }) => ({
+      name: w.exercise.name,
+      category: w.exercise.cat,
+      section: 'cooldown',
+      duration_seconds: w.workSec,
+      equipment: w.exercise.equip[0],
+      completed: !skippedSet.has(i),
+    }));
+
   const session = {
     date: new Date(timerState.startedAt).toISOString(),
     type: config.type,
     intensity: config.intensity,
     sets: config.sets,
-    interSetRestSec: window.builder.pickInterSetRest(config.intensity),
     plannedDurationMin: config.duration,
     actualDurationSec,
-    exercises: workout.map((w, i) => ({
-      name: w.exercise.name,
-      category: w.exercise.cat,
-      section: w.section,
-      setIdx: w.setIdx ?? null,
-      workSec: w.workSec,
-      restSec: w.restSec,
-      actualWorkSec: w.actualWorkSec ?? null,
-      completed: !skippedSet.has(i),
-      weightKg: w.actualWeightKg ?? null,
-    })),
+    focus: { ...focusState },
+    warmup: warmupExercises,
+    post_warmup_rest_seconds: POST_WARMUP_REST,
+    exercises: mainExercises,
+    cooldown: cooldownExercises,
+    settings_snapshot: {
+      palette: currentTheme,
+      font_scale: FONT_STEPS[currentFontIdx],
+    },
     rpe: null,
     note: null,
     skippedCount: timerState.skippedExercises.length,
@@ -2128,7 +2777,8 @@ function finishWorkout() {
     pendingSessionId = saved ? saved.id : null;
   } catch (e) {}
 
-  document.getElementById('d-exercises').textContent = workout.length;
+  // PDR §6.2: cooldown not counted in "Exercises" total.
+  document.getElementById('d-exercises').textContent = mainExercises.length;
   document.getElementById('d-time').textContent = eMins + ':' + String(eSecs).padStart(2,'0');
   document.getElementById('d-type').textContent = config.type.toUpperCase();
   resetDoneCapture();
@@ -2173,6 +2823,7 @@ document.addEventListener('visibilitychange', () => {
 
 loadEquipmentSelection();
 loadAppSettings();
+loadFocus();
 // Make the bottom nav visible immediately on the initial active (setup) screen.
 document.getElementById('bottom-nav').classList.toggle('visible',
   document.querySelector('.screen.active')?.classList.contains('has-nav'));
