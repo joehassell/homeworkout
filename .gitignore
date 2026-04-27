@@ -1,0 +1,12 @@
+# Node / Capacitor
+node_modules/
+www/
+package-lock.json
+
+# Xcode user state (per-developer, not source-of-truth)
+**/xcuserdata/
+**/*.xcuserstate
+**/DerivedData/
+
+# macOS noise
+.DS_Store

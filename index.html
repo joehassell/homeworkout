@@ -256,6 +256,9 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   cursor: pointer; touch-action: manipulation;
 }
 .fs-toggle:active { transform: scale(0.92); }
+/* Native iOS shell is always fullscreen; the in-browser toggle is meaningless. */
+html.is-native .fs-toggle { display: none; }
+html.is-native .ios-fs-hint { display: none !important; }
 .ios-fs-hint {
   position: fixed; bottom: 88px; left: 16px; right: 16px;
   z-index: 60; padding: 12px 14px; border-radius: 10px;
@@ -270,16 +273,9 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   font-size: 0.8rem; font-weight: 600; cursor: pointer;
 }
 .generate-section {
-  position: fixed;
-  left: 16px; right: 16px;
-  bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 8px);
-  z-index: 40;
-  padding: 14px 0 0;
-  background: linear-gradient(to bottom, transparent, var(--bg) 35%, var(--bg));
+  margin-top: auto;
+  padding-top: 24px;
 }
-/* When the Generate footer is fixed, give the setup screen extra bottom padding
-   so its scrollable content doesn't slide under the CTA. */
-#setup.has-nav { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 88px); }
 
 /* Preview */
 #preview { gap: 0; }
@@ -1313,6 +1309,24 @@ function beepWork() { beep(880, 0.15); setTimeout(()=>beep(880,0.15),200); }
 function beepRest() { beep(440, 0.3); }
 function beepDone() { beep(660,0.15); setTimeout(()=>beep(880,0.15),200); setTimeout(()=>beep(1100,0.3),400); }
 function beepCountdown() { beep(660, 0.08, 0.15); }
+
+// ── Native bridge (Capacitor) ────────────────────────────────
+// When running inside the SimpleWorkoutGen iOS shell, prefer native APIs:
+// haptics on switch-sides + final countdown, native fullscreen handling.
+function isNative() {
+  return !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+}
+function nativeHaptic(style) {
+  if (!isNative()) return;
+  const H = window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics;
+  if (!H) return;
+  try {
+    if (style === 'selection') H.selectionStart();
+    else if (style === 'heavy') H.impact({ style: 'HEAVY' });
+    else if (style === 'medium') H.impact({ style: 'MEDIUM' });
+    else H.impact({ style: 'LIGHT' });
+  } catch (e) {}
+}
 
 // ═══════════════════════════════════════════════════
 // TEXT-TO-SPEECH
@@ -2361,6 +2375,7 @@ function tick() {
     }
     if (timerState.remaining <= 3 && timerState.remaining > 0) {
       beepCountdown();
+      nativeHaptic('light');
       speak(String(timerState.remaining));
     }
     if (timerState.remaining <= 0) advancePhase();
@@ -2372,6 +2387,7 @@ function fireSwitchSidesCue() {
   // Audio chime fires regardless of voice setting (PDR §6.9 Q6).
   beep(880, 0.18, 0.32);
   setTimeout(() => beep(660, 0.18, 0.32), 220);
+  nativeHaptic('heavy');
   speak('Switch to left side');
   const ov = document.getElementById('switch-overlay');
   if (ov) {
@@ -2693,10 +2709,12 @@ function prevExercise() {
 
 // ── Fullscreen (PDR §6.8) ────────────────────────────────────
 function isFullscreen() {
+  if (isNative()) return true; // native shell is always fullscreen
   return !!(document.fullscreenElement || document.webkitFullscreenElement);
 }
 
 function enterFullscreen() {
+  if (isNative()) { syncFsIcon(); return; } // no-op natively (already fullscreen)
   const el = document.documentElement;
   const req = el.requestFullscreen || el.webkitRequestFullscreen;
   if (req) { try { req.call(el); } catch (e) {} }
@@ -2704,6 +2722,7 @@ function enterFullscreen() {
 }
 
 function exitFullscreen() {
+  if (isNative()) { syncFsIcon(); return; }
   const exit = document.exitFullscreen || document.webkitExitFullscreen;
   if (exit && (document.fullscreenElement || document.webkitFullscreenElement)) {
     try { exit.call(document); } catch (e) {}
@@ -2712,6 +2731,7 @@ function exitFullscreen() {
 }
 
 function toggleFullscreen() {
+  if (isNative()) return; // no-op; the toggle is hidden natively
   if (isFullscreen()) exitFullscreen();
   else enterFullscreen();
 }
@@ -2736,6 +2756,7 @@ function isIosBrowser() {
 }
 
 function maybeShowIosFsHint() {
+  if (isNative()) return; // shell IS the native app
   if (!isIosBrowser()) return;
   if (localStorage.getItem('wk_ios_fs_dismissed') === '1') return;
   const el = document.getElementById('ios-fs-hint');
@@ -2880,6 +2901,10 @@ function releaseWakeLock() {
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && timerState.running) requestWakeLock();
 });
+
+// Tag the document with is-native when running inside the Capacitor iOS shell so
+// CSS can hide controls that don't apply (fullscreen toggle, Add-to-Home-Screen hint).
+if (isNative()) document.documentElement.classList.add('is-native');
 
 loadEquipmentSelection();
 loadAppSettings();
