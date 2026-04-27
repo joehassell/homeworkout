@@ -1,0 +1,33 @@
+{
+  "images" : [
+    {
+      "idiom" : "watch",
+      "scale" : "2x",
+      "size" : "40x40",
+      "filename" : "icon-80.png"
+    },
+    {
+      "idiom" : "watch",
+      "scale" : "2x",
+      "size" : "44x44",
+      "filename" : "icon-88.png"
+    },
+    {
+      "idiom" : "watch",
+      "scale" : "2x",
+      "size" : "50x50",
+      "filename" : "icon-100.png"
+    },
+    {
+      "idiom" : "watch",
+      "role" : "appLauncher",
+      "scale" : "2x",
+      "size" : "1024x1024",
+      "filename" : "icon-1024.png"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

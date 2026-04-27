@@ -1,0 +1,320 @@
+import Foundation
+import HealthKit
+import WatchConnectivity
+import WatchKit
+import Combine
+
+@MainActor
+class WorkoutSessionManager: NSObject, ObservableObject {
+    // MARK: - Published UI State
+
+    @Published var isActive = false
+    @Published var exerciseName = ""
+    @Published var phase = "work"
+    @Published var remaining = 0
+    @Published var section = "main"
+    @Published var nextExerciseName = ""
+    @Published var exerciseIndex = 0
+    @Published var exerciseCount = 0
+    @Published var totalRemaining = 0
+    @Published var isPaused = false
+    @Published var heartRate: Double = 0
+    @Published var isPhoneReachable = false
+    @Published var workoutType = ""
+
+    // MARK: - Internal
+
+    private let healthStore = HKHealthStore()
+    private var session: HKWorkoutSession?
+    private var builder: HKLiveWorkoutBuilder?
+    private var localTimer: Timer?
+    private var lastSyncTimestamp: Date?
+
+    // MARK: - Init
+
+    override init() {
+        super.init()
+        activateWCSession()
+    }
+
+    private func activateWCSession() {
+        guard WCSession.isSupported() else { return }
+        let s = WCSession.default
+        s.delegate = self
+        s.activate()
+    }
+
+    // MARK: - HealthKit Workout Session
+
+    private func startHealthKitSession() {
+        guard HKHealthStore.isHealthDataAvailable() else { return }
+
+        let config = HKWorkoutConfiguration()
+        config.activityType = mapWorkoutType(workoutType)
+        config.locationType = .indoor
+
+        do {
+            session = try HKWorkoutSession(healthStore: healthStore, configuration: config)
+            builder = session?.associatedWorkoutBuilder()
+            builder?.dataSource = HKLiveWorkoutDataSource(healthStore: healthStore, workoutConfiguration: config)
+
+            session?.delegate = self
+            builder?.delegate = self
+
+            let startDate = Date()
+            session?.startActivity(with: startDate)
+            builder?.beginCollection(withStart: startDate) { success, error in
+                if let error = error {
+                    NSLog("Watch: beginCollection error: \(error.localizedDescription)")
+                }
+            }
+
+            // Notify phone that watch owns the HK session
+            sendToPhone(["type": "workoutSessionStarted"])
+        } catch {
+            NSLog("Watch: failed to start HK session: \(error.localizedDescription)")
+        }
+    }
+
+    private func endHealthKitSession() {
+        guard let session = session, let builder = builder else { return }
+
+        session.end()
+        builder.endCollection(withEnd: Date()) { success, error in
+            if success {
+                builder.finishWorkout { workout, error in
+                    if let error = error {
+                        NSLog("Watch: finishWorkout error: \(error.localizedDescription)")
+                    }
+                }
+            }
+        }
+
+        // Notify phone
+        sendToPhone(["type": "workoutSessionEnded"])
+        self.session = nil
+        self.builder = nil
+    }
+
+    // MARK: - Local Countdown Fallback
+
+    private func startLocalCountdown() {
+        stopLocalCountdown()
+        localTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self, self.isActive, !self.isPaused else { return }
+                if self.remaining > 0 {
+                    self.remaining -= 1
+                }
+                if self.totalRemaining > 0 {
+                    self.totalRemaining -= 1
+                }
+            }
+        }
+    }
+
+    private func stopLocalCountdown() {
+        localTimer?.invalidate()
+        localTimer = nil
+    }
+
+    // MARK: - Phone Communication
+
+    private func sendToPhone(_ message: [String: Any]) {
+        guard WCSession.default.isReachable else {
+            // Queue via transferUserInfo for reliable delivery
+            WCSession.default.transferUserInfo(message)
+            return
+        }
+        WCSession.default.sendMessage(message, replyHandler: nil) { error in
+            NSLog("Watch: sendMessage error: \(error.localizedDescription)")
+            // Fallback
+            WCSession.default.transferUserInfo(message)
+        }
+    }
+
+    func sendControl(_ action: String) {
+        sendToPhone(["type": "control", "action": action])
+
+        // Optimistic UI update
+        switch action {
+        case "pause":
+            isPaused = true
+        case "resume":
+            isPaused = false
+        default:
+            break
+        }
+    }
+
+    // MARK: - Haptics
+
+    private func fireHaptic(for cue: String) {
+        let device = WKInterfaceDevice.current()
+        switch cue {
+        case "countdown":
+            device.play(.click)
+        case "phaseChange":
+            device.play(.notification)
+        case "switchSides":
+            device.play(.directionUp)
+        case "done":
+            device.play(.success)
+        default:
+            device.play(.click)
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func mapWorkoutType(_ type: String) -> HKWorkoutActivityType {
+        switch type {
+        case "strength": return .traditionalStrengthTraining
+        case "hiit": return .highIntensityIntervalTraining
+        case "conditioning": return .crossTraining
+        case "functional": return .functionalStrengthTraining
+        default: return .functionalStrengthTraining
+        }
+    }
+
+    private func applyState(_ state: [String: Any]) {
+        if let v = state["exerciseName"] as? String { exerciseName = v }
+        if let v = state["phase"] as? String {
+            let oldPhase = phase
+            phase = v
+            if v != oldPhase { fireHaptic(for: "phaseChange") }
+        }
+        if let v = state["remaining"] as? Int { remaining = v }
+        if let v = state["section"] as? String { section = v }
+        if let v = state["nextExerciseName"] as? String { nextExerciseName = v }
+        if let v = state["exerciseIndex"] as? Int { exerciseIndex = v }
+        if let v = state["exerciseCount"] as? Int { exerciseCount = v }
+        if let v = state["totalRemaining"] as? Int { totalRemaining = v }
+        if let v = state["isPaused"] as? Bool { isPaused = v }
+        if let v = state["workoutType"] as? String { workoutType = v }
+
+        lastSyncTimestamp = Date()
+
+        // If we were using local countdown, re-sync
+        if localTimer != nil {
+            stopLocalCountdown()
+        }
+    }
+}
+
+// MARK: - WCSessionDelegate
+
+extension WorkoutSessionManager: WCSessionDelegate {
+    nonisolated func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        if let error = error {
+            NSLog("Watch WC: activation error: \(error.localizedDescription)")
+        }
+        Task { @MainActor in
+            self.isPhoneReachable = session.isReachable
+        }
+    }
+
+    nonisolated func sessionReachabilityDidChange(_ session: WCSession) {
+        Task { @MainActor in
+            self.isPhoneReachable = session.isReachable
+            if !session.isReachable && self.isActive {
+                self.startLocalCountdown()
+            }
+        }
+    }
+
+    nonisolated func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+        Task { @MainActor in
+            self.applyState(applicationContext)
+            if !self.isActive && applicationContext["exerciseName"] != nil {
+                self.isActive = true
+                self.startHealthKitSession()
+            }
+        }
+    }
+
+    nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+        handleMessage(message)
+    }
+
+    nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
+        handleMessage(message)
+        replyHandler(["received": true])
+    }
+
+    nonisolated func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
+        handleMessage(userInfo)
+    }
+
+    private nonisolated func handleMessage(_ message: [String: Any]) {
+        guard let type = message["type"] as? String else { return }
+
+        Task { @MainActor in
+            switch type {
+            case "workoutStart":
+                self.isActive = true
+                if let wt = message["workoutType"] as? String { self.workoutType = wt }
+                self.applyState(message)
+                self.startHealthKitSession()
+
+            case "workoutEnd":
+                self.isActive = false
+                self.endHealthKitSession()
+                self.stopLocalCountdown()
+                self.fireHaptic(for: "done")
+
+            case "hapticCue":
+                let style = message["style"] as? String ?? "click"
+                self.fireHaptic(for: style)
+
+            default:
+                break
+            }
+        }
+    }
+}
+
+// MARK: - HKWorkoutSessionDelegate
+
+extension WorkoutSessionManager: HKWorkoutSessionDelegate {
+    nonisolated func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState, from fromState: HKWorkoutSessionState, date: Date) {
+        NSLog("Watch HK session state: \(fromState.rawValue) -> \(toState.rawValue)")
+    }
+
+    nonisolated func workoutSession(_ workoutSession: HKWorkoutSession, didFailWithError error: Error) {
+        NSLog("Watch HK session error: \(error.localizedDescription)")
+    }
+}
+
+// MARK: - HKLiveWorkoutBuilderDelegate
+
+extension WorkoutSessionManager: HKLiveWorkoutBuilderDelegate {
+    nonisolated func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) {}
+
+    nonisolated func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
+        for type in collectedTypes {
+            guard let quantityType = type as? HKQuantityType,
+                  quantityType == HKQuantityType(.heartRate) else { continue }
+
+            let stats = workoutBuilder.statistics(for: quantityType)
+            guard let mostRecent = stats?.mostRecentQuantity() else { continue }
+
+            let bpm = mostRecent.doubleValue(for: HKUnit.count().unitDivided(by: .minute()))
+
+            Task { @MainActor in
+                self.heartRate = bpm
+            }
+
+            // Send HR to phone
+            let hrMessage: [String: Any] = [
+                "type": "heartRate",
+                "bpm": bpm,
+                "timestamp": Date().timeIntervalSince1970,
+            ]
+
+            if WCSession.default.isReachable {
+                WCSession.default.sendMessage(hrMessage, replyHandler: nil) { _ in }
+            }
+        }
+    }
+}
