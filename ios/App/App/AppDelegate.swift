@@ -1,6 +1,7 @@
 import UIKit
 import Capacitor
 import AVFoundation
+import WatchConnectivity
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -20,7 +21,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             NSLog("SimpleWorkoutGen: AVAudioSession configuration failed: \(error)")
         }
 
-        // Idle timer disabled by the screen-wake-lock plugin / web wakeLock; nothing here.
+        // Activate WatchConnectivity early so messages are received before
+        // the Capacitor webview loads the WatchConnectivityPlugin.
+        if WCSession.isSupported() {
+            WCSession.default.activate()
+        }
+
         return true
     }
 

@@ -263,6 +263,8 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 /* Native iOS shell is always fullscreen; the in-browser toggle is meaningless. */
 html.is-native .fs-toggle { display: none; }
 html.is-native .ios-fs-hint { display: none !important; }
+.is-native-only { display: none; }
+html.is-native .is-native-only { display: flex; }
 .ios-fs-hint {
   position: fixed; bottom: 88px; left: 16px; right: 16px;
   z-index: 60; padding: 12px 14px; border-radius: 10px;
@@ -426,8 +428,14 @@ html.is-native .ios-fs-hint { display: none !important; }
 }
 @media (max-width: 400px) { .timer-display { font-size: 5.5rem; } }
 .timer-total {
-  font-size: 0.85rem; color: var(--text-dim); margin-bottom: 32px;
+  font-size: 0.85rem; color: var(--text-dim); margin-bottom: 12px;
 }
+.timer-hr {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 1rem; color: var(--text); margin-bottom: 20px;
+}
+.timer-hr .hr-icon { color: #ef4444; font-size: 1.2rem; }
+.timer-hr .hr-unit { font-size: 0.75rem; color: var(--text-dim); }
 .timer-progress {
   width: 100%; max-width: 400px; height: 6px; border-radius: 3px;
   background: var(--border); margin-bottom: 12px; overflow: hidden;
@@ -853,6 +861,11 @@ html.is-native .ios-fs-hint { display: none !important; }
   <div class="rest-reason" id="t-rest-reason" style="display:none;"></div>
   <div class="timer-display" id="t-time">0:45</div>
   <div class="timer-total" id="t-total">Total: 12:30 remaining</div>
+  <div id="t-hr" class="timer-hr" style="display:none;">
+    <span class="hr-icon">&#x2665;</span>
+    <span id="t-hr-val">--</span>
+    <span class="hr-unit">BPM</span>
+  </div>
   <div class="timer-progress"><div class="timer-progress-bar" id="t-bar"></div></div>
   <div class="timer-ex-progress" id="t-ex-progress">Exercise 1 of 12</div>
   <div class="timer-set-progress" id="t-set-progress"></div>
@@ -968,6 +981,18 @@ html.is-native .ios-fs-hint { display: none !important; }
       <button type="button" class="font-step fs-current" id="font-current">A</button>
       <button type="button" class="font-step fs-up" onclick="stepFont(1)" aria-label="Larger font">A+</button>
     </div>
+  </div>
+  <div class="settings-row is-native-only" id="settings-weight-row">
+    <label class="settings-label" for="set-weight">Body Weight</label>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <input type="number" id="set-weight" class="settings-input" value="70" min="30" max="300" step="0.5"
+        onchange="saveWeightSetting()" style="width:70px;padding:8px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:0.9rem;text-align:center;">
+      <span class="settings-label" style="margin:0;opacity:0.6;">kg</span>
+    </div>
+  </div>
+  <div class="settings-row is-native-only" id="settings-health-row">
+    <label class="settings-label">Apple Health</label>
+    <span id="health-status" class="settings-label" style="margin:0;opacity:0.7;">--</span>
   </div>
   <div class="settings-row settings-row-stack">
     <label class="settings-label">Backup</label>
@@ -1345,6 +1370,165 @@ function beepCountdown() { beep(660, 0.08, 0.15); }
 function isNative() {
   return !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 }
+
+// ── HealthKit bridge ──────────────────────────────────
+let healthKitReady = false;
+let healthKitSessionId = null;
+let userWeightKg = 70;
+
+async function initHealthKit() {
+  if (!isNative()) return;
+  const statusEl = document.getElementById('health-status');
+  try {
+    const hk = window.Capacitor.Plugins.HealthKitPlugin;
+    const { available } = await hk.isAvailable();
+    if (!available) {
+      if (statusEl) statusEl.textContent = 'Not Available';
+      return;
+    }
+    const { granted } = await hk.requestAuthorization();
+    healthKitReady = granted;
+    if (statusEl) statusEl.textContent = granted ? 'Connected' : 'Not Connected';
+    if (granted) {
+      const w = await hk.getBodyWeight();
+      if (w.available) {
+        userWeightKg = Math.round(w.weightKg * 10) / 10;
+        const wEl = document.getElementById('set-weight');
+        if (wEl) wEl.value = userWeightKg;
+        saveAppSettings();
+      }
+    }
+  } catch (e) {
+    if (statusEl) statusEl.textContent = 'Not Available';
+  }
+}
+
+async function hkStartWorkout(exerciseName, remaining, phase, exerciseIndex, exerciseCount) {
+  if (!healthKitReady) return;
+  try {
+    const hk = window.Capacitor.Plugins.HealthKitPlugin;
+    const res = await hk.startWorkout({
+      type: config.type,
+      exerciseName: exerciseName || '',
+      remaining: remaining || 0,
+      phase: phase || 'warmup',
+      exerciseIndex: exerciseIndex || 0,
+      exerciseCount: exerciseCount || 0,
+    });
+    healthKitSessionId = res.sessionId;
+  } catch (e) { /* degrade silently */ }
+}
+
+async function hkEndWorkout(exerciseCount) {
+  if (!healthKitReady || !healthKitSessionId) return;
+  try {
+    const hk = window.Capacitor.Plugins.HealthKitPlugin;
+    await hk.endWorkout({
+      sessionId: healthKitSessionId,
+      weightKg: userWeightKg,
+      exerciseCount: exerciseCount || 0,
+    });
+  } catch (e) { /* degrade silently */ }
+  healthKitSessionId = null;
+}
+
+async function hkDiscardWorkout() {
+  if (!healthKitReady || !healthKitSessionId) return;
+  try {
+    await window.Capacitor.Plugins.HealthKitPlugin.discardWorkout({ sessionId: healthKitSessionId });
+  } catch (e) {}
+  healthKitSessionId = null;
+}
+
+function hkUpdateLiveActivity() {
+  if (!healthKitReady || !healthKitSessionId || !isNative()) return;
+  // Live Activity uses Text(timerInterval:) for smooth native countdown,
+  // so it doesn't need per-second JS updates. Placeholder for future use.
+}
+
+// ── Watch Connectivity bridge ─────────────────────────
+let watchConnected = false;
+let currentHeartRate = 0;
+
+function initWatchConnectivity() {
+  if (!isNative()) return;
+  try {
+    const wc = window.Capacitor.Plugins.WatchConnectivityPlugin;
+
+    // Listen for heart rate from watch
+    wc.addListener('watchHeartRate', (data) => {
+      currentHeartRate = Math.round(data.bpm || 0);
+      const hrEl = document.getElementById('t-hr');
+      const hrVal = document.getElementById('t-hr-val');
+      if (hrEl && hrVal && currentHeartRate > 0) {
+        hrEl.style.display = '';
+        hrVal.textContent = currentHeartRate;
+      }
+    });
+
+    // Listen for control commands from watch
+    wc.addListener('watchControl', (data) => {
+      switch (data.action) {
+        case 'pause':
+          if (timerState.running && !timerState.paused) togglePause();
+          break;
+        case 'resume':
+          if (timerState.running && timerState.paused) togglePause();
+          break;
+        case 'skip':
+          if (timerState.running) skipExercise();
+          break;
+      }
+    });
+
+    // Listen for watch reachability changes
+    wc.addListener('watchReachability', (data) => {
+      watchConnected = !!data.reachable;
+    });
+
+    // Check initial state
+    wc.isWatchAvailable().then(r => { watchConnected = !!r.reachable; });
+  } catch (e) { /* degrade silently */ }
+}
+
+function watchSendState() {
+  if (!isNative() || !timerState.running) return;
+  try {
+    const w = workout[timerState.idx];
+    const next = workout[timerState.idx + 1];
+    const mainCount = workout.filter(e => e.section === 'main').length;
+    window.Capacitor.Plugins.WatchConnectivityPlugin.sendWorkoutState({
+      exerciseName: w ? w.exercise.name : '',
+      phase: timerState.phase,
+      remaining: timerState.remaining,
+      section: w ? w.section : 'main',
+      nextExerciseName: next ? next.exercise.name : '',
+      exerciseIndex: timerState.idx,
+      exerciseCount: mainCount,
+      totalRemaining: computeTotalRemaining(),
+      isPaused: timerState.paused,
+      workoutType: config.type,
+    });
+  } catch (e) { /* degrade silently */ }
+}
+
+function watchSendCommand(type, data) {
+  if (!isNative()) return;
+  try {
+    window.Capacitor.Plugins.WatchConnectivityPlugin.sendCommand({
+      type: type,
+      data: data || {},
+    });
+  } catch (e) {}
+}
+
+function computeTotalRemaining() {
+  let total = timerState.remaining;
+  for (let i = timerState.idx + 1; i < workout.length; i++) {
+    total += workout[i].workSec + workout[i].restSec;
+  }
+  return total;
+}
 function nativeHaptic(style) {
   if (!isNative()) return;
   const H = window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics;
@@ -1451,12 +1635,15 @@ function loadAppSettings() {
       if (typeof s.voiceEnabled === 'boolean') voiceEnabled = s.voiceEnabled;
       if (typeof s.theme === 'string') currentTheme = s.theme;
       if (typeof s.fontIdx === 'number') currentFontIdx = s.fontIdx;
+      if (typeof s.weightKg === 'number') userWeightKg = s.weightKg;
     }
   } catch (e) {}
   syncSoundUI();
   syncVoiceUI();
   applyTheme(currentTheme);
   applyFontScale(currentFontIdx);
+  const wEl = document.getElementById('set-weight');
+  if (wEl) wEl.value = userWeightKg;
 }
 
 function exportBackup() {
@@ -1504,8 +1691,19 @@ function saveAppSettings() {
     localStorage.setItem('wk_settings', JSON.stringify({
       soundEnabled, voiceEnabled,
       theme: currentTheme, fontIdx: currentFontIdx,
+      weightKg: userWeightKg,
     }));
   } catch (e) {}
+}
+
+function saveWeightSetting() {
+  const el = document.getElementById('set-weight');
+  if (!el) return;
+  const v = parseFloat(el.value);
+  if (v >= 30 && v <= 300) {
+    userWeightKg = v;
+    saveAppSettings();
+  }
 }
 
 // ═══════════════════════════════════════════════════
@@ -2376,6 +2574,16 @@ function startWorkout() {
   requestWakeLock();
   enterFullscreen();
   maybeShowIosFsHint();
+  // HealthKit: start workout session + Live Activity
+  const mainCount = workout.filter(w => w.section === 'main').length;
+  hkStartWorkout(first.exercise.name, first.workSec, first.section, 0, mainCount);
+  // Watch: notify workout started
+  watchSendCommand('workoutStart', { workoutType: config.type });
+  watchSendState();
+  // Reset HR display
+  currentHeartRate = 0;
+  const hrEl = document.getElementById('t-hr');
+  if (hrEl) hrEl.style.display = 'none';
 }
 
 async function requestWakeLock() {
@@ -2386,6 +2594,7 @@ async function requestWakeLock() {
 
 function tick() {
   if (timerState.paused || !timerState.running) return;
+  watchSendState();
   if (isStrengthWorkPhase()) {
     // Count up; user taps Done to end the set.
     timerState.elapsed = (timerState.elapsed || 0) + 1;
@@ -2803,6 +3012,7 @@ function stopWorkout() {
   clearInterval(timerState.intervalId);
   releaseWakeLock();
   exitFullscreen();
+  hkDiscardWorkout();
   showScreen('setup');
 }
 
@@ -2893,6 +3103,9 @@ function finishWorkout() {
   document.getElementById('d-type').textContent = config.type.toUpperCase();
   resetDoneCapture();
   showScreen('done');
+  // HealthKit: save completed workout
+  hkEndWorkout(mainExercises.length);
+  watchSendCommand('workoutEnd', {});
 }
 
 function resetDoneCapture() {
@@ -2938,6 +3151,8 @@ if (isNative()) document.documentElement.classList.add('is-native');
 loadEquipmentSelection();
 loadAppSettings();
 loadFocus();
+initHealthKit();
+initWatchConnectivity();
 // Make the bottom nav visible immediately on the initial active (setup) screen.
 document.getElementById('bottom-nav').classList.toggle('visible',
   document.querySelector('.screen.active')?.classList.contains('has-nav'));
