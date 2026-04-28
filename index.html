@@ -437,6 +437,9 @@ html.is-native .is-native-only { display: flex; }
 }
 .timer-hr .hr-icon { color: #ef4444; font-size: 1.2rem; }
 .timer-hr .hr-unit { font-size: 0.75rem; color: var(--text-dim); }
+.timer-hr.waiting { opacity: 0.55; }
+.timer-hr.waiting .hr-icon { animation: hr-pulse 1.6s ease-in-out infinite; }
+@keyframes hr-pulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.12); } }
 .timer-progress {
   width: 100%; max-width: 400px; height: 6px; border-radius: 3px;
   background: var(--border); margin-bottom: 12px; overflow: hidden;
@@ -528,6 +531,8 @@ html.is-native .is-native-only { display: flex; }
 #done { align-items: center; justify-content: center; text-align: center; gap: 16px; }
 #done h1 { font-size: 2.5rem; }
 .done-stats { display: flex; gap: 20px; margin: 20px 0; }
+.done-health { display: flex; align-items: center; gap: 8px; margin: 12px 0 0; padding: 10px 14px; background: rgba(239,68,68,0.12); border-radius: 10px; font-size: 0.9rem; color: var(--text); }
+.done-health-icon { width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; }
 .done-stat { text-align: center; flex: 1; }
 .done-stat .val { font-size: 2rem; font-weight: 700; color: var(--green); }
 .done-stat .lbl { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; }
@@ -701,6 +706,13 @@ html.is-native .is-native-only { display: flex; }
 }
 .settings-action:active { background: var(--border); }
 .settings-hint { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; }
+.settings-health-head { display: flex; align-items: center; gap: 12px; }
+.settings-health-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(239,68,68,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.settings-health-title { flex: 1; min-width: 0; }
+.settings-health-status { font-size: 0.8rem; color: var(--text-dim); display: block; margin-top: 2px; }
+.settings-health-status.connected { color: #22c55e; }
+.settings-health-status.disconnected { color: var(--text-dim); }
+.settings-health-action { flex: 0 0 auto; padding: 8px 14px; }
 
 .theme-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .theme-swatch {
@@ -923,6 +935,12 @@ html.is-native .is-native-only { display: flex; }
     <div class="done-stat"><div class="val" id="d-time">0:00</div><div class="lbl">Duration</div></div>
     <div class="done-stat"><div class="val" id="d-type">HIIT</div><div class="lbl">Type</div></div>
   </div>
+  <div class="done-health is-native-only" id="done-health" style="display:none;">
+    <span class="done-health-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </span>
+    <span id="done-health-text">Saved to Apple Health</span>
+  </div>
 
   <div class="done-capture">
     <label class="done-label">How hard was that?</label>
@@ -1003,9 +1021,21 @@ html.is-native .is-native-only { display: flex; }
       <span class="settings-label" style="margin:0;opacity:0.6;">kg</span>
     </div>
   </div>
-  <div class="settings-row is-native-only" id="settings-health-row">
-    <label class="settings-label">Apple Health</label>
-    <span id="health-status" class="settings-label" style="margin:0;opacity:0.7;">--</span>
+  <div class="settings-row settings-row-stack is-native-only" id="settings-health-row">
+    <div class="settings-health-head">
+      <span class="settings-health-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </span>
+      <div class="settings-health-title">
+        <div class="settings-label">Apple Health</div>
+        <span id="health-status" class="settings-health-status">--</span>
+      </div>
+      <button type="button" id="set-health-action" class="settings-action settings-health-action" onclick="reconnectHealthKit()" style="display:none;">Connect</button>
+    </div>
+    <div class="settings-hint">
+      Reads body weight (for calorie estimates) and live heart rate from your Apple Watch during workouts.
+      Writes completed workouts to Apple Health so they appear in the Fitness app and count toward your Activity rings.
+    </div>
   </div>
   <div class="settings-row settings-row-stack">
     <label class="settings-label">Backup</label>
@@ -1409,16 +1439,22 @@ let userWeightKg = 70;
 async function initHealthKit() {
   if (!isNative()) return;
   const statusEl = document.getElementById('health-status');
+  const actionEl = document.getElementById('set-health-action');
   try {
     const hk = window.Capacitor.Plugins.HealthKitPlugin;
     const { available } = await hk.isAvailable();
     if (!available) {
-      if (statusEl) statusEl.textContent = 'Not Available';
+      if (statusEl) { statusEl.textContent = 'Not available on this device'; statusEl.classList.add('disconnected'); }
       return;
     }
     const { granted } = await hk.requestAuthorization();
     healthKitReady = granted;
-    if (statusEl) statusEl.textContent = granted ? 'Connected' : 'Not Connected';
+    if (statusEl) {
+      statusEl.textContent = granted ? 'Connected — workouts auto-save' : 'Not connected — tap Connect to enable';
+      statusEl.classList.toggle('connected', granted);
+      statusEl.classList.toggle('disconnected', !granted);
+    }
+    if (actionEl) actionEl.style.display = granted ? 'none' : '';
     if (granted) {
       const w = await hk.getBodyWeight();
       if (w.available) {
@@ -1429,8 +1465,12 @@ async function initHealthKit() {
       }
     }
   } catch (e) {
-    if (statusEl) statusEl.textContent = 'Not Available';
+    if (statusEl) { statusEl.textContent = 'Not available'; statusEl.classList.add('disconnected'); }
   }
+}
+
+async function reconnectHealthKit() {
+  await initHealthKit();
 }
 
 async function hkStartWorkout(exerciseName, remaining, phase, exerciseIndex, exerciseCount) {
@@ -1458,8 +1498,9 @@ async function hkEndWorkout(exerciseCount) {
       weightKg: userWeightKg,
       exerciseCount: exerciseCount || 0,
     });
-  } catch (e) { /* degrade silently */ }
-  healthKitSessionId = null;
+  } finally {
+    healthKitSessionId = null;
+  }
 }
 
 async function hkDiscardWorkout() {
@@ -1492,6 +1533,7 @@ function initWatchConnectivity() {
       const hrVal = document.getElementById('t-hr-val');
       if (hrEl && hrVal && currentHeartRate > 0) {
         hrEl.style.display = '';
+        hrEl.classList.remove('waiting');
         hrVal.textContent = currentHeartRate;
       }
     });
@@ -2676,10 +2718,19 @@ function startWorkout() {
   // Watch: notify workout started
   watchSendCommand('workoutStart', { workoutType: config.type });
   watchSendState();
-  // Reset HR display
+  // Reset HR display — show waiting state if HealthKit connected
   currentHeartRate = 0;
   const hrEl = document.getElementById('t-hr');
-  if (hrEl) hrEl.style.display = 'none';
+  const hrVal = document.getElementById('t-hr-val');
+  if (hrEl && hrVal) {
+    if (healthKitReady && isNative()) {
+      hrEl.style.display = '';
+      hrVal.textContent = '--';
+      hrEl.classList.add('waiting');
+    } else {
+      hrEl.style.display = 'none';
+    }
+  }
 }
 
 async function requestWakeLock() {
@@ -3265,8 +3316,25 @@ function finishWorkout() {
   document.getElementById('d-type').textContent = config.type.toUpperCase();
   resetDoneCapture();
   showScreen('done');
-  // HealthKit: save completed workout
-  hkEndWorkout(mainExercises.length);
+  // HealthKit: save completed workout with confirmation
+  const healthRow = document.getElementById('done-health');
+  const healthText = document.getElementById('done-health-text');
+  if (isNative() && healthRow && healthText) {
+    if (healthKitReady) {
+      healthRow.style.display = '';
+      healthText.textContent = 'Saving to Apple Health\u2026';
+      hkEndWorkout(mainExercises.length).then(() => {
+        healthText.textContent = 'Saved to Apple Health';
+      }).catch(() => {
+        healthText.textContent = 'Apple Health unavailable';
+      });
+    } else {
+      healthRow.style.display = 'none';
+      hkEndWorkout(mainExercises.length);
+    }
+  } else {
+    hkEndWorkout(mainExercises.length);
+  }
   watchSendCommand('workoutEnd', {});
 }
 

@@ -9,9 +9,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Configure audio session so countdown beeps + voice cues play through the silent
-        // switch and survive screen lock. SimpleWorkoutGen has no recording, so .playback
-        // with .mixWithOthers lets the user keep their music going.
+        // Configure audio session so countdown beeps and voice cues play through the
+        // silent switch while the app is in the foreground. SimpleWorkoutGen has no
+        // persistent audio feature, so .playback with .mixWithOthers lets the user
+        // keep their music going underneath.
         do {
             let session = AVAudioSession.sharedInstance()
             try session.setCategory(.playback, mode: .default, options: [.mixWithOthers, .duckOthers])

@@ -28,9 +28,9 @@ device.
 
 ## What the native shell adds on top of the web app
 
-- **Audio session** configured for `.playback` with `.mixWithOthers` so the
-  countdown beeps and voice cues survive screen lock and don't kill the
-  user's music. (`App/AppDelegate.swift`)
+- **Audio session** configured for `.playback` with `.mixWithOthers` so
+  countdown beeps and voice cues play through the silent switch and over
+  the user's music while the app is foregrounded. (`App/AppDelegate.swift`)
 - **Haptic feedback** on the mid-set "Switch sides" cue and on the final 3-2-1
   countdown ticks. Routed through `@capacitor/haptics`; the web app falls back
   to silent in-browser.
