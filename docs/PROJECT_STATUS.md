@@ -138,6 +138,14 @@ The app is wrapped in Capacitor 8 instead of the originally planned SwiftUI + WK
 
 ---
 
+## Known Bugs
+
+| Bug | Description | Priority |
+|-----|-------------|----------|
+| White gap on iPhone | White bars visible at the top and bottom of the app in the iOS native shell. The app background (`#0a0a0f`) should extend edge-to-edge with no white gaps. Likely a `viewport-fit=cover` or safe-area issue in the Capacitor WKWebView configuration. | **High** — ship-blocking visual defect |
+
+---
+
 ## What's Planned — v3 Roadmap (PDR-v3-personalisation)
 
 Full spec: `docs/PDR-v3-personalisation.md`
