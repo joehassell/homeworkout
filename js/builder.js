@@ -18,6 +18,15 @@
     'animal':       { work: 35, rest: 25 },
     'full-body':    { work: 40, rest: 25 },
     'mobility':     { work: 30, rest: 10 }, // overridden for cooldown below
+    // Yoga categories (fallback only — yoga generator uses style holdRanges)
+    'yoga-standing':   { work: 45, rest: 5 },
+    'yoga-floor':      { work: 60, rest: 5 },
+    'yoga-seated':     { work: 60, rest: 5 },
+    'yoga-balance':    { work: 40, rest: 5 },
+    'yoga-inversion':  { work: 45, rest: 5 },
+    'yoga-transition': { work: 15, rest: 0 },
+    'yoga-core':       { work: 30, rest: 5 },
+    'yoga-savasana':   { work: 300, rest: 0 },
   };
 
   const TYPE_MOD = {

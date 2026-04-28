@@ -265,6 +265,7 @@ html.is-native .fs-toggle { display: none; }
 html.is-native .ios-fs-hint { display: none !important; }
 .is-native-only { display: none; }
 html.is-native .is-native-only { display: flex; }
+.sanskrit-name { font-style: italic; color: var(--text-dim); font-size: 0.85em; }
 .ios-fs-hint {
   position: fixed; bottom: 88px; left: 16px; right: 16px;
   z-index: 60; padding: 12px 14px; border-radius: 10px;
@@ -759,6 +760,18 @@ html.is-native .is-native-only { display: flex; }
       <div class="pill selected" data-value="hiit" onclick="selectPill(this)">HIIT<span class="pill-sub">Intervals</span></div>
       <div class="pill" data-value="conditioning" onclick="selectPill(this)">Conditioning<span class="pill-sub">High volume</span></div>
       <div class="pill" data-value="functional" onclick="selectPill(this)">Functional<span class="pill-sub">Multi-joint</span></div>
+      <div class="pill" data-value="yoga" onclick="selectPill(this)">Yoga<span class="pill-sub">Mind &amp; body</span></div>
+    </div>
+  </div>
+
+  <div class="option-group" id="yoga-style-group" style="display:none;">
+    <label>Yoga Style</label>
+    <div class="option-pills" id="yoga-style-pills">
+      <div class="pill selected" data-value="vinyasa" onclick="selectPill(this)">Vinyasa Flow<span class="pill-sub">Breath-synced</span></div>
+      <div class="pill" data-value="hatha" onclick="selectPill(this)">Hatha<span class="pill-sub">Alignment</span></div>
+      <div class="pill" data-value="yin" onclick="selectPill(this)">Yin<span class="pill-sub">Deep holds</span></div>
+      <div class="pill" data-value="power" onclick="selectPill(this)">Power<span class="pill-sub">Athletic</span></div>
+      <div class="pill" data-value="restorative" onclick="selectPill(this)">Restorative<span class="pill-sub">Gentle</span></div>
     </div>
   </div>
 
@@ -773,7 +786,7 @@ html.is-native .is-native-only { display: flex; }
     </div>
   </div>
 
-  <div class="option-group">
+  <div class="option-group" id="intensity-group">
     <label>Intensity</label>
     <div class="option-pills" id="intensity-pills">
       <div class="pill" data-value="light" onclick="selectPill(this)">Light<span class="pill-sub">Easy pace</span></div>
@@ -782,7 +795,7 @@ html.is-native .is-native-only { display: flex; }
     </div>
   </div>
 
-  <div class="option-group">
+  <div class="option-group" id="sets-group">
     <label>Sets</label>
     <div class="option-pills" id="sets-pills">
       <div class="pill" data-value="1" onclick="selectPill(this)">1<span class="pill-sub">set</span></div>
@@ -804,7 +817,7 @@ html.is-native .is-native-only { display: flex; }
     </div>
   </div>
 
-  <div class="option-group">
+  <div class="option-group" id="equipment-group">
     <label>Equipment Available</label>
     <div class="option-pills option-pills-multi" id="equipment-pills">
       <div class="pill selected" data-value="bodyweight" onclick="toggleEquipmentPill(this)">Bodyweight</div>
@@ -1050,6 +1063,7 @@ html.is-native .is-native-only { display: flex; }
 </nav>
 
 <script src="js/builder.js"></script>
+<script src="js/yoga.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/history.js"></script>
 <script>
@@ -1270,6 +1284,22 @@ const DB = [
    info:"Start on all fours or in a side-lying position. Place one hand behind your head. Rotate your upper back to open your chest toward the ceiling, following your elbow with your eyes. Reverse back down. Move slowly and feel the rotation in your mid-back, not your lower back."},
   {name:"Couch Stretch",cat:"mobility",equip:["mat"],muscles:["hip flexors","quads"],types:["functional"],diff:1,single_sided:true,
    info:"Kneel facing away from a wall. Place one foot against the wall behind you with knee on the floor. Step the other foot forward into a lunge. Keep your torso upright and squeeze the glute of the back leg. You should feel a deep stretch in your hip flexor and quad. Hold 30-60 seconds per side."},
+  {name:"Standing Quad Stretch",cat:"mobility",equip:["bodyweight"],muscles:["quads","hip flexors"],types:["strength","hiit","conditioning","functional"],diff:1,single_sided:true,
+   info:"Stand on one leg. Bend the other knee and grab your ankle behind you. Gently pull your heel toward your glute. Keep your knees together and stand tall. Hold for 30 seconds, then switch sides. Use a wall for balance if needed."},
+  {name:"Standing Hamstring Stretch",cat:"mobility",equip:["bodyweight"],muscles:["hamstrings"],types:["strength","hiit","conditioning","functional"],diff:1,single_sided:true,
+   info:"Stand and place one heel on a low surface in front of you. Keep that leg straight. Hinge forward from the hips with a flat back until you feel a stretch along the back of your leg. Hold for 30 seconds, then switch sides."},
+  {name:"Chest Opener Stretch",cat:"mobility",equip:["bodyweight"],muscles:["chest","shoulders"],types:["strength","hiit","conditioning","functional"],diff:1,
+   info:"Clasp your hands behind your back. Straighten your arms and gently lift them away from your body while squeezing your shoulder blades together. Open your chest and look slightly upward. Hold for 30 seconds. Breathe deeply into the stretch."},
+  {name:"Cross-Body Shoulder Stretch",cat:"mobility",equip:["bodyweight"],muscles:["shoulders","back"],types:["strength","hiit","conditioning","functional"],diff:1,single_sided:true,
+   info:"Bring one arm across your chest. Use the other hand to gently press it closer to your body just above the elbow. Keep your shoulder relaxed and down. Hold for 30 seconds, then switch arms."},
+  {name:"Standing Calf Stretch",cat:"mobility",equip:["bodyweight"],muscles:["calves"],types:["strength","hiit","conditioning","functional"],diff:1,single_sided:true,
+   info:"Stand facing a wall. Step one foot back and press the heel into the floor. Keep the back leg straight and lean gently into the wall. You should feel the stretch in your calf. Hold for 30 seconds, then switch legs."},
+  {name:"Figure Four Stretch",cat:"mobility",equip:["bodyweight","mat"],muscles:["glutes","hips"],types:["strength","hiit","conditioning","functional"],diff:1,single_sided:true,
+   info:"Lie on your back. Cross one ankle over the opposite knee. Reach through and pull the bottom thigh toward your chest. Keep your head and shoulders on the floor. You should feel a deep stretch in the glute and outer hip. Hold for 30 seconds, then switch sides."},
+  {name:"Seated Spinal Twist",cat:"mobility",equip:["mat"],muscles:["spine","core"],types:["strength","hiit","conditioning","functional"],diff:1,single_sided:true,
+   info:"Sit with legs extended. Bend one knee and cross it over the other leg. Place the opposite elbow outside the bent knee and gently twist your torso. Sit tall and breathe into the twist. Hold for 30 seconds, then switch sides."},
+  {name:"Child's Pose",cat:"mobility",equip:["mat"],muscles:["back","hips","shoulders"],types:["strength","hiit","conditioning","functional"],diff:1,
+   info:"Kneel on the floor. Sit your hips back onto your heels and reach your arms forward along the floor. Rest your forehead on the mat. Breathe deeply and let your whole body relax. Hold for 30-60 seconds. A gentle, restorative stretch for the entire posterior chain."},
 
   // Isometric / Stability
   {name:"Wall Sits",cat:"isometric",equip:["bodyweight"],muscles:["quads"],types:["strength","conditioning"],diff:1,
@@ -1299,7 +1329,7 @@ const DB = [
 // ═══════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════
-let config = { type:'hiit', duration:30, intensity:'moderate', sets:3 };
+let config = { type:'hiit', duration:30, intensity:'moderate', sets:3, yogaStyle:'vinyasa' };
 const ALL_EQUIPMENT = ['bodyweight','mat','dumbbell','kettlebell','barbell','bench','chinup bar','medicine ball','skipping rope'];
 let selectedEquipment = new Set(ALL_EQUIPMENT);
 let workout = [];
@@ -1554,6 +1584,48 @@ function speak(text) {
   speechSynthesis.speak(u);
 }
 
+// ── Yoga voice narration ──────────────────────────
+let yogaNarrationQueue = [];
+let yogaNarrationIdx = 0;
+let yogaNarrationNextAt = 0;
+
+function speakYoga(text) {
+  if (!voiceEnabled || !('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  const style = window.yoga && window.yoga.YOGA_STYLES[config.yogaStyle];
+  u.rate = style ? style.speechRate : 0.75;
+  u.pitch = 0.95;
+  u.volume = 1;
+  speechSynthesis.speak(u); // queues, does NOT cancel previous
+}
+
+function initYogaNarration(entry) {
+  yogaNarrationQueue = (entry.narration || []).slice();
+  yogaNarrationIdx = 0;
+  if (yogaNarrationQueue.length === 0) return;
+  const interval = Math.floor(entry.workSec / (yogaNarrationQueue.length + 1));
+  yogaNarrationNextAt = entry.workSec - interval;
+}
+
+function scheduleYogaNarration() {
+  if (yogaNarrationIdx >= yogaNarrationQueue.length) return;
+  if (timerState.remaining <= yogaNarrationNextAt) {
+    speakYoga(yogaNarrationQueue[yogaNarrationIdx]);
+    yogaNarrationIdx++;
+    const left = yogaNarrationQueue.length - yogaNarrationIdx;
+    if (left > 0) {
+      const interval = Math.floor(timerState.remaining / (left + 1));
+      yogaNarrationNextAt = timerState.remaining - interval;
+    }
+  }
+}
+
+function yogaChime() {
+  if (!soundEnabled) return;
+  beep(528, 0.6, 0.12);
+  setTimeout(() => beep(792, 0.8, 0.08), 300);
+}
+
 function syncSoundUI() {
   const t = document.getElementById('t-sound');
   if (t) t.classList.toggle('active', soundEnabled);
@@ -1766,10 +1838,18 @@ function selectPill(el) {
   el.classList.add('selected');
   const group = el.parentElement.id;
   const val = el.dataset.value;
-  if (group === 'type-pills') config.type = val;
+  if (group === 'type-pills') { config.type = val; toggleYogaUI(val === 'yoga'); }
   if (group === 'duration-pills') config.duration = parseInt(val);
   if (group === 'intensity-pills') config.intensity = val;
   if (group === 'sets-pills') config.sets = parseInt(val);
+  if (group === 'yoga-style-pills') config.yogaStyle = val;
+}
+
+function toggleYogaUI(isYoga) {
+  document.getElementById('yoga-style-group').style.display = isYoga ? '' : 'none';
+  document.getElementById('intensity-group').style.display = isYoga ? 'none' : '';
+  document.getElementById('sets-group').style.display = isYoga ? 'none' : '';
+  document.getElementById('equipment-group').style.display = isYoga ? 'none' : '';
 }
 
 function toggleEquipmentPill(el) {
@@ -1869,7 +1949,7 @@ const WARMUP_POOL_BY_TYPE = {
   conditioning: ['cardio', 'mobility', 'lower-squat'],
   functional:   ['cardio', 'mobility', 'lower-squat', 'core'],
 };
-const COOLDOWN_CATS = ['mobility', 'isometric'];
+const COOLDOWN_CATS = ['mobility'];
 
 // Per-set rest seconds keyed by derived intensity (PDR §6.4 mapping).
 const SET_REST = { light: 60, moderate: 90, high: 120, very_high: 180 };
@@ -2078,6 +2158,17 @@ function clearGenError() {
 
 function generateWorkout() {
   clearGenError();
+  // Yoga uses its own generator path
+  if (config.type === 'yoga') {
+    window.yoga.generateYogaWorkout(config, focusState, workout);
+    if (workout.length === 0) {
+      showGenError('Session too short for this yoga style. Try a longer duration.');
+      return;
+    }
+    showScreen('preview');
+    renderPreview();
+    return;
+  }
   const sets = config.sets || 1;
   const totalSec = config.duration * 60;
   const wDur = warmupDuration(config.duration);
@@ -2564,12 +2655,17 @@ function startWorkout() {
   document.getElementById('t-voice').classList.toggle('active', voiceEnabled);
   updateTimerUI();
   const first = workout[0];
-  if (first.section === 'main' && first.single_sided) {
+  if (config.type === 'yoga') {
+    yogaChime();
+    initYogaNarration(first);
+    if (first.transitionNarration) speakYoga(first.transitionNarration);
+  } else if (first.section === 'main' && first.single_sided) {
     speak(first.exercise.name + '. Start with right side.');
+    beepWork();
   } else {
     speak(first.exercise.name);
+    beepWork();
   }
-  beepWork();
   timerState.intervalId = setInterval(tick, 1000);
   requestWakeLock();
   enterFullscreen();
@@ -2595,6 +2691,25 @@ async function requestWakeLock() {
 function tick() {
   if (timerState.paused || !timerState.running) return;
   watchSendState();
+  // Yoga timer path — no countdown beeps, uses narration instead
+  if (config.type === 'yoga') {
+    timerState.remaining--;
+    const w = workout[timerState.idx];
+    // Single-sided switch cue (gentle chime for yoga)
+    if (timerState.phase === 'work' && w && w.single_sided &&
+        timerState.switchFiredForIdx !== timerState.idx &&
+        timerState.remaining === Math.floor(w.workSec / 2) &&
+        timerState.remaining > 0) {
+      timerState.switchFiredForIdx = timerState.idx;
+      yogaChime();
+      speakYoga('Gently transition to the other side...');
+      if (isNative()) nativeHaptic('medium');
+    }
+    if (timerState.phase === 'work') scheduleYogaNarration();
+    if (timerState.remaining <= 0) advancePhase();
+    updateTimerUI();
+    return;
+  }
   if (isStrengthWorkPhase()) {
     // Count up; user taps Done to end the set.
     timerState.elapsed = (timerState.elapsed || 0) + 1;
@@ -2665,6 +2780,7 @@ function finishStrengthSet() {
 }
 
 function advancePhase() {
+  if (config.type === 'yoga') { advanceYogaPhase(); return; }
   const w = workout[timerState.idx];
   if (timerState.phase === 'work') {
     if (w.restSec > 0) {
@@ -2690,6 +2806,35 @@ function advancePhase() {
   }
 }
 
+function advanceYogaPhase() {
+  const w = workout[timerState.idx];
+  speechSynthesis.cancel();
+  if (timerState.phase === 'work' && w.restSec > 0) {
+    timerState.phase = 'rest';
+    timerState.remaining = w.restSec;
+    yogaChime();
+    const next = workout[timerState.idx + 1];
+    if (next && next.transitionNarration) speakYoga(next.transitionNarration);
+    updateTimerUI();
+    return;
+  }
+  // Advance to next pose
+  timerState.idx++;
+  if (timerState.idx >= workout.length) { finishWorkout(); return; }
+  const next = workout[timerState.idx];
+  timerState.phase = 'work';
+  timerState.remaining = next.workSec;
+  timerState.switchFiredForIdx = null;
+  yogaChime();
+  initYogaNarration(next);
+  if (next.single_sided) {
+    speakYoga(next.exercise.name + '. Beginning with the right side.');
+  } else if (next.transitionNarration && !w.restSec) {
+    speakYoga(next.transitionNarration);
+  }
+  updateTimerUI();
+}
+
 function advanceExercise() {
   timerState.idx++;
   if (timerState.idx >= workout.length) { finishWorkout(); return; }
@@ -2710,6 +2855,11 @@ function advanceExercise() {
 
 function phaseLabelFor(w, phase) {
   if (!w) return phase.toUpperCase();
+  if (w.section === 'yoga') {
+    if (phase === 'rest') return 'TRANSITION';
+    const yogaLabels = { centering:'CENTERING', 'sun-sal':'SUN SALUTATION', standing:'STANDING', balance:'BALANCE', floor:'FLOOR', seated:'SEATED', 'core-flow':'CORE FLOW', supported:'SUPPORTED', savasana:'SAVASANA' };
+    return yogaLabels[w.yogaPhase] || 'YOGA';
+  }
   if (phase === 'rest') {
     if (w.restLabel) return w.restLabel.toUpperCase();
     return 'REST';
@@ -2738,15 +2888,26 @@ function updateTimerUI() {
   phaseEl.className = 'timer-phase ' + timerState.phase;
 
   const nameEl = document.getElementById('t-name');
+  const isYoga = config.type === 'yoga';
   if (timerState.phase === 'work') {
-    nameEl.innerHTML = w.exercise.name + ' ' + infoBtn(w.exercise.name);
+    if (isYoga && w.exercise.sanskrit) {
+      nameEl.innerHTML = w.exercise.name + ' <span class="sanskrit-name">' + w.exercise.sanskrit + '</span>';
+    } else {
+      nameEl.innerHTML = w.exercise.name + ' ' + infoBtn(w.exercise.name);
+    }
+  } else if (isYoga) {
+    const nextPose = timerState.idx + 1 < workout.length ? workout[timerState.idx + 1].exercise.name : '';
+    nameEl.innerHTML = nextPose ? 'Transitioning to ' + nextPose : 'Transition';
   } else {
     nameEl.innerHTML = 'Rest';
   }
 
   document.getElementById('t-detail').textContent = timerState.phase === 'work'
-    ? w.exercise.equip.join(', ') + ' - ' + w.exercise.muscles.join(', ')
+    ? (isYoga ? (w.exercise.muscles || []).join(', ') : w.exercise.equip.join(', ') + ' - ' + w.exercise.muscles.join(', '))
     : 'Next: ' + (timerState.idx + 1 < workout.length ? workout[timerState.idx + 1].exercise.name : 'Done!');
+
+  // Hide inappropriate controls for yoga
+  document.getElementById('t-add-rest').style.display = isYoga ? 'none' : '';
 
   // Rest reason badge: shown during main rest (PDR §6.4 reason badge).
   const reasonEl = document.getElementById('t-rest-reason');
@@ -3073,6 +3234,7 @@ function finishWorkout() {
   const session = {
     date: new Date(timerState.startedAt).toISOString(),
     type: config.type,
+    yogaStyle: config.type === 'yoga' ? config.yogaStyle : null,
     intensity: config.intensity,
     sets: config.sets,
     plannedDurationMin: config.duration,
