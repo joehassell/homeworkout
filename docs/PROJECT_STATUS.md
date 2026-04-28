@@ -138,36 +138,107 @@ The app is wrapped in Capacitor 8 instead of the originally planned SwiftUI + WK
 
 ---
 
-## What's Planned (Not Yet Built)
+## What's Planned — v3 Roadmap (PDR-v3-personalisation)
 
-### High Priority
+Full spec: `docs/PDR-v3-personalisation.md`
 
-| Feature | Description | Complexity |
-|---------|-------------|------------|
-| iCloud sync | Sync session history across devices via NSUbiquitousKeyValueStore or CloudKit. Currently all data is device-local. | Medium |
-| Post-workout HR summary | Show average HR, max HR, and time-in-zones on the Done screen when Apple Watch data is available. | Low |
-| Warmup exercise filter | Close-Grip Bench Press sometimes appears as a warmup. Tighten `push-h` warmup filter to bodyweight-only. | Low |
+The v3 theme is **personalisation and safety**. The core change is a capability profile (age, weight, height, fitness level, mobility limits) that filters every exercise the generator considers. On top of that: goals, Hevy-parity strength tracking, expert templates, weekly planning, HR zone coaching, and music control.
 
-### Medium Priority
+### Recommended Build Order
 
-| Feature | Description | Complexity |
-|---------|-------------|------------|
-| History: show warmup/cooldown | History view only renders main exercises. Show all three phases (warmup, main, cooldown). | Low |
-| Strength total-time display | Strength sessions show incomplete total time (missing unknown work duration). Clarify in the UI. | Low |
-| Settings snapshot rendering | `settings_snapshot` (theme, font) is captured in saved sessions but not used when viewing history. Render past sessions in the theme they were performed in. | Medium |
-| Background audio justification | Re-add `UIBackgroundModes: audio` in a future version with proper justification to Apple, if user feedback shows screen-lock audio loss is a problem. | Low |
-| Live Activity widget target | Source files exist (`SimpleWorkoutGenLiveActivity/`) but the Widget Extension target is not in the Xcode project. Needs to be wired up for the lock screen/Dynamic Island Live Activity to actually appear. | Medium |
+| # | Branch | Feature | Spec | Complexity |
+|---|--------|---------|------|------------|
+| 1 | `fix/yoga-generation` | Fix yoga empty-workout bug | §8 | Low |
+| 2 | `feat/capability-profile-data` | Demand tags on all exercises + filter module | §5.2, §5.3, §5.4 | Medium |
+| 3 | `feat/profile-setup` | Profile screen + HealthKit auto-fill | §5.5 | Medium |
+| 4 | `feat/goals` | Priority goals (up to 3) + generator weighting | §6.1 | Medium |
+| 5 | `feat/equipment-tiers` | Tiered equipment (Basic/Home/Commercial) + presets | §6.3 | Medium |
+| 6 | `feat/exercise-library-settings` | Exercise library browser, blacklist/whitelist, icons | §6.2 | High |
+| 7 | `feat/expert-library` | Library audit + 30+ expert-designed templates | §6.4 | High |
+| 8 | `feat/cooldown-v2` | Cooldown scaling by duration + goals, muscle targeting | §6.6 | Low |
+| 9 | `feat/custom-duration` | Free-input duration (15-180 min) with presets | §6.7 | Low |
+| 10 | `feat/yoga-rebuild` | Yoga equipment, experience levels, pose detail, icons | §6.8 | High |
+| 11 | `feat/saved-workouts` | Save/rate/replay/export (JSON, MD, CSV, PDF) | §6.9 | Medium |
+| 12 | `feat/add-exercise-button` | + button on preview sections | §6.11 | Low |
+| 13 | `feat/hevy-parity-strength` | PRs, progression charts, plate calc, supersets, set types, body measurements | §6.5 | Very High |
+| 14 | `feat/weekly-plan` + `feat/surprise-me` | 7-day plan + one-tap smart generation | §6.10 | High |
+| 15 | `feat/hr-zone-watch` | HR zone targeting, dynamic rest, watch zone screen | §6.12 | High |
+| 16 | `feat/music-control` | Apple Music + Spotify control, watch mini-player | §6.13 | High |
 
-### Low Priority / Nice-to-Haves
+### v3 Feature Summary
 
-| Feature | Description | Complexity |
-|---------|-------------|------------|
-| Custom warm-up/cooldown editing | Let users edit or replace generated warmup/cooldown sequences. | High |
-| Adaptive rest based on prior fatigue | Scale rest periods based on recent session history and RPE trends. | High |
-| Per-user palette creation | Let users create custom colour themes beyond the 5 built-in ones. | Medium |
-| Export palette + font in JSON backup | Include theme and font preferences in the backup/restore JSON. | Low |
-| Watch complications | Show last workout or streak on the watch face. | Medium |
-| Apple Watch standalone mode | Generate and run workouts directly on the watch without the phone. | High |
+**Safety & Personalisation:**
+- Capability profile (age, weight, height, fitness level, floor work, mobility limits, pregnancy safety)
+- Per-exercise demand tags (impact, complexity, joint load, CV demand, balance, floor requirement)
+- Mechanical filtering — unsafe exercises never appear, never silently padded
+- HealthKit auto-fill for profile data (DOB, weight, height, VO2max)
+- Override toggle with confirmation for power users
+
+**Goals & Planning:**
+- Priority goals (up to 3): weight loss, cardio, strength, mobility, flexibility, recovery, general fitness
+- Goals shape generator weighting, cooldown emphasis, and weekly plan
+- Weekly 7-day plan based on goals + capability + recent history
+- "Surprise me" one-tap smart workout generation
+
+**Strength / Hevy Parity (iOS):**
+- Personal records (PR) tracking per exercise
+- Progression charts (working weight + est. 1RM over time)
+- Volume/tonnage tracking (sets x reps x kg)
+- Plate calculator + 1RM calculator (Epley/Brzycki)
+- Supersets and circuit blocks
+- Set types (normal, warmup, drop, failure, AMRAP) with per-set RPE
+- Body measurements log (with HealthKit round-trip)
+- Workout reminders (local notifications)
+
+**Exercise Library:**
+- Full exercise browser with filters (body part, type, equipment, difficulty, impact)
+- Exercise blacklist/whitelist with "use whitelist exclusively" toggle
+- Icons for every exercise and equipment item
+- Coach cues on timer screen
+- Expert-designed templates (30+) per workout type
+
+**Cooldown & Duration:**
+- Cooldown scales with session length (5-10 min) and goals (mobility = 1.5x)
+- Custom workout duration (15-180 min free input)
+
+**Yoga Rebuild:**
+- Yoga-specific equipment (block, strap, bolster, blanket, wall, chair)
+- Yoga experience levels (New → Teacher) with complexity caps
+- Expanded pose database with descriptions, step-by-step, modifications, icons
+- Generation bug fix
+
+**Watch + HR Coaching (iOS):**
+- HR zone targeting (Z1-Z5 based on HRmax)
+- Dynamic rest (end rest when HR drops to target zone)
+- Below/above zone voice coaching with safety override at 90% HRmax
+- Swipeable watch screen: timer → HR zones → controls
+
+**Music (iOS):**
+- Apple Music + Spotify playback control
+- Mini-player on Setup/Preview/Timer screens
+- Watch mini-player via WatchConnectivity
+
+### Remaining Housekeeping (from v1-v2)
+
+| Item | Description | Complexity |
+|------|-------------|------------|
+| Live Activity widget target | Source files exist but Widget Extension target not wired in Xcode project | Medium |
+| iCloud sync | Session history sync across devices (deferred from Sprint 2) | Medium |
+| Background audio | Re-add with justification if user feedback warrants | Low |
+| History warmup/cooldown display | Show all three phases in history view | Low |
+| Settings snapshot rendering | Render past sessions in their original theme | Medium |
+
+### Out of Scope (v4+)
+
+- Social features, leaderboards, sharing
+- AI/LLM exercise generation
+- Server-side accounts
+- Form-checking via camera
+- Nutrition logging
+- Sleep/readiness scoring
+- Pregnancy curated pool (toggle ships disabled in v3)
+- Coach video clips per exercise
+- Multi-user / family profiles
 
 ---
 
@@ -227,6 +298,8 @@ The app is wrapped in Capacitor 8 instead of the originally planned SwiftUI + WK
 | #9 | `fix/exercise-audit` | Single-sided flags + timing rebalance | Merged |
 | #10 | `feat/yoga-workout` | Yoga workout type with 5 styles + narration | Merged |
 | #11 | `fix/app-store-rejection` | App Store rejection fix (background audio + HealthKit UI) | Merged |
+| #12 | `docs/project-status` | Consolidated project status document | Open |
+| — | `docs/pdr-v3-personalisation` | v3 PDR: personalisation, capability profile, Hevy parity | Merged |
 
 ---
 
@@ -241,3 +314,4 @@ The following documents were useful during development but are now superseded by
 | `HANDOFF.md` | Machine-transfer handoff from prior operator | Outdated — all issues resolved |
 | `IOS_BUILD.md` | iOS build setup guide | Still useful for day-to-day development |
 | `docs/APP_STORE_LISTING.md` | App Store description and metadata | Current — use for App Store Connect |
+| `docs/PDR-v3-personalisation.md` | v3 product requirements (personalisation, safety, Hevy parity) | Current — v3 roadmap spec |

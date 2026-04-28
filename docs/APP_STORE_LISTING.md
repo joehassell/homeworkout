@@ -17,7 +17,7 @@ Generate custom workouts with smart warm-ups, guided timer, Apple Watch heart ra
 Build and run custom workouts in seconds. Choose your workout type, duration, intensity, and equipment — SimpleWorkoutGen generates a complete session with warm-up, main exercises, rest periods, and cooldown, all timed to hit your exact target duration.
 
 WORKOUT BUILDER
-• 4 workout types: Strength, HIIT, Conditioning, Functional
+• 5 workout types: Strength, HIIT, Conditioning, Functional, Yoga
 • 15 to 60 minute sessions with 3 intensity levels
 • Focus areas: boost or exclude muscle groups (Push, Pull, Lower, Core, Full Body, Mobility)
 • 9 equipment options from bodyweight to barbell
@@ -51,6 +51,13 @@ PERSONALISATION
 • Adjustable font size (5 steps) for readability during workouts
 • Session history with calendar heatmap and stats
 • Full JSON backup and restore
+
+YOGA
+• 5 styles: Vinyasa Flow, Hatha, Yin, Power, Restorative
+• ~50 poses with Sanskrit names and detailed narration
+• Calm voice guides each breath and movement step by step
+• Gentle singing-bowl chimes between poses
+• Centering breath at start, Savasana to close every practice
 
 PRIVACY FIRST
 No accounts. No cloud. No tracking. All your data stays on your device.
