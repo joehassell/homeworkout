@@ -416,6 +416,17 @@
         yogaFocusWeight(p, focusState) > 0
       );
 
+      // Fallback: if focus filtering empties the pool, try without focus
+      if (pool.length === 0) {
+        pool = YOGA_DB.filter(p =>
+          cats.includes(p.cat) &&
+          p.styles.includes(config.yogaStyle) &&
+          !usedNames.has(p.name)
+        );
+      }
+      // If still empty, skip this phase
+      if (pool.length === 0) continue;
+
       // Apply focus weighting
       let weighted = [];
       for (const p of pool) {
