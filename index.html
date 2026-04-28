@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Workout">
@@ -166,7 +166,7 @@ body { display:flex; flex-direction:column; }
 
 /* Use dvh (dynamic viewport) where supported so iOS Safari's URL-bar dance doesn't
    stretch content past the visible area; fall back to vh for older browsers. */
-.screen { display:none; flex-direction:column; min-height:100vh; min-height:100dvh; padding: 20px; padding-bottom: env(safe-area-inset-bottom, 20px); }
+.screen { display:none; flex-direction:column; min-height:100vh; min-height:100dvh; padding: 20px; padding-top: calc(20px + env(safe-area-inset-top, 0px)); padding-bottom: env(safe-area-inset-bottom, 20px); }
 .screen.active { display:flex; }
 /* Generous bottom clearance: nav (~62-96px depending on safe-area) + a clear ~50px gap
    so the last in-flow control (Generate Workout) is unambiguously above the nav. */
@@ -296,6 +296,7 @@ html.is-native .is-native-only { display: flex; }
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   padding: 20px;
+  padding-top: calc(20px + env(safe-area-inset-top, 0px));
   padding-bottom: 8px;
   min-height: 0;
 }
