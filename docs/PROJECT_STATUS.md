@@ -172,6 +172,8 @@ The v3 theme is **personalisation and safety**. The core change is a capability 
 | 14 | `feat/weekly-plan` + `feat/surprise-me` | 7-day plan + one-tap smart generation | §6.10 | High |
 | 15 | `feat/hr-zone-watch` | HR zone targeting, dynamic rest, watch zone screen | §6.12 | High |
 | 16 | `feat/music-control` | Apple Music + Spotify control, watch mini-player | §6.13 | High |
+| 17 | `feat/live-activity-target` | Wire Live Activity Widget Extension into Xcode project (source files exist) | — | Medium |
+| 18 | `feat/icloud-sync` | iCloud sync for session history, profile, goals, settings via NSUbiquitousKeyValueStore | — | Medium |
 
 ### v3 Feature Summary
 
@@ -230,8 +232,8 @@ The v3 theme is **personalisation and safety**. The core change is a capability 
 
 | Item | Description | Complexity |
 |------|-------------|------------|
-| Live Activity widget target | Source files exist but Widget Extension target not wired in Xcode project | Medium |
-| iCloud sync | Session history sync across devices (deferred from Sprint 2) | Medium |
+| ~~Live Activity widget target~~ | Moved to v3 roadmap (#17) | — |
+| ~~iCloud sync~~ | Moved to v3 roadmap (#18) | — |
 | Background audio | Re-add with justification if user feedback warrants | Low |
 | History warmup/cooldown display | Show all three phases in history view | Low |
 | Settings snapshot rendering | Render past sessions in their original theme | Medium |
