@@ -122,11 +122,13 @@
 
   // ── Defaults ───────────────────────────────────────
 
+  // Default profile assumes a capable user until they set up their profile.
+  // The profile setup screen prompts first-time users to configure.
   var DEFAULT_PROFILE = {
-    age_band:            '40-54',
-    fitness_level:       'untrained',
-    bmi:                 25,
-    floor_work_ok:       false,
+    age_band:            '18-39',
+    fitness_level:       'intermediate',
+    bmi:                 24,
+    floor_work_ok:       true,
     mobility_limits:     [],
     pregnancy_safe_only: false,
   };

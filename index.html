@@ -707,6 +707,9 @@ html.is-native .is-native-only { display: flex; }
 }
 .settings-action:active { background: var(--border); }
 .settings-hint { font-size: 0.75rem; color: var(--text-dim); margin-top: 4px; }
+.settings-profile-header { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 4px; }
+.profile-count { font-size: 0.8rem; color: var(--text-dim); padding: 8px 0 4px; }
+.profile-count strong { color: var(--accent); }
 .settings-health-head { display: flex; align-items: center; gap: 12px; }
 .settings-health-icon { width: 36px; height: 36px; border-radius: 8px; background: rgba(239,68,68,0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .settings-health-title { flex: 1; min-width: 0; }
@@ -987,6 +990,53 @@ html.is-native .is-native-only { display: flex; }
   <div class="screen-header">
     <h1>Settings</h1>
   </div>
+  <div class="settings-row settings-row-stack">
+    <div class="settings-profile-header">Profile</div>
+    <label class="settings-label">Age band</label>
+    <div class="option-pills" id="age-band-pills">
+      <div class="pill" data-value="under_18" onclick="selectProfilePill(this,'age_band')">Under 18</div>
+      <div class="pill" data-value="18-39" onclick="selectProfilePill(this,'age_band')">18-39</div>
+      <div class="pill selected" data-value="40-54" onclick="selectProfilePill(this,'age_band')">40-54</div>
+      <div class="pill" data-value="55-69" onclick="selectProfilePill(this,'age_band')">55-69</div>
+      <div class="pill" data-value="70+" onclick="selectProfilePill(this,'age_band')">70+</div>
+    </div>
+  </div>
+  <div class="settings-row settings-row-stack">
+    <label class="settings-label">Fitness level</label>
+    <div class="option-pills" id="fitness-pills">
+      <div class="pill selected" data-value="untrained" onclick="selectProfilePill(this,'fitness_level')">Untrained</div>
+      <div class="pill" data-value="beginner" onclick="selectProfilePill(this,'fitness_level')">Beginner</div>
+      <div class="pill" data-value="intermediate" onclick="selectProfilePill(this,'fitness_level')">Intermediate</div>
+      <div class="pill" data-value="advanced" onclick="selectProfilePill(this,'fitness_level')">Advanced</div>
+    </div>
+  </div>
+  <div class="settings-row">
+    <label class="settings-label" for="floor-work-toggle">I can get up and down from the floor comfortably</label>
+    <button type="button" id="floor-work-toggle" class="settings-toggle" onclick="toggleFloorWork()">Off</button>
+  </div>
+  <div class="settings-row settings-row-stack">
+    <label class="settings-label">Mobility limits</label>
+    <div class="option-pills option-pills-multi" id="mobility-pills">
+      <div class="pill" data-value="knees" onclick="toggleMobilityPill(this)">Knees</div>
+      <div class="pill" data-value="hips" onclick="toggleMobilityPill(this)">Hips</div>
+      <div class="pill" data-value="shoulders" onclick="toggleMobilityPill(this)">Shoulders</div>
+      <div class="pill" data-value="lower_back" onclick="toggleMobilityPill(this)">Lower Back</div>
+      <div class="pill" data-value="wrists" onclick="toggleMobilityPill(this)">Wrists</div>
+      <div class="pill" data-value="ankles" onclick="toggleMobilityPill(this)">Ankles</div>
+      <div class="pill" data-value="neck" onclick="toggleMobilityPill(this)">Neck</div>
+    </div>
+    <div class="settings-hint">Select any areas where you have pain or limited range of motion.</div>
+  </div>
+  <div class="settings-row" id="settings-height-row">
+    <label class="settings-label" for="set-height">Height</label>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <input type="number" id="set-height" class="settings-input" value="170" min="100" max="250" step="1"
+        onchange="saveHeightSetting()" style="width:70px;padding:8px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:0.9rem;text-align:center;">
+      <span class="settings-label" style="margin:0;opacity:0.6;">cm</span>
+    </div>
+  </div>
+  <div class="profile-count" id="profile-count"></div>
+
   <div class="settings-row">
     <label class="settings-label" for="set-sound">Sound</label>
     <button type="button" id="set-sound" class="settings-toggle" onclick="toggleSoundFromSettings()">On</button>
@@ -1550,6 +1600,8 @@ function isNative() {
 let healthKitReady = false;
 let healthKitSessionId = null;
 let userWeightKg = 70;
+let userProfile = { ...window.capability.DEFAULT_PROFILE, height_cm: 170 };
+let exerciseSettings = { ...window.capability.DEFAULT_EXERCISE_SETTINGS };
 
 async function initHealthKit() {
   if (!isNative()) return;
@@ -1865,6 +1917,12 @@ function loadAppSettings() {
       if (typeof s.theme === 'string') currentTheme = s.theme;
       if (typeof s.fontIdx === 'number') currentFontIdx = s.fontIdx;
       if (typeof s.weightKg === 'number') userWeightKg = s.weightKg;
+      if (s.userProfile && typeof s.userProfile === 'object') {
+        userProfile = { ...window.capability.DEFAULT_PROFILE, height_cm: 170, ...s.userProfile };
+      }
+      if (s.exerciseSettings && typeof s.exerciseSettings === 'object') {
+        exerciseSettings = { ...window.capability.DEFAULT_EXERCISE_SETTINGS, ...s.exerciseSettings };
+      }
     }
   } catch (e) {}
   syncSoundUI();
@@ -1873,6 +1931,7 @@ function loadAppSettings() {
   applyFontScale(currentFontIdx);
   const wEl = document.getElementById('set-weight');
   if (wEl) wEl.value = userWeightKg;
+  syncProfileUI();
 }
 
 function exportBackup() {
@@ -1921,8 +1980,11 @@ function saveAppSettings() {
       soundEnabled, voiceEnabled,
       theme: currentTheme, fontIdx: currentFontIdx,
       weightKg: userWeightKg,
+      userProfile: userProfile,
+      exerciseSettings: exerciseSettings,
     }));
   } catch (e) {}
+  updateProfileCount();
 }
 
 function saveWeightSetting() {
@@ -1933,6 +1995,92 @@ function saveWeightSetting() {
     userWeightKg = v;
     saveAppSettings();
   }
+}
+
+function saveHeightSetting() {
+  const el = document.getElementById('set-height');
+  if (!el) return;
+  const v = parseInt(el.value);
+  if (v >= 100 && v <= 250) {
+    userProfile.height_cm = v;
+    saveAppSettings();
+  }
+}
+
+function selectProfilePill(el, field) {
+  el.parentElement.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  userProfile[field] = el.dataset.value;
+  saveAppSettings();
+}
+
+function toggleFloorWork() {
+  userProfile.floor_work_ok = !userProfile.floor_work_ok;
+  const btn = document.getElementById('floor-work-toggle');
+  if (btn) {
+    btn.textContent = userProfile.floor_work_ok ? 'On' : 'Off';
+    btn.classList.toggle('on', userProfile.floor_work_ok);
+  }
+  saveAppSettings();
+}
+
+function toggleMobilityPill(el) {
+  const val = el.dataset.value;
+  const idx = userProfile.mobility_limits.indexOf(val);
+  if (idx !== -1) {
+    userProfile.mobility_limits.splice(idx, 1);
+    el.classList.remove('selected');
+  } else {
+    userProfile.mobility_limits.push(val);
+    el.classList.add('selected');
+  }
+  saveAppSettings();
+}
+
+function syncProfileUI() {
+  // Age band
+  const agePills = document.getElementById('age-band-pills');
+  if (agePills && agePills.querySelectorAll) {
+    agePills.querySelectorAll('.pill').forEach(p => {
+      p.classList.toggle('selected', p.dataset.value === userProfile.age_band);
+    });
+  }
+  // Fitness
+  const fitPills = document.getElementById('fitness-pills');
+  if (fitPills && fitPills.querySelectorAll) {
+    fitPills.querySelectorAll('.pill').forEach(p => {
+      p.classList.toggle('selected', p.dataset.value === userProfile.fitness_level);
+    });
+  }
+  // Floor work
+  const floorBtn = document.getElementById('floor-work-toggle');
+  if (floorBtn && floorBtn.textContent !== undefined) {
+    floorBtn.textContent = userProfile.floor_work_ok ? 'On' : 'Off';
+    floorBtn.classList.toggle('on', userProfile.floor_work_ok);
+  }
+  // Mobility limits
+  const mobPills = document.getElementById('mobility-pills');
+  if (mobPills && mobPills.querySelectorAll) {
+    mobPills.querySelectorAll('.pill').forEach(p => {
+      p.classList.toggle('selected', userProfile.mobility_limits.indexOf(p.dataset.value) !== -1);
+    });
+  }
+  // Height
+  const hEl = document.getElementById('set-height');
+  if (hEl) hEl.value = userProfile.height_cm || 170;
+
+  updateProfileCount();
+}
+
+function updateProfileCount() {
+  const el = document.getElementById('profile-count');
+  if (!el) return;
+  const bmi = window.capability.computeBmi(userWeightKg, userProfile.height_cm || 170);
+  const profileForFilter = { ...userProfile, bmi: bmi };
+  const caps = window.capability.deriveCaps(profileForFilter);
+  const total = DB.length;
+  const allowed = DB.filter(e => window.capability.isAllowed(e, caps, profileForFilter, exerciseSettings)).length;
+  el.innerHTML = '<strong>' + allowed + '</strong> of ' + total + ' exercises available for your profile';
 }
 
 // ═══════════════════════════════════════════════════
@@ -2175,17 +2323,18 @@ function focusOrderedPool(pool) {
   return expanded.filter(e => !seen.has(e.name) && seen.add(e.name));
 }
 
-function pickPulseRaiser(equipment) {
+function pickPulseRaiser(equipment, capCaps, capProfile, capSettings) {
   // Prefer skipping rope when available; else any cardio.
-  const skip = DB.find(e => e.name === 'Skipping Rope' && e.equip.every(eq => equipment.has(eq)));
+  const allowed = e => !capCaps || window.capability.isAllowed(e, capCaps, capProfile, capSettings);
+  const skip = DB.find(e => e.name === 'Skipping Rope' && e.equip.every(eq => equipment.has(eq)) && allowed(e));
   if (skip) return skip;
-  const cardio = DB.filter(e => e.cat === 'cardio' && e.equip.every(eq => equipment.has(eq)));
+  const cardio = DB.filter(e => e.cat === 'cardio' && e.equip.every(eq => equipment.has(eq)) && allowed(e));
   return cardio[Math.floor(Math.random() * cardio.length)] || null;
 }
 
-function buildWarmup(type, equipment, totalSec, usedNames) {
+function buildWarmup(type, equipment, totalSec, usedNames, capCaps, capProfile, capSettings) {
   // First movement is a pulse raiser (60s). Remaining time fills with curated cats.
-  const pulse = pickPulseRaiser(equipment);
+  const pulse = pickPulseRaiser(equipment, capCaps, capProfile, capSettings);
   const out = [];
   if (pulse) {
     out.push({ exercise: pulse, workSec: PULSE_RAISER_DUR, restSec: 0, section: 'warmup', continuous: true, single_sided: !!pulse.single_sided });
@@ -2199,7 +2348,8 @@ function buildWarmup(type, equipment, totalSec, usedNames) {
     cats.includes(e.cat) &&
     e.diff <= 2 &&
     e.equip.every(eq => equipment.has(eq)) &&
-    !usedNames.has(e.name)
+    !usedNames.has(e.name) &&
+    (!capCaps || window.capability.isAllowed(e, capCaps, capProfile, capSettings))
   );
   // Order candidates by a simple round-robin across cats so the warmup feels varied.
   const byCat = new Map();
@@ -2238,12 +2388,13 @@ function buildWarmup(type, equipment, totalSec, usedNames) {
   return out;
 }
 
-function buildCooldown(equipment, mainMuscles, usedNames) {
+function buildCooldown(equipment, mainMuscles, usedNames, capCaps, capProfile, capSettings) {
   // Bias toward muscles loaded by main; PDR §6.2.
   const pool = DB.filter(e =>
     COOLDOWN_CATS.includes(e.cat) &&
     e.equip.every(eq => equipment.has(eq)) &&
-    !usedNames.has(e.name)
+    !usedNames.has(e.name) &&
+    (!capCaps || window.capability.isAllowed(e, capCaps, capProfile, capSettings))
   );
   const score = e => {
     let s = 0;
@@ -2326,6 +2477,12 @@ function generateWorkout() {
     renderPreview();
     return;
   }
+
+  // Capability profile filter
+  const capBmi = window.capability.computeBmi(userWeightKg, userProfile.height_cm || 170);
+  const profileForFilter = { ...userProfile, bmi: capBmi };
+  const caps = window.capability.deriveCaps(profileForFilter);
+
   const sets = config.sets || 1;
   const totalSec = config.duration * 60;
   const wDur = warmupDuration(config.duration);
@@ -2346,7 +2503,7 @@ function generateWorkout() {
   const usedNames = new Set();
 
   // Warm-up.
-  const warmupEntries = buildWarmup(config.type, selectedEquipment, wDur, usedNames);
+  const warmupEntries = buildWarmup(config.type, selectedEquipment, wDur, usedNames, caps, profileForFilter, exerciseSettings);
   if (warmupEntries.length === 0) {
     showGenError('No warm-up movements available for the selected equipment.');
     return;
@@ -2361,7 +2518,8 @@ function generateWorkout() {
     e.types.includes(config.type) &&
     e.equip.every(eq => selectedEquipment.has(eq)) &&
     !excludedCats.has(e.cat) &&
-    !usedNames.has(e.name)
+    !usedNames.has(e.name) &&
+    window.capability.isAllowed(e, caps, profileForFilter, exerciseSettings)
   );
   if (typePool.length === 0) {
     showGenError('No exercises match this type, equipment, and focus combination. Try fewer exclusions.');
@@ -2423,7 +2581,7 @@ function generateWorkout() {
   // Cooldown — exclude warmup + main names; bias toward main muscle groups.
   const mainMuscles = new Set();
   mainExercises.forEach(ex => ex.muscles.forEach(m => mainMuscles.add(m)));
-  const cooldownEntries = buildCooldown(selectedEquipment, mainMuscles, usedNames);
+  const cooldownEntries = buildCooldown(selectedEquipment, mainMuscles, usedNames, caps, profileForFilter, exerciseSettings);
   if (cooldownEntries.length === 0) {
     showGenError('No cooldown movements available. Make sure a mat is selected.');
     return;
