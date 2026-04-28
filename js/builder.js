@@ -10,13 +10,13 @@
     'push-v':       { work: 40, rest: 20 },
     'pull-h':       { work: 40, rest: 20 },
     'pull-v':       { work: 40, rest: 20 },
-    'core':         { work: 30, rest: 15 },
-    'isometric':    { work: 30, rest: 30 },
-    'plyo':         { work: 20, rest: 40 },
-    'cardio':       { work: 30, rest: 30 },
-    'carry':        { work: 30, rest: 30 },
-    'animal':       { work: 30, rest: 30 },
-    'full-body':    { work: 35, rest: 25 },
+    'core':         { work: 35, rest: 15 },
+    'isometric':    { work: 40, rest: 20 },
+    'plyo':         { work: 25, rest: 35 },
+    'cardio':       { work: 35, rest: 25 },
+    'carry':        { work: 40, rest: 25 },
+    'animal':       { work: 35, rest: 25 },
+    'full-body':    { work: 40, rest: 25 },
     'mobility':     { work: 30, rest: 10 }, // overridden for cooldown below
   };
 
@@ -69,8 +69,14 @@
       };
     }
     const t = TYPE_MOD[type] || TYPE_MOD.conditioning;
-    const d = DIFF_MOD[diff] || DIFF_MOD[1];
+    let d = DIFF_MOD[diff] || DIFF_MOD[1];
     const i = INTENSITY_MOD[intensity] || INTENSITY_MOD.moderate;
+    // Isometric holds: harder exercises (diff 3) should be shorter, not longer.
+    // Invert the work modifier for isometrics so Wall Sits (diff 1) hold longer
+    // and L-Sits (diff 3) hold shorter.
+    if (cat === 'isometric') {
+      d = { work: diff === 3 ? 0.7 : diff === 2 ? 0.85 : 1.1, rest: d.rest };
+    }
     const work = base.work * t.work * d.work * i.work;
     const rest = base.rest * t.rest * d.rest * i.rest;
     return {
