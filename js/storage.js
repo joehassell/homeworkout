@@ -21,6 +21,7 @@
       ? sessions.slice(sessions.length - MAX_SESSIONS)
       : sessions;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(capped));
+    if (typeof cloudPush === 'function') cloudPush(STORAGE_KEY);
     return capped;
   }
 
@@ -70,9 +71,11 @@
     saveSessions(payload.sessions);
     if (Array.isArray(payload.equipment)) {
       localStorage.setItem('wk_equipment', JSON.stringify(payload.equipment));
+      if (typeof cloudPush === 'function') cloudPush('wk_equipment');
     }
     if (payload.settings && typeof payload.settings === 'object') {
       localStorage.setItem('wk_settings', JSON.stringify(payload.settings));
+      if (typeof cloudPush === 'function') cloudPush('wk_settings');
     }
     return { sessions: payload.sessions.length };
   }

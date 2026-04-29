@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		IC10000020000000000000001 /* iCloudSyncPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = IC10000010000000000000001 /* iCloudSyncPlugin.swift */; };
+		IC10000020000000000000002 /* iCloudSyncPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = IC10000010000000000000002 /* iCloudSyncPlugin.m */; };
 		0EA13C48A6AC508A99E0EAE1 /* HealthKitPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 36971A38436F34FBC8632F1C /* HealthKitPlugin.m */; };
 		1D78BB2E4F4F0F816A069684 /* HealthKitPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14F334DAACB8180314B203D /* HealthKitPlugin.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
@@ -38,6 +40,8 @@
 		1B698EAE2C449EFCABFB37A4 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
 		36971A38436F34FBC8632F1C /* HealthKitPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HealthKitPlugin.m; sourceTree = "<group>"; };
+		IC10000010000000000000001 /* iCloudSyncPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iCloudSyncPlugin.swift; sourceTree = "<group>"; };
+		IC10000010000000000000002 /* iCloudSyncPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = iCloudSyncPlugin.m; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		504EC3071FED79650016851F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -137,6 +141,8 @@
 				A1B2C3D4E5F60718293A4B5D /* WatchConnectivityPlugin.m */,
 				C14F334DAACB8180314B203D /* HealthKitPlugin.swift */,
 				36971A38436F34FBC8632F1C /* HealthKitPlugin.m */,
+				IC10000010000000000000001 /* iCloudSyncPlugin.swift */,
+				IC10000010000000000000002 /* iCloudSyncPlugin.m */,
 			);
 			path = Plugins;
 			sourceTree = "<group>";
@@ -300,6 +306,8 @@
 				A1B2C3D4E5F60718293A4B60 /* WatchConnectivityPlugin.m in Sources */,
 				1D78BB2E4F4F0F816A069684 /* HealthKitPlugin.swift in Sources */,
 				0EA13C48A6AC508A99E0EAE1 /* HealthKitPlugin.m in Sources */,
+				IC10000020000000000000001 /* iCloudSyncPlugin.swift in Sources */,
+				IC10000020000000000000002 /* iCloudSyncPlugin.m in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

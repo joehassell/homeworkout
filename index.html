@@ -2272,6 +2272,47 @@ function nativeHaptic(style) {
   } catch (e) {}
 }
 
+// ── iCloud sync bridge ──────────────────────────────
+const SYNC_KEYS = ['wk_sessions','wk_settings','wk_equipment','wk_focus',
+                   'wk_saved_workouts','wk_exercise_prs','wk_weekly_plan'];
+
+async function initCloudSync() {
+  if (!isNative()) return;
+  try {
+    const cs = window.Capacitor.Plugins.iCloudSyncPlugin;
+
+    // Load cloud data on startup (cloud fills empty local keys)
+    const { pairs } = await cs.loadAllFromCloud({ keys: SYNC_KEYS });
+    for (const { key, value } of pairs) {
+      if (value && !localStorage.getItem(key)) {
+        localStorage.setItem(key, value);
+      }
+    }
+
+    // Listen for remote changes from other devices
+    cs.addListener('cloudSync', (data) => {
+      if (data.key && data.value) {
+        localStorage.setItem(data.key, data.value);
+        // Reload relevant state into memory
+        if (data.key === 'wk_settings') loadAppSettings();
+        if (data.key === 'wk_equipment') loadEquipmentSelection();
+        if (data.key === 'wk_focus') loadFocus();
+      }
+    });
+  } catch (e) { /* degrade silently */ }
+}
+
+// Push a single key to iCloud whenever localStorage changes
+function cloudPush(key) {
+  if (!isNative()) return;
+  try {
+    const value = localStorage.getItem(key);
+    if (value) {
+      window.Capacitor.Plugins.iCloudSyncPlugin.syncToCloud({ key, value });
+    }
+  } catch (e) {}
+}
+
 // ═══════════════════════════════════════════════════
 // TEXT-TO-SPEECH
 // ═══════════════════════════════════════════════════
@@ -2495,6 +2536,7 @@ function saveAppSettings() {
       yogaExperience: config.yogaExperience,
       yogaEquipment: [...yogaEquipment],
     }));
+    cloudPush('wk_settings');
   } catch (e) {}
   updateProfileCount();
 }
@@ -2719,6 +2761,7 @@ function loadEquipmentSelection() {
 function saveEquipmentSelection() {
   try {
     localStorage.setItem('wk_equipment', JSON.stringify([...selectedEquipment]));
+    cloudPush('wk_equipment');
   } catch (e) {}
 }
 
@@ -3021,7 +3064,7 @@ function syncFocusUI() {
 }
 
 function saveFocus() {
-  try { localStorage.setItem('wk_focus', JSON.stringify(focusState)); } catch (e) {}
+  try { localStorage.setItem('wk_focus', JSON.stringify(focusState)); cloudPush('wk_focus'); } catch (e) {}
 }
 
 // ═══════════════════════════════════════════════════
@@ -3799,7 +3842,7 @@ function loadPRs() {
   try { const r = localStorage.getItem(PR_KEY); return r ? JSON.parse(r) : {}; } catch(e) { return {}; }
 }
 function savePRs(prs) {
-  try { localStorage.setItem(PR_KEY, JSON.stringify(prs)); } catch(e) {}
+  try { localStorage.setItem(PR_KEY, JSON.stringify(prs)); cloudPush(PR_KEY); } catch(e) {}
 }
 function epley1RM(weight, reps) {
   if (reps <= 0 || weight <= 0) return 0;
@@ -4738,7 +4781,7 @@ function saveWorkoutToLibrary() {
 }
 
 function persistSavedWorkouts() {
-  try { localStorage.setItem('wk_saved_workouts', JSON.stringify(savedWorkouts)); } catch(e) {}
+  try { localStorage.setItem('wk_saved_workouts', JSON.stringify(savedWorkouts)); cloudPush('wk_saved_workouts'); } catch(e) {}
 }
 
 function deleteSavedWorkout(id) {
@@ -5132,6 +5175,7 @@ function loadOrGeneratePlan() {
           const completedDates = new Set(sessions.map(s => s.date ? s.date.slice(0, 10) : null).filter(Boolean));
           saved.plan.forEach(d => { d.completed = completedDates.has(d.date); });
           localStorage.setItem('wk_weekly_plan', JSON.stringify(saved));
+          cloudPush('wk_weekly_plan');
           return saved.plan;
         }
       }
@@ -5141,6 +5185,7 @@ function loadOrGeneratePlan() {
   const plan = generateWeeklyPlan();
   const payload = { weekStart: todayString(), plan: plan };
   localStorage.setItem('wk_weekly_plan', JSON.stringify(payload));
+  cloudPush('wk_weekly_plan');
   return plan;
 }
 
@@ -5149,6 +5194,7 @@ function refreshPlan() {
   const plan = generateWeeklyPlan();
   const payload = { weekStart: todayString(), plan: plan };
   localStorage.setItem('wk_weekly_plan', JSON.stringify(payload));
+  cloudPush('wk_weekly_plan');
   renderPlanCard(plan);
 }
 
@@ -5272,6 +5318,7 @@ loadAppSettings();
 loadFocus();
 initHealthKit();
 initWatchConnectivity();
+initCloudSync();
 // Render weekly plan card
 renderPlanCard();
 // Make the bottom nav visible immediately on the initial active (setup) screen.
