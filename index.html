@@ -967,6 +967,7 @@ async function hkStartWorkout(exerciseName, remaining, phase, exerciseIndex, exe
       phase: phase || 'warmup',
       exerciseIndex: exerciseIndex || 0,
       exerciseCount: exerciseCount || 0,
+      isPro: Entitlement.isPro(),
     });
     healthKitSessionId = res.sessionId;
   } catch (e) { /* degrade silently */ }
@@ -996,8 +997,19 @@ async function hkDiscardWorkout() {
 
 function hkUpdateLiveActivity() {
   if (!healthKitReady || !healthKitSessionId || !isNative()) return;
-  // Live Activity uses Text(timerInterval:) for smooth native countdown,
-  // so it doesn't need per-second JS updates. Placeholder for future use.
+  if (!Entitlement.isPro()) return; // Live Activity is Pro-only
+  const w = workout[timerState.idx];
+  if (!w) return;
+  try {
+    window.Capacitor.Plugins.HealthKitPlugin.updateLiveActivity({
+      exerciseName: w.exercise.name,
+      remaining: timerState.remaining,
+      phase: timerState.phase,
+      elapsed: timerState.elapsed || 0,
+      exerciseIndex: timerState.idx,
+      exerciseCount: workout.length,
+    });
+  } catch (e) {}
 }
 
 // ── HR Zone Coaching ──────────────────────────────────
@@ -1192,6 +1204,11 @@ function watchSendCommand(type, data) {
 
 function computeTotalRemaining() {
   let total = timerState.remaining;
+  // If in work phase, also include the current entry's rest
+  const w = workout[timerState.idx];
+  if (timerState.phase === 'work' && w) {
+    total += w.restSec || 0;
+  }
   for (let i = timerState.idx + 1; i < workout.length; i++) {
     total += workout[i].workSec + workout[i].restSec;
   }
@@ -3549,6 +3566,9 @@ function finishStrengthSet() {
   timerState.remaining = 0;
 
   showSetRpeOverlay().then(rpe => {
+    // Guard: workout may have been stopped while RPE overlay was open
+    if (!timerState.running) return;
+
     // Log the set
     strengthSetLog.push({ name: exerciseName, type: setType, reps, weight_kg: weightKg, rpe });
     if (entry) entry.setRpe = rpe;
@@ -3566,7 +3586,7 @@ function finishStrengthSet() {
     // Reset set type to normal for next set
     resetSetType();
     advancePhase();
-    if (timerState.running) updateTimerUI();
+    updateTimerUI();
   });
 }
 
@@ -3589,6 +3609,7 @@ function advancePhase() {
       } else {
         speak('Rest. Last exercise done.');
       }
+      hkUpdateLiveActivity();
     } else {
       advanceExercise();
     }
@@ -3606,6 +3627,7 @@ function advanceYogaPhase() {
     yogaChime();
     const next = workout[timerState.idx + 1];
     if (next && next.transitionNarration) speakYoga(next.transitionNarration);
+    hkUpdateLiveActivity();
     updateTimerUI();
     return;
   }
@@ -3624,6 +3646,7 @@ function advanceYogaPhase() {
   } else if (next.transitionNarration && !w.restSec) {
     speakYoga(next.transitionNarration);
   }
+  hkUpdateLiveActivity();
   updateTimerUI();
 }
 
@@ -3644,6 +3667,7 @@ function advanceExercise() {
   } else {
     speak(w.exercise.name);
   }
+  hkUpdateLiveActivity();
 }
 
 function phaseLabelFor(w, phase) {
@@ -3828,9 +3852,10 @@ function saveSetWeight() {
 function addRest() {
   if (timerState.phase === 'rest' && timerState.running) {
     timerState.remaining += 10;
-    workout[timerState.idx].restSec += 10;
+    timerState.totalRemaining += 10;
     timerState.extraRestSec += 10;
     updateTimerUI();
+    hkUpdateLiveActivity();
     beep(550, 0.1, 0.2);
   }
 }
@@ -3956,6 +3981,10 @@ function dismissIosFsHint() {
 function stopWorkout() {
   timerState.running = false;
   clearInterval(timerState.intervalId);
+  // Dismiss any pending RPE overlay (its Promise will guard on timerState.running)
+  const rpeOverlay = document.getElementById('set-rpe-overlay');
+  if (rpeOverlay) rpeOverlay.classList.remove('visible');
+  if (pendingSetRpeResolve) { pendingSetRpeResolve(null); pendingSetRpeResolve = null; }
   releaseWakeLock();
   exitFullscreen();
   hkDiscardWorkout();
