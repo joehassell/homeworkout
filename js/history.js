@@ -164,13 +164,12 @@
     const statsEl = document.getElementById('hist-stats');
     const heatEl = document.getElementById('hist-heatmap');
     const listEl = document.getElementById('hist-list');
-    if (statsEl) renderStats(statsEl, computeStats(sessions));
-    if (heatEl) renderHeatmap(heatEl, sessions);
-    if (listEl) renderList(listEl, sessions);
     var emptyEl = document.getElementById('hist-empty');
-    if (emptyEl) {
-      emptyEl.style.display = sessions.length === 0 ? '' : 'none';
-    }
+    var isEmpty = sessions.length === 0;
+    if (statsEl) { renderStats(statsEl, computeStats(sessions)); statsEl.style.display = isEmpty ? 'none' : ''; }
+    if (heatEl) { renderHeatmap(heatEl, sessions); heatEl.parentElement.style.display = isEmpty ? 'none' : ''; }
+    if (listEl) { renderList(listEl, sessions); listEl.parentElement.style.display = isEmpty ? 'none' : ''; }
+    if (emptyEl) { emptyEl.style.display = isEmpty ? '' : 'none'; }
   }
 
   // Avoid clobbering window.history (the browser API)
