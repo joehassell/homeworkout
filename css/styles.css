@@ -1,4 +1,4 @@
-@import url("tokens.css");
+/* tokens.css loaded via <link> in HTML — no @import needed */
 
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body {

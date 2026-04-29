@@ -679,7 +679,7 @@ const IMPERIAL_LOCALES = ['en-US', 'en-LR', 'my-MM'];
 function detectLocaleUnits() {
   try {
     const lang = navigator.language || navigator.languages?.[0] || 'en';
-    return IMPERIAL_LOCALES.some(l => lang.startsWith(l.split('-')[0]) && lang.includes(l.split('-')[1])) ? 'imperial' : 'metric';
+    return IMPERIAL_LOCALES.some(l => lang === l || lang.startsWith(l + '-')) ? 'imperial' : 'metric';
   } catch (e) { return 'metric'; }
 }
 let userUnits = detectLocaleUnits();
@@ -934,7 +934,7 @@ async function initHealthKit() {
         const dob = await hk.getDateOfBirth();
         if (dob.available && dob.age > 0) {
           const age = dob.age;
-          if (age < 18) userProfile.age_band = 'under-18';
+          if (age < 18) userProfile.age_band = 'under_18';
           else if (age <= 39) userProfile.age_band = '18-39';
           else if (age <= 54) userProfile.age_band = '40-54';
           else if (age <= 69) userProfile.age_band = '55-69';
@@ -1228,7 +1228,7 @@ async function initCloudSync() {
 
     // Listen for remote changes from other devices
     cs.addListener('cloudSync', (data) => {
-      if (data.key && data.value) {
+      if (data.key && data.value && SYNC_KEYS.includes(data.key)) {
         localStorage.setItem(data.key, data.value);
         // Reload relevant state into memory
         if (data.key === 'wk_settings') loadAppSettings();
@@ -1716,7 +1716,7 @@ function showScreen(id) {
 function navTo(screen) {
   if (screen === 'history' && window.history_view) window.history_view.refresh();
   if (screen === 'library') { renderLibrary(); renderExerciseLibraryInline(); }
-  if (screen === 'setup') { resetFocus(); }
+  if (screen === 'setup') { loadFocus(); }
   showScreen(screen);
 }
 

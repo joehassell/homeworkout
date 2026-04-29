@@ -67,7 +67,12 @@
   }
 
   function isPro() {
-    return _state.tier === 'pro';
+    if (_state.tier !== 'pro') return false;
+    // Check expiration for subscriptions (lifetime has no expiresAt)
+    if (_state.expiresAt) {
+      return new Date(_state.expiresAt) > new Date();
+    }
+    return true;
   }
 
   function isFounder() {
