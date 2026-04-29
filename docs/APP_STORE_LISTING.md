@@ -6,11 +6,11 @@ SimpleWorkoutGen
 
 ## Subtitle
 
-Home Workout Builder & Timer
+Smart workouts. Watch ready.
 
 ## Promotional Text
 
-Generate custom workouts with smart warm-ups, guided timer, Apple Watch heart rate, and Apple Health integration. No account needed.
+No accounts. No cloud. No tracking. Generate workouts in seconds, run them with your Apple Watch, and own your data. Free to start, Pro unlocks everything.
 
 ## Description
 
@@ -18,7 +18,7 @@ Build and run custom workouts in seconds. Choose your workout type, duration, in
 
 WORKOUT BUILDER
 • 5 workout types: Strength, HIIT, Conditioning, Functional, Yoga
-• 15 to 60 minute sessions with 3 intensity levels
+• 15 to 180 minute sessions with 3 intensity levels
 • Focus areas: boost or exclude muscle groups (Push, Pull, Lower, Core, Full Body, Mobility)
 • 9 equipment options from bodyweight to barbell
 • Smart warm-up tailored to your workout type
@@ -49,6 +49,7 @@ APPLE HEALTH & FITNESS
 PERSONALISATION
 • 5 colour themes: Dark, Midnight, Forest, High Contrast, Light
 • Adjustable font size (5 steps) for readability during workouts
+• Metric or Imperial units (auto-detected from your locale)
 • Session history with calendar heatmap and stats
 • Full JSON backup and restore
 
@@ -81,6 +82,17 @@ workout,timer,HIIT,strength,exercise,generator,fitness,home,training,watch,healt
 | Content Rights | Does not contain third-party content |
 | Age Rating | 4+ |
 | Privacy Questionnaire | Data Not Collected |
+
+## In-App Purchases
+
+| Product | ID | Price (NZ) |
+|---------|-----|-----------|
+| Pro Monthly | `com.nomaen.homeworkout.pro.monthly` | NZ$5.99/mo |
+| Pro Yearly | `com.nomaen.homeworkout.pro.yearly` | NZ$29/yr (7-day trial) |
+| Pro Lifetime | `com.nomaen.homeworkout.pro.lifetime` | NZ$59 |
+| Founders Lifetime | `com.nomaen.homeworkout.pro.lifetime.founders` | NZ$39 (first 1,000) |
+
+See `docs/APP_STORE_CONNECT_HANDOFF.md` for full pricing per territory.
 
 ## Screenshots
 

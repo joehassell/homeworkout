@@ -62,25 +62,32 @@ Also available as a [Progressive Web App](https://joehassell.github.io/homeworko
 - iCloud sync for sessions, settings, and PRs across devices
 
 ### Library
-- **Programs** — collections of workouts (coming soon)
 - **Workouts** — saved workouts with star ratings + 32 expert templates
-- **Exercises** — browse all 114 exercises with filters, exclude/favourite
+- **Exercises** — browse all 113 exercises with body/equipment/difficulty filters
+- **Equipment catalog** — 55+ items across Basic/Home/Commercial tiers with tri-state preferences (always/maybe/never)
 - **Export** — JSON, Markdown, CSV formats
 
 ### Personalisation
 - **5 themes** — Dark, Midnight, Forest, High Contrast, Light
 - **Font scaling** — 5 steps from 0.875x to 1.5x
+- **Metric / Imperial** — auto-detected from locale, user-overridable
 - **Weekly plan** — 7-day suggested schedule based on goals
 - **Surprise Me** — one-tap smart workout generation
 - **Session history** — heatmap calendar, stats, past workout details
 - **JSON backup** — export/import all sessions and settings
 - **Apple Music** — mini-player control during workouts (iOS)
 
+### Pricing (Free + Pro)
+- **Free tier** — all workout types, bodyweight + mat, 2 themes, 14-day history
+- **Pro tier** — all 9 equipment types, all themes, full history, Apple Watch, weight tracking, font scaling, JSON backup
+- **StoreKit 2** — monthly, yearly (7-day trial), lifetime, and founders lifetime SKUs
+- **Paywall** — 6 surfaces: equipment, Watch, history, themes, post-workout, Settings
+
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Web app | Vanilla HTML/CSS/JS — single `index.html` (~3000 lines) |
+| Web app | Vanilla HTML/CSS/JS — single `index.html` (~4700 lines) |
 | iOS shell | [Capacitor 8](https://capacitorjs.com) with Swift plugins |
 | Watch app | Native SwiftUI (watchOS 10+) |
 | Health | HealthKit + ActivityKit (Live Activities) |
@@ -130,17 +137,31 @@ In Xcode, select the **HomeWorkoutWatch** scheme, pick a watch simulator, and pr
 homeworkout/
 ├── index.html                    # Web app — UI + generator + timer
 ├── js/
+│   ├── exercises.js              # Exercise database (113 exercises)
+│   ├── yoga.js                   # Yoga pose DB + generator (47 poses, 5 styles)
 │   ├── builder.js                # Work/rest interval calculations
+│   ├── templates.js              # 32 expert workout templates
+│   ├── capability.js             # Safety filtering (age, BMI, mobility)
 │   ├── storage.js                # localStorage wrapper + JSON backup
-│   └── history.js                # History view rendering
+│   ├── history.js                # History view rendering
+│   ├── entitlement.js            # Free/Pro tier state + feature gates
+│   ├── iap.js                    # StoreKit 2 JS bridge wrapper
+│   └── paywall.js                # Paywall modal + purchase flow
+├── css/
+│   ├── tokens.css                # Design tokens (5 themes)
+│   ├── styles.css                # Main styles
+│   └── paywall.css               # Paywall + Pro lock badges
 ├── ios/
 │   ├── App/
 │   │   ├── App/
-│   │   │   ├── AppDelegate.swift         # Audio session + WCSession activation
-│   │   │   ├── Info.plist                # HealthKit privacy, background audio
-│   │   │   ├── App.entitlements          # HealthKit + App Groups
+│   │   │   ├── AppDelegate.swift         # Audio session setup
+│   │   │   ├── Info.plist                # HealthKit privacy
+│   │   │   ├── App.entitlements          # HealthKit + IAP + CloudKit + App Groups
 │   │   │   └── Plugins/
 │   │   │       ├── HealthKitPlugin.swift  # HK auth, workout save, Live Activity
+│   │   │       ├── IAPPlugin.swift        # StoreKit 2 purchases + CloudKit founders
+│   │   │       ├── iCloudSyncPlugin.swift # NSUbiquitousKeyValueStore bridge
+│   │   │       ├── MusicPlugin.swift      # Apple Music controls
 │   │   │       └── WatchConnectivityPlugin.swift  # WCSession bridge to JS
 │   │   ├── HomeWorkoutWatch/             # watchOS SwiftUI app
 │   │   │   ├── WorkoutSessionManager.swift  # WCSession + HKWorkoutSession
@@ -167,13 +188,13 @@ homeworkout/
 
 ## Generator Smoke Test
 
-Verify all 80 workout configurations (4 types x 5 durations x 4 sets) produce valid workouts:
+Verify all workout configurations (80 standard + 25 yoga + exercise/template/capability checks):
 
 ```bash
 npm test  # or run the inline Python/Node harness in HANDOFF.md §6
 ```
 
-Expected: `PASS 79+ FAIL 0 REFUSED 0-1`
+Expected: `76 passing, 0 failing`
 
 ## Privacy
 
@@ -182,7 +203,7 @@ SimpleWorkoutGen stores workout history in on-device `localStorage` only. No dat
 - **HealthKit read**: body weight, heart rate, workouts
 - **HealthKit write**: completed workouts, active energy burned
 
-No analytics, no tracking, no accounts, no cloud sync.
+No analytics, no tracking, no accounts. iCloud key-value sync for settings/sessions across user's own devices.
 
 ## License
 
