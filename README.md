@@ -7,12 +7,15 @@ Also available as a [Progressive Web App](https://joehassell.github.io/homeworko
 ## Features
 
 ### Workout Generator
-- **4 workout types** — Strength, HIIT, Conditioning, Functional
-- **5 session lengths** — 15, 20, 30, 45, or 60 minutes
+- **5 workout types** — Strength, HIIT, Conditioning, Functional, Yoga
+- **Custom session lengths** — 15–180 minutes (presets + free input)
 - **3 intensity levels** — Light, Moderate, High
 - **1–4 sets** with intensity-scaled rest periods (60–180s)
+- **Priority goals** — up to 3 goals shape the generator (strength, cardio, mobility, etc.)
 - **Focus areas** — 3-state cycle (include / boost / exclude) for Push, Pull, Lower, Core, Full Body, Mobility
-- **Equipment filtering** — Bodyweight, Mat, Dumbbell, Kettlebell, Barbell, Bench, Chin-up Bar, Medicine Ball, Skipping Rope
+- **Equipment tiers** — Basic, Home Gym, Commercial with quick presets
+- **Capability profile** — age, fitness level, mobility limits filter unsafe exercises
+- **32 expert templates** — pre-designed workouts across all types
 - **Smart warm-up** — type-specific movements scaled to session length, with pulse raiser and post-warm-up rest
 - **5-minute cooldown** — biased toward muscles loaded in the main workout
 - **Single-sided exercises** — 2x duration with mid-way "switch sides" audio + visual cue
@@ -20,10 +23,27 @@ Also available as a [Progressive Web App](https://joehassell.github.io/homeworko
 
 ### Guided Timer
 - Countdown timer with 3-2-1 audio beeps and voice cues
+- Exercise images with fade-in animation on transitions
 - Phase labels: Warm-up, Work, Rest, Cooldown
 - Pause, skip, restart, and previous exercise controls
 - Weight tracking per set for strength workouts
 - Fullscreen mode on workout start
+- HR zone display with coaching cues (with Apple Watch)
+
+### Strength Tracking (Hevy-parity)
+- Personal records (PRs) per exercise with animated badge
+- Set types: Normal, Warm-up, Drop, AMRAP
+- Per-set RPE (6-10) quick input
+- Volume/tonnage tracking on Done screen
+- Plate calculator (standard plates per side)
+- 1RM calculator (Epley formula + percentage table)
+
+### Yoga
+- 5 styles: Vinyasa Flow, Hatha, Yin, Power, Restorative
+- ~50 poses with Sanskrit names and narration
+- Calm voice guides each breath and movement
+- Gentle singing-bowl chimes between poses
+- Yoga experience levels and equipment filtering
 
 ### Apple Watch Companion
 - Live exercise name, countdown timer, and workout phase
@@ -37,14 +57,24 @@ Also available as a [Progressive Web App](https://joehassell.github.io/homeworko
 - Completed workouts saved to Apple Health
 - Appears in the Fitness app activity rings
 - MET-based calorie estimation (phone-only) or HR-based (with watch)
-- Body weight read from HealthKit for accurate calculations
+- Body weight and date of birth read from HealthKit (auto-fills profile)
 - Live Activity on lock screen and Dynamic Island during workouts
+- iCloud sync for sessions, settings, and PRs across devices
+
+### Library
+- **Programs** — collections of workouts (coming soon)
+- **Workouts** — saved workouts with star ratings + 32 expert templates
+- **Exercises** — browse all 114 exercises with filters, exclude/favourite
+- **Export** — JSON, Markdown, CSV formats
 
 ### Personalisation
 - **5 themes** — Dark, Midnight, Forest, High Contrast, Light
 - **Font scaling** — 5 steps from 0.875x to 1.5x
+- **Weekly plan** — 7-day suggested schedule based on goals
+- **Surprise Me** — one-tap smart workout generation
 - **Session history** — heatmap calendar, stats, past workout details
 - **JSON backup** — export/import all sessions and settings
+- **Apple Music** — mini-player control during workouts (iOS)
 
 ## Tech Stack
 

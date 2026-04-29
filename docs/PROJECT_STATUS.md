@@ -136,6 +136,20 @@ The app is wrapped in Capacitor 8 instead of the originally planned SwiftUI + WK
 | Rejection fix: surfaced HealthKit in UI (4 touchpoints) | Done | #11 |
 | Build 2 uploaded + resubmitted | Pending |
 
+### Sprint 4 — Library Restructure, Images, Settings Cleanup (Complete)
+
+| Feature | Status | PR |
+|---------|--------|-----|
+| Handstand Hold exercise added | Done | #30 |
+| Library tab: 3 sub-tabs (Programs/Workouts/Exercises) | Done | #30 |
+| Exercise browser moved from Settings to Library | Done | #30 |
+| Settings grouped into 5 sections (Profile/Body/Audio/Appearance/Data) | Done | #30 |
+| HealthKit DOB auto-fill (hides age band when available) | Done | #30 |
+| Exercise image system with 7 category placeholders | Done | #30 |
+| Timer image animation (fade-in/out on transitions) | Done | #30 |
+| Images in Preview, Timer, and Info modal | Done | #30 |
+| Documentation updated (README, PROJECT_STATUS) | Done | #30 |
+
 ---
 
 ## Known Bugs
