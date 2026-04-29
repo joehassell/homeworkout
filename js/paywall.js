@@ -175,16 +175,14 @@
   }
 
   function close() {
+    _isOpen = false;
     var overlay = document.getElementById('paywall-overlay');
     if (overlay) {
       overlay.classList.remove('visible');
       setTimeout(function () {
         var container = document.getElementById('paywall-container');
         if (container) container.innerHTML = '';
-        _isOpen = false;
       }, 300);
-    } else {
-      _isOpen = false;
     }
   }
 

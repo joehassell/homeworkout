@@ -182,7 +182,9 @@ public class HealthKitPlugin: CAPPlugin, CAPBridgedPlugin {
             if let error = error {
                 NSLog("HealthKit save error: \(error.localizedDescription)")
             }
-            self.activeSessionStart = nil
+            DispatchQueue.main.async {
+                self.activeSessionStart = nil
+            }
             call.resolve(["success": success])
         }
     }

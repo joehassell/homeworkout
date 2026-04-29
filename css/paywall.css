@@ -27,6 +27,7 @@
   position: relative;
   width: 100%;
   max-width: 440px;
+  max-height: 90vh;
   max-height: 90dvh;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -52,6 +53,11 @@
   cursor: pointer;
   padding: 4px 8px;
   line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Header */

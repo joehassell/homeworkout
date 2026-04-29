@@ -1,4 +1,4 @@
-@import url("tokens.css");
+/* tokens.css loaded via <link> in HTML — no @import needed */
 
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body {
@@ -318,7 +318,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 .exercise-item.non-canonical .ex-num { opacity: 0.6; }
 .ex-reorder { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
 .ex-arrow {
-  width: 28px; height: 22px; padding: 0;
+  width: 28px; height: 22px; padding: 0; min-height: 44px;
   background: var(--surface2); color: var(--text-dim);
   border: 1px solid var(--border); border-radius: 6px;
   font-size: 0.6rem; line-height: 1;
@@ -363,6 +363,8 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 .info-btn {
   display: inline-flex; align-items: center; justify-content: center;
   width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--accent);
+  /* Expand tap target to 44px without growing the visible circle */
+  padding: 11px; box-sizing: content-box;
   background: transparent; color: var(--accent); font-size: 0.7rem; font-weight: 700;
   font-style: italic; font-family: Georgia, serif; cursor: pointer;
   touch-action: manipulation; flex-shrink: 0; line-height: 1;

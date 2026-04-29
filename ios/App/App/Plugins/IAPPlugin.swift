@@ -31,13 +31,14 @@ public class IAPPlugin: CAPPlugin, CAPBridgedPlugin {
 
     // Cache
     private var cachedProducts: [Product] = []
+    private var transactionTask: Task<Void, Never>?
 
     // ── Lifecycle ────────────────────────────────────────
 
     public override func load() {
         super.load()
         // Start listening for transaction updates
-        Task {
+        transactionTask = Task {
             for await result in Transaction.updates {
                 if case .verified(let transaction) = result {
                     await transaction.finish()
@@ -45,6 +46,10 @@ public class IAPPlugin: CAPPlugin, CAPBridgedPlugin {
                 }
             }
         }
+    }
+
+    deinit {
+        transactionTask?.cancel()
     }
 
     // ── getProducts ─────────────────────────────────────

@@ -22,11 +22,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             NSLog("SimpleWorkoutGen: AVAudioSession configuration failed: \(error)")
         }
 
-        // Activate WatchConnectivity early so messages are received before
-        // the Capacitor webview loads the WatchConnectivityPlugin.
-        if WCSession.isSupported() {
-            WCSession.default.activate()
-        }
+        // WatchConnectivity is activated by WatchConnectivityPlugin.load()
+        // which also sets the delegate — activating here without a delegate
+        // would silently drop early messages.
 
         return true
     }

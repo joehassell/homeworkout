@@ -246,14 +246,17 @@ describe('Templates — data integrity', () => {
 
   it('template exercises reference valid DB entries', () => {
     let missing = 0;
+    const YOGA_DB = window.yoga && window.yoga.YOGA_DB ? window.yoga.YOGA_DB : [];
+    const CENTERING = window.yoga && window.yoga.CENTERING ? window.yoga.CENTERING : null;
     for (const tpl of templates) {
-      if (tpl.type === 'yoga') continue; // yoga poses are in YOGA_DB
       for (const ex of tpl.exercises) {
-        const found = DB.find(e => e.name === ex.name);
-        if (!found) missing++;
+        const inMain = DB.find(e => e.name === ex.name);
+        const inYoga = YOGA_DB.find(e => e.name === ex.name);
+        const isCentering = CENTERING && CENTERING.name === ex.name;
+        if (!inMain && !inYoga && !isCentering) missing++;
       }
     }
-    assert(missing <= 5, `${missing} template exercises not found in DB`);
+    assertEqual(missing, 0, `${missing} template exercises not found in DB or YOGA_DB`);
   });
 });
 
