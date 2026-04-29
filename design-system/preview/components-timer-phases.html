@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Timer phases</title>
+<style>
+  html, body { margin: 0; background: #0a0a0f; color: #e8e8f0; font-family: -apple-system, system-ui, sans-serif; }
+  body { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0; height: 320px; }
+  .panel { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 18px; gap: 8px; }
+  .work { background: #1a2a1a; }
+  .rest { background: #1a1a2a; }
+  .final { background: #0a0a0f; }
+  .phase { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; }
+  .work .phase { color: #34d399; }
+  .rest .phase { color: #4f8cff; }
+  .final .phase { color: #4f8cff; }
+  .num { font-size: 4.5rem; font-weight: 200; font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -0.03em; }
+  .num.bloom { color: #4f8cff; text-shadow: 0 0 24px #4f8cff66; font-size: 5.5rem; }
+  .ex { font-size: 0.95rem; font-weight: 600; text-align: center; }
+  .det { font-size: 0.75rem; color: #8888a0; }
+  .bar { width: 80%; height: 4px; border-radius: 2px; background: #2a2a3a; overflow: hidden; }
+  .bar > span { display: block; height: 100%; }
+  .work .bar > span { width: 60%; background: #34d399; }
+  .rest .bar > span { width: 35%; background: #4f8cff; }
+</style>
+</head>
+<body>
+  <div class="panel work">
+    <div class="phase">Work</div>
+    <div class="ex">Goblet Squat</div>
+    <div class="det">8 reps · dumbbell</div>
+    <div class="num">00:24</div>
+    <div class="bar"><span></span></div>
+  </div>
+  <div class="panel rest">
+    <div class="phase">Rest</div>
+    <div class="ex">Up next: Push-up</div>
+    <div class="det">90s</div>
+    <div class="num">00:42</div>
+    <div class="bar"><span></span></div>
+  </div>
+  <div class="panel final">
+    <div class="phase">Get ready</div>
+    <div class="ex">&nbsp;</div>
+    <div class="num bloom">3</div>
+    <div class="det">final countdown</div>
+  </div>
+</body>
+</html>

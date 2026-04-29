@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Heatmap</title>
+<style>
+  html, body { margin: 0; background: #0a0a0f; color: #e8e8f0; font-family: -apple-system, system-ui, sans-serif; }
+  body { padding: 22px; }
+  .lbl { font-size: 0.7rem; color: #8888a0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .hm { display: grid; grid-template-columns: repeat(24, 1fr); grid-template-rows: repeat(7, 1fr); grid-auto-flow: column; gap: 3px; background: #16161f; padding: 10px; border-radius: 10px; border: 1px solid #2a2a3a; }
+  .c { aspect-ratio: 1; border-radius: 3px; background: #1e1e2a; }
+  .legend { display: flex; gap: 6px; align-items: center; margin-top: 12px; font-size: 0.7rem; color: #8888a0; }
+  .leg-c { width: 12px; height: 12px; border-radius: 3px; }
+</style>
+</head>
+<body>
+  <div class="lbl">Activity heatmap — last 24 weeks</div>
+  <div class="hm" id="hm"></div>
+  <div class="legend">
+    <span>less</span>
+    <div class="leg-c" style="background:#1e1e2a"></div>
+    <div class="leg-c" style="background:#14532d"></div>
+    <div class="leg-c" style="background:#166534"></div>
+    <div class="leg-c" style="background:#16a34a"></div>
+    <div class="leg-c" style="background:#4ade80"></div>
+    <span>more</span>
+  </div>
+  <script>
+    const hm = document.getElementById('hm');
+    const cols = ['#1e1e2a','#1e1e2a','#1e1e2a','#14532d','#166534','#16a34a','#4ade80'];
+    for (let i=0;i<24*7;i++){
+      const d = document.createElement('div'); d.className='c';
+      const r = Math.random();
+      let idx = 0;
+      if (r > 0.55) idx = 1;
+      if (r > 0.7) idx = 2;
+      if (r > 0.83) idx = 3;
+      if (r > 0.9) idx = 4;
+      if (r > 0.96) idx = 5;
+      d.style.background = cols[idx] || cols[0];
+      hm.appendChild(d);
+    }
+  </script>
+</body>
+</html>

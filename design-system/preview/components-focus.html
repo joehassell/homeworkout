@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Focus pills — 3-state cycle</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; background: #0a0a0f; color: #e8e8f0; font-family: var(--font-sans); }
+  body { padding: 22px; }
+  .lbl { font-size: 0.7rem; color: #8888a0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .hint { font-size: 0.65rem; color: #8888a0; font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 8px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    padding: 10px 14px; border-radius: 10px; font-size: 0.85rem; font-weight: 500;
+    border: 2px solid; background: #16161f;
+  }
+  .fs-include { border-color: #5b6577; color: #e8e8f0; }
+  .fs-increase { border-color: #34d399; background: #34d39922; color: #34d399; font-weight: 700; }
+  .fs-increase::before { content: "+ "; }
+  .fs-exclude { border-color: #f87171; background: #f8717122; color: #f87171; opacity: 0.65; text-decoration: line-through; }
+</style>
+</head>
+<body>
+  <div class="lbl">Focus <span class="hint">tap to cycle: include → boost → exclude</span></div>
+  <div class="row">
+    <div class="pill fs-include">Push</div>
+    <div class="pill fs-increase">Pull</div>
+    <div class="pill fs-include">Lower</div>
+    <div class="pill fs-increase">Core</div>
+    <div class="pill fs-exclude">Full body</div>
+    <div class="pill fs-include">Mobility</div>
+  </div>
+</body>
+</html>

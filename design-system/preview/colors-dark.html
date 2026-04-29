@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html data-theme="" lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Color — Dark theme</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { height: 100%; margin: 0; }
+  body { padding: 18px 22px; display: flex; flex-direction: column; gap: 10px; }
+  .row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .swatch { aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--border); display: flex; align-items: flex-end; padding: 6px; font-size: 9px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text); }
+  .swatch.text { color: #fff; mix-blend-mode: normal; }
+  .lbl { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div class="lbl">Surfaces</div>
+  <div class="row">
+    <div class="swatch text" style="background:#0a0a0f">bg</div>
+    <div class="swatch text" style="background:#16161f">surface</div>
+    <div class="swatch text" style="background:#1e1e2a">surface2</div>
+    <div class="swatch text" style="background:#2a2a3a">border</div>
+    <div class="swatch text" style="background:#e8e8f0;color:#0a0a0f">text</div>
+    <div class="swatch text" style="background:#8888a0;color:#0a0a0f">dim</div>
+    <div class="swatch text" style="background:#4f8cff">accent</div>
+  </div>
+  <div class="lbl">Semantic</div>
+  <div class="row">
+    <div class="swatch" style="background:#34d399;color:#0a0a0f">green</div>
+    <div class="swatch" style="background:#f87171;color:#0a0a0f">red</div>
+    <div class="swatch" style="background:#fb923c;color:#0a0a0f">orange</div>
+    <div class="swatch" style="background:#fbbf24;color:#0a0a0f">yellow</div>
+    <div class="swatch text" style="background:#1a2a1a">work-bg</div>
+    <div class="swatch text" style="background:#1a1a2a">rest-bg</div>
+    <div class="swatch" style="background:#4f8cff22;color:#4f8cff">accent-soft</div>
+  </div>
+</body>
+</html>

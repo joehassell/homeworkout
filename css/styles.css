@@ -1,151 +1,5 @@
-:root {
-  /* Default = Dark palette */
-  --bg: #0a0a0f;
-  --surface: #16161f;
-  --surface2: #1e1e2a;
-  --border: #2a2a3a;
-  --text: #e8e8f0;
-  --text-dim: #8888a0;
-  --accent: #4f8cff;
-  --accent-glow: #4f8cff33;
-  --accent-soft: #4f8cff22;
-  --green: #34d399;
-  --green-soft: #34d39922;
-  --red: #f87171;
-  --red-soft: #f8717122;
-  --orange: #fb923c;
-  --orange-soft: #fb923c22;
-  --yellow: #fbbf24;
-  --yellow-soft: #fbbf2422;
-  --work-bg: #1a2a1a;
-  --rest-bg: #1a1a2a;
-  --hm-1: #14532d;
-  --hm-2: #166534;
-  --hm-3: #16a34a;
-  --hm-4: #4ade80;
-  --include: #5b6577;
-  --increase: #34d399;
-  --exclude: #f87171;
-  --switch-overlay: rgba(251, 191, 36, 0.92);
-  --font-scale: 1;
-  font-size: calc(16px * var(--font-scale));
-}
-[data-theme="midnight"] {
-  --bg: #060912;
-  --surface: #0d1424;
-  --surface2: #131c33;
-  --border: #1d2a47;
-  --text: #e0eaff;
-  --text-dim: #7a8aaa;
-  --accent: #22d3ee;
-  --accent-glow: #22d3ee33;
-  --accent-soft: #22d3ee22;
-  --green: #34d399;
-  --green-soft: #34d39922;
-  --red: #f87171;
-  --red-soft: #f8717122;
-  --orange: #fb923c;
-  --orange-soft: #fb923c22;
-  --yellow: #fde047;
-  --yellow-soft: #fde04722;
-  --work-bg: #0a2a26;
-  --rest-bg: #0d1a30;
-  --hm-1: #134e4a;
-  --hm-2: #115e59;
-  --hm-3: #0d9488;
-  --hm-4: #5eead4;
-  --include: #4a5572;
-  --increase: #34d399;
-  --exclude: #f87171;
-  --switch-overlay: rgba(34, 211, 238, 0.92);
-}
-[data-theme="forest"] {
-  --bg: #061410;
-  --surface: #0e1f17;
-  --surface2: #14291f;
-  --border: #1f3b2c;
-  --text: #e8f5e9;
-  --text-dim: #7aa090;
-  --accent: #a3e635;
-  --accent-glow: #a3e63533;
-  --accent-soft: #a3e63522;
-  --green: #4ade80;
-  --green-soft: #4ade8022;
-  --red: #f87171;
-  --red-soft: #f8717122;
-  --orange: #fb923c;
-  --orange-soft: #fb923c22;
-  --yellow: #fde047;
-  --yellow-soft: #fde04722;
-  --work-bg: #102a17;
-  --rest-bg: #0e1f25;
-  --hm-1: #14532d;
-  --hm-2: #15803d;
-  --hm-3: #22c55e;
-  --hm-4: #86efac;
-  --include: #4a6055;
-  --increase: #a3e635;
-  --exclude: #f87171;
-  --switch-overlay: rgba(163, 230, 53, 0.92);
-}
-[data-theme="hc"] {
-  --bg: #000000;
-  --surface: #0a0a0a;
-  --surface2: #1a1a1a;
-  --border: #ffffff66;
-  --text: #ffffff;
-  --text-dim: #cccccc;
-  --accent: #fde047;
-  --accent-glow: #fde04744;
-  --accent-soft: #fde04733;
-  --green: #4ade80;
-  --green-soft: #4ade8033;
-  --red: #fca5a5;
-  --red-soft: #fca5a533;
-  --orange: #fdba74;
-  --orange-soft: #fdba7433;
-  --yellow: #fde047;
-  --yellow-soft: #fde04733;
-  --work-bg: #1a2200;
-  --rest-bg: #001a22;
-  --hm-1: #4d4d00;
-  --hm-2: #999900;
-  --hm-3: #cccc00;
-  --hm-4: #ffff00;
-  --include: #888888;
-  --increase: #4ade80;
-  --exclude: #fca5a5;
-  --switch-overlay: rgba(253, 224, 71, 0.95);
-}
-[data-theme="light"] {
-  --bg: #fafaf7;
-  --surface: #ffffff;
-  --surface2: #f0f0ed;
-  --border: #d4d4d0;
-  --text: #18181b;
-  --text-dim: #71717a;
-  --accent: #2563eb;
-  --accent-glow: #2563eb22;
-  --accent-soft: #2563eb14;
-  --green: #16a34a;
-  --green-soft: #16a34a22;
-  --red: #dc2626;
-  --red-soft: #dc262622;
-  --orange: #ea580c;
-  --orange-soft: #ea580c22;
-  --yellow: #ca8a04;
-  --yellow-soft: #ca8a0422;
-  --work-bg: #ecfdf5;
-  --rest-bg: #eff6ff;
-  --hm-1: #d9f99d;
-  --hm-2: #86efac;
-  --hm-3: #4ade80;
-  --hm-4: #16a34a;
-  --include: #a1a1aa;
-  --increase: #16a34a;
-  --exclude: #dc2626;
-  --switch-overlay: rgba(37, 99, 235, 0.92);
-}
+@import url("tokens.css");
+
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body {
   height:100%; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
@@ -168,7 +22,7 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   display: inline-flex; align-items: center; justify-content: center;
   padding: 14px 28px; border-radius: 12px; border: none;
   font-size: 1rem; font-weight: 600; cursor: pointer;
-  transition: all 0.15s ease; touch-action: manipulation;
+  transition: all var(--t-quick); touch-action: manipulation;
 }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:active { filter: brightness(0.85); transform: scale(0.97); }
@@ -184,12 +38,12 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .setup-header h1 { font-size: 2rem; margin-bottom: 4px; }
 .setup-header p { color: var(--text-dim); }
 .option-group { margin-bottom: 28px; }
-.option-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+.option-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: var(--tracking-eyebrow); margin-bottom: 10px; }
 .option-pills { display: flex; gap: 8px; flex-wrap: wrap; }
 .pill {
   flex: 1; min-width: 70px; padding: 12px 8px; border-radius: 10px;
   background: var(--surface); border: 2px solid var(--border);
-  text-align: center; cursor: pointer; transition: all 0.15s;
+  text-align: center; cursor: pointer; transition: all var(--t-quick);
   font-size: 0.95rem; font-weight: 500; touch-action: manipulation;
   color: var(--text);
 }
@@ -271,7 +125,7 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   margin-bottom: 18px;
 }
 .timer-display.countdown-final {
-  font-size: 11rem; color: var(--accent); transition: font-size 0.15s, color 0.15s;
+  font-size: var(--fs-timer-final); color: var(--accent); transition: font-size var(--t-quick), color var(--t-quick);
   text-shadow: 0 0 24px var(--accent-glow);
 }
 @media (max-width: 400px) { .timer-display.countdown-final { font-size: 7.5rem; } }
@@ -347,7 +201,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 .plan-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--r-xl);
   padding: 16px;
   margin-bottom: 28px;
 }
@@ -370,7 +224,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
   display: flex; align-items: center; gap: 12px;
   padding: 12px; border-radius: 10px;
   background: var(--accent-soft); border: 1px solid var(--accent-glow);
-  cursor: pointer; touch-action: manipulation; transition: background 0.15s;
+  cursor: pointer; touch-action: manipulation; transition: background var(--t-base);
   margin-bottom: 12px;
 }
 .plan-card-body:active { background: var(--accent-glow); }
@@ -440,8 +294,9 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
   display: flex; align-items: center; gap: 12px;
   padding: 14px 12px; border-radius: 10px; margin-bottom: 6px;
   background: var(--surface); border: 1px solid var(--border);
-  transition: all 0.2s;
+  transition: all var(--t-base);
 }
+.exercise-item:active { transform: scale(0.99); transition: transform var(--t-quick); }
 .exercise-item .ex-num { font-size: 0.75rem; color: var(--text-dim); min-width: 22px; text-align: center; }
 .exercise-item .ex-info { flex: 1; }
 .exercise-item .ex-name { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -541,12 +396,12 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 /* Timer */
 #timer {
   align-items: center; justify-content: center; gap: 0;
-  transition: background 0.4s ease;
+  transition: background var(--t-slow);
   padding: 20px;
   position: relative;
 }
-#timer.phase-work { background: var(--work-bg); }
-#timer.phase-rest { background: var(--rest-bg); }
+#timer.phase-work { background: var(--work-bg); transition: background var(--t-slow); }
+#timer.phase-rest { background: var(--rest-bg); transition: background var(--t-slow); }
 #timer.phase-done { background: var(--bg); }
 .timer-phase {
   font-size: 0.9rem; font-weight: 700; text-transform: uppercase;
@@ -564,8 +419,8 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
   font-size: 0.85rem; color: var(--text-dim); margin-bottom: 24px; text-align: center;
 }
 .timer-display {
-  font-size: 8rem; font-weight: 200; font-variant-numeric: tabular-nums;
-  line-height: 1; margin-bottom: 8px; letter-spacing: -0.03em;
+  font-size: var(--fs-timer); font-weight: 200; font-variant-numeric: tabular-nums;
+  line-height: 1; margin-bottom: 8px; letter-spacing: var(--tracking-display);
 }
 @media (max-width: 400px) { .timer-display { font-size: 5.5rem; } }
 .timer-total {
@@ -916,8 +771,9 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
   flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
   background: none; border: none; color: var(--text-dim);
   font-size: 0.7rem; padding: 8px 4px; cursor: pointer; touch-action: manipulation;
-  transition: color 0.15s;
+  transition: color var(--t-quick);
 }
+.bottom-nav .nav-item svg { stroke-width: 1.6; }
 .bottom-nav .nav-item.active { color: var(--accent); }
 .bottom-nav .nav-item:active { transform: scale(0.95); }
 

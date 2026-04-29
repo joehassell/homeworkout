@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Modal & badges</title>
+<style>
+  html, body { margin: 0; background: #0a0a0f; color: #e8e8f0; font-family: -apple-system, system-ui, sans-serif; }
+  body { padding: 22px; display: flex; gap: 16px; align-items: flex-start; }
+  .modal {
+    flex: 1; max-width: 320px; background: #16161f; border: 1px solid #2a2a3a;
+    border-radius: 16px; padding: 20px;
+  }
+  .modal h2 { font-size: 1.1rem; font-weight: 700; margin: 0 0 6px; }
+  .meta { font-size: 0.75rem; color: #8888a0; margin-bottom: 10px; }
+  .modal p { font-size: 0.85rem; line-height: 1.5; margin: 0 0 8px; color: #e8e8f0; }
+  .modal strong { color: #4f8cff; font-weight: 600; }
+  .close { width: 100%; padding: 10px; margin-top: 12px; border-radius: 10px; border: none; background: #4f8cff; color: #fff; font-weight: 600; font-size: 0.9rem; }
+  .stack { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+  .lbl { font-size: 0.7rem; color: #8888a0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .badge { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.06em; }
+  .b-warm { background: #fbbf2422; color: #fbbf24; }
+  .b-main { background: #4f8cff22; color: #4f8cff; }
+  .b-cool { background: #34d39922; color: #34d399; }
+  .b-pr { background: #fbbf24; color: #0a0a0f; padding: 4px 10px; border-radius: 999px; font-weight: 800; }
+  .b-rest-reason { background: #4f8cff22; color: #4f8cff; padding: 4px 10px; border-radius: 999px; font-weight: 600; font-size: 0.7rem; }
+  .b-hist { background: #fbbf2422; color: #fbbf24; padding: 2px 7px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; }
+  .b-hist.hiit { background: #4f8cff22; color: #4f8cff; }
+  .b-hist.cond { background: #fb923c22; color: #fb923c; }
+  .b-hist.func { background: #34d39922; color: #34d399; }
+</style>
+</head>
+<body>
+  <div class="modal">
+    <h2>Goblet Squat</h2>
+    <div class="meta">Lower · dumbbell · 8 reps</div>
+    <p>Hold a dumbbell vertically against your chest. Drop your hips between your heels with a tall chest, knees tracking over toes.</p>
+    <p><strong>Tip:</strong> drive through the floor, don't bounce.</p>
+    <button class="close">Close</button>
+  </div>
+  <div class="stack">
+    <div>
+      <div class="lbl">Section badges</div>
+      <div class="row" style="margin-top:6px"><span class="badge b-warm">Warm-up</span><span class="badge b-main">Main</span><span class="badge b-cool">Cooldown</span></div>
+    </div>
+    <div>
+      <div class="lbl">Workout type (history)</div>
+      <div class="row" style="margin-top:6px"><span class="b-hist">Strength</span><span class="b-hist hiit">HIIT</span><span class="b-hist cond">Conditioning</span><span class="b-hist func">Functional</span></div>
+    </div>
+    <div>
+      <div class="lbl">Capsules</div>
+      <div class="row" style="margin-top:6px"><span class="b-pr">PR</span><span class="b-rest-reason">extra rest after compound</span></div>
+    </div>
+  </div>
+</body>
+</html>

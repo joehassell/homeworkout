@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>App icon & lockup</title>
+<style>
+  html, body { margin: 0; background: #0a0a0f; color: #e8e8f0; font-family: -apple-system, system-ui, sans-serif; }
+  body { padding: 22px; display: flex; gap: 22px; align-items: center; }
+  .icon-stack { display: flex; align-items: center; gap: 14px; }
+  .icon { border-radius: 22%; box-shadow: 0 4px 24px rgba(0,0,0,0.5); }
+  .icon.lg { width: 130px; height: 130px; }
+  .icon.md { width: 60px; height: 60px; border-radius: 14px; }
+  .icon.sm { width: 32px; height: 32px; border-radius: 8px; }
+  .meta { display: flex; flex-direction: column; gap: 4px; }
+  .name { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+  .tag { font-size: 0.85rem; color: #8888a0; }
+  .bundle { font-size: 0.7rem; color: #8888a0; font-family: ui-monospace, monospace; margin-top: 6px; }
+</style>
+</head>
+<body>
+  <div class="icon-stack">
+    <img src="../assets/icon-1024.png" class="icon lg" alt="">
+    <img src="../assets/icon-1024.png" class="icon md" alt="">
+    <img src="../assets/icon-1024.png" class="icon sm" alt="">
+  </div>
+  <div class="meta">
+    <div class="name">SimpleWorkoutGen</div>
+    <div class="tag">Home Workout Builder &amp; Timer</div>
+    <div class="bundle">com.nomaen.homeworkout</div>
+  </div>
+</body>
+</html>
