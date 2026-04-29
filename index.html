@@ -335,6 +335,69 @@ html.is-native .is-native-only { display: flex; }
   padding-top: 24px;
 }
 
+/* Plan card */
+.plan-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 28px;
+}
+.plan-card-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.plan-card-title {
+  font-size: 0.85rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--text-dim);
+}
+.plan-card-refresh {
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text-dim); font-size: 1.1rem;
+  cursor: pointer; touch-action: manipulation;
+  display: flex; align-items: center; justify-content: center;
+}
+.plan-card-refresh:active { background: var(--border); }
+.plan-card-body {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px; border-radius: 10px;
+  background: var(--accent-soft); border: 1px solid var(--accent-glow);
+  cursor: pointer; touch-action: manipulation; transition: background 0.15s;
+  margin-bottom: 12px;
+}
+.plan-card-body:active { background: var(--accent-glow); }
+.plan-card-body.rest-day {
+  background: var(--surface2); border-color: var(--border); cursor: default;
+}
+.plan-card-body.rest-day:active { background: var(--surface2); }
+.plan-card-type {
+  font-size: 1.1rem; font-weight: 700; color: var(--accent);
+  text-transform: capitalize;
+}
+.plan-card-detail {
+  font-size: 0.8rem; color: var(--text-dim); margin-top: 2px;
+}
+.plan-card-cta {
+  margin-left: auto; font-size: 0.75rem; font-weight: 600;
+  color: var(--accent); white-space: nowrap;
+}
+.plan-week {
+  display: flex; gap: 6px; justify-content: space-between;
+}
+.plan-day {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font-size: 0.65rem; font-weight: 600; color: var(--text-dim);
+}
+.plan-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--border);
+}
+.plan-dot.today { box-shadow: 0 0 0 2px var(--accent); }
+.plan-dot.planned { background: var(--accent); }
+.plan-dot.completed { background: var(--green); }
+.plan-dot.rest { background: var(--surface2); border: 1px solid var(--border); }
+.plan-dot.past { background: var(--border); opacity: 0.5; }
+
 /* Setup screen: internal scroll with always-visible CTA */
 #setup.active {
   overflow: hidden;
@@ -885,6 +948,15 @@ html.is-native .is-native-only { display: flex; }
     <p>Build your session</p>
   </div>
 
+  <div class="plan-card" id="plan-card">
+    <div class="plan-card-header">
+      <span class="plan-card-title">Today's Suggested Workout</span>
+      <button class="plan-card-refresh" onclick="refreshPlan()" aria-label="Refresh plan">&#x21bb;</button>
+    </div>
+    <div class="plan-card-body" id="plan-card-body" onclick="applyPlanSuggestion()"></div>
+    <div class="plan-week" id="plan-week"></div>
+  </div>
+
   <div class="option-group">
     <label>Workout Type</label>
     <div class="option-pills" id="type-pills">
@@ -1033,6 +1105,7 @@ html.is-native .is-native-only { display: flex; }
   </div><!-- /.setup-scroll-area -->
   <div class="generate-section">
     <div class="gen-error" id="gen-error"></div>
+    <button class="btn btn-ghost btn-full" onclick="surpriseMe()" style="margin-bottom:8px;">Surprise Me</button>
     <button class="btn btn-primary btn-full" onclick="generateWorkout()" style="font-size:1.1rem;padding:16px;">Generate Workout</button>
   </div>
 </div>
@@ -4476,11 +4549,260 @@ document.addEventListener('visibilitychange', () => {
 // CSS can hide controls that don't apply (fullscreen toggle, Add-to-Home-Screen hint).
 if (isNative()) document.documentElement.classList.add('is-native');
 
+// ═══════════════════════════════════════════════════
+// WEEKLY PLAN + SURPRISE ME
+// ═══════════════════════════════════════════════════
+function planDistribution(goals) {
+  let dist = { strength: 2, hiit: 1, conditioning: 1, functional: 1, yoga: 1, rest: 1 };
+  if (goals.length === 0) return dist;
+  const primary = goals[0];
+  if (primary === 'strength') dist = { strength: 3, conditioning: 1, functional: 1, yoga: 1, rest: 1 };
+  else if (primary === 'cardio-fitness') dist = { hiit: 2, conditioning: 2, strength: 1, yoga: 1, rest: 1 };
+  else if (primary === 'weight-loss') dist = { hiit: 2, conditioning: 2, strength: 1, yoga: 1, rest: 1 };
+  else if (primary === 'mobility' || primary === 'flexibility') dist = { yoga: 3, functional: 2, strength: 1, rest: 1 };
+  else if (primary === 'recovery') dist = { yoga: 2, functional: 1, rest: 4 };
+  return dist;
+}
+
+function getRecentSessionTypes(days) {
+  if (!window.storage || !window.storage.loadSessions) return [];
+  const sessions = window.storage.loadSessions();
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - days);
+  const cutoffStr = cutoff.toISOString();
+  return sessions
+    .filter(s => s.date && s.date >= cutoffStr)
+    .map(s => s.type)
+    .filter(Boolean);
+}
+
+function pickTypeForDay(dist, recentTypes, dayIndex) {
+  // Build target counts from distribution, excluding rest
+  const types = Object.keys(dist).filter(t => t !== 'rest');
+  if (types.length === 0) return 'rest';
+
+  // Count how many times each type appears in recent + already-planned days
+  const counts = {};
+  types.forEach(t => counts[t] = 0);
+  recentTypes.forEach(t => { if (counts[t] !== undefined) counts[t]++; });
+
+  // Rest days: if dist.rest > 0, distribute them evenly
+  const restDays = dist.rest || 0;
+  if (restDays > 0) {
+    const totalWorkouts = 7 - restDays;
+    // Put rest on every N-th day
+    const restInterval = Math.floor(7 / restDays);
+    if (dayIndex > 0 && dayIndex % restInterval === 0 && restDays > 0) {
+      return 'rest';
+    }
+  }
+
+  // Find the type most under-represented relative to its target share
+  const totalTarget = Object.values(dist).reduce((a, b) => a + b, 0) - (dist.rest || 0);
+  let best = types[0];
+  let bestDeficit = -Infinity;
+  types.forEach(t => {
+    const target = (dist[t] || 0) / totalTarget;
+    const actual = (counts[t] || 0) / Math.max(1, recentTypes.length + dayIndex);
+    const deficit = target - actual;
+    if (deficit > bestDeficit) { bestDeficit = deficit; best = t; }
+  });
+
+  // Add to recentTypes so subsequent calls this cycle see it
+  recentTypes.push(best);
+  return best;
+}
+
+function generateWeeklyPlan() {
+  const plan = [];
+  const today = new Date();
+  const dist = planDistribution(userGoals);
+  const recentTypes = getRecentSessionTypes(7);
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  // Check completed sessions today for marking
+  const sessions = (window.storage && window.storage.loadSessions) ? window.storage.loadSessions() : [];
+  const completedDates = new Set(sessions.map(s => s.date ? s.date.slice(0, 10) : null).filter(Boolean));
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    const dateStr = date.toISOString().slice(0, 10);
+    const type = pickTypeForDay(dist, recentTypes, i);
+    plan.push({
+      date: dateStr,
+      dayName: dayNames[date.getDay()],
+      type: type,
+      duration: 30,
+      completed: completedDates.has(dateStr),
+      rest: type === 'rest',
+    });
+  }
+  return plan;
+}
+
+function todayString() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function loadOrGeneratePlan() {
+  try {
+    const raw = localStorage.getItem('wk_weekly_plan');
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved && Array.isArray(saved.plan) && saved.weekStart) {
+        const start = new Date(saved.weekStart);
+        const now = new Date();
+        const daysSince = Math.floor((now - start) / 86400000);
+        // Regenerate if stale (>7 days) or if it's a new Monday
+        if (daysSince <= 7) {
+          // Update completed status from history
+          const sessions = (window.storage && window.storage.loadSessions) ? window.storage.loadSessions() : [];
+          const completedDates = new Set(sessions.map(s => s.date ? s.date.slice(0, 10) : null).filter(Boolean));
+          saved.plan.forEach(d => { d.completed = completedDates.has(d.date); });
+          localStorage.setItem('wk_weekly_plan', JSON.stringify(saved));
+          return saved.plan;
+        }
+      }
+    }
+  } catch (e) {}
+  // Generate fresh
+  const plan = generateWeeklyPlan();
+  const payload = { weekStart: todayString(), plan: plan };
+  localStorage.setItem('wk_weekly_plan', JSON.stringify(payload));
+  return plan;
+}
+
+function refreshPlan() {
+  localStorage.removeItem('wk_weekly_plan');
+  const plan = generateWeeklyPlan();
+  const payload = { weekStart: todayString(), plan: plan };
+  localStorage.setItem('wk_weekly_plan', JSON.stringify(payload));
+  renderPlanCard(plan);
+}
+
+function renderPlanCard(plan) {
+  if (!plan) plan = loadOrGeneratePlan();
+  const body = document.getElementById('plan-card-body');
+  const week = document.getElementById('plan-week');
+  if (!body || !week) return;
+
+  const today = todayString();
+  const todayPlan = plan.find(d => d.date === today);
+
+  if (todayPlan && !todayPlan.rest) {
+    body.classList.remove('rest-day');
+    body.innerHTML =
+      '<div>' +
+        '<div class="plan-card-type">' + todayPlan.type + '</div>' +
+        '<div class="plan-card-detail">' + todayPlan.duration + ' min' + (todayPlan.completed ? ' &middot; Done!' : '') + '</div>' +
+      '</div>' +
+      '<span class="plan-card-cta">' + (todayPlan.completed ? '&#10003;' : 'Tap to start &rarr;') + '</span>';
+  } else if (todayPlan && todayPlan.rest) {
+    body.classList.add('rest-day');
+    body.innerHTML =
+      '<div>' +
+        '<div class="plan-card-type" style="color:var(--text-dim);">Rest Day</div>' +
+        '<div class="plan-card-detail">Recovery &amp; recharge</div>' +
+      '</div>';
+  } else {
+    body.classList.add('rest-day');
+    body.innerHTML = '<div><div class="plan-card-type" style="color:var(--text-dim);">No plan</div></div>';
+  }
+
+  // Render week dots
+  const dayNames = ['S','M','T','W','T','F','S'];
+  week.innerHTML = plan.map(d => {
+    let dotClass = 'plan-dot';
+    if (d.date === today) dotClass += ' today';
+    if (d.completed) dotClass += ' completed';
+    else if (d.rest) dotClass += ' rest';
+    else if (d.date < today) dotClass += ' past';
+    else dotClass += ' planned';
+    const dayLabel = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const dateObj = new Date(d.date + 'T12:00:00');
+    const shortDay = dayLabel[dateObj.getDay()].charAt(0);
+    return '<div class="plan-day"><span>' + shortDay + '</span><div class="' + dotClass + '"></div></div>';
+  }).join('');
+}
+
+function applyPlanSuggestion() {
+  const plan = loadOrGeneratePlan();
+  const today = todayString();
+  const todayPlan = plan.find(d => d.date === today);
+  if (!todayPlan || todayPlan.rest) return;
+
+  // Pre-fill config
+  config.type = todayPlan.type;
+  config.duration = todayPlan.duration;
+
+  // Update UI pills
+  document.querySelectorAll('#type-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === config.type);
+  });
+  toggleYogaUI(config.type === 'yoga');
+
+  document.querySelectorAll('#duration-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === String(config.duration));
+  });
+  const wrap = document.getElementById('custom-dur-wrap');
+  if (wrap) wrap.classList.remove('visible');
+
+  // Scroll to generate button
+  const scrollArea = document.querySelector('#setup .setup-scroll-area');
+  if (scrollArea) scrollArea.scrollTo({ top: scrollArea.scrollHeight, behavior: 'smooth' });
+}
+
+function leastDoneType() {
+  const allTypes = ['strength', 'hiit', 'conditioning', 'functional', 'yoga'];
+  const recent = getRecentSessionTypes(7);
+  const counts = {};
+  allTypes.forEach(t => counts[t] = 0);
+  recent.forEach(t => { if (counts[t] !== undefined) counts[t]++; });
+  let min = Infinity, best = allTypes[0];
+  allTypes.forEach(t => {
+    if (counts[t] < min) { min = counts[t]; best = t; }
+  });
+  return best;
+}
+
+function surpriseMe() {
+  clearGenError();
+  const plan = loadOrGeneratePlan();
+  const today = todayString();
+  const todayPlan = plan.find(d => d.date === today);
+
+  if (todayPlan && !todayPlan.rest) {
+    config.type = todayPlan.type;
+    config.duration = todayPlan.duration;
+  } else {
+    config.type = leastDoneType();
+    config.duration = 30;
+  }
+  config.intensity = 'moderate';
+
+  // Update UI pills to reflect the selection
+  document.querySelectorAll('#type-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === config.type);
+  });
+  toggleYogaUI(config.type === 'yoga');
+  document.querySelectorAll('#duration-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === String(config.duration));
+  });
+  document.querySelectorAll('#intensity-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === config.intensity);
+  });
+
+  generateWorkout();
+}
+
 loadEquipmentSelection();
 loadAppSettings();
 loadFocus();
 initHealthKit();
 initWatchConnectivity();
+// Render weekly plan card
+renderPlanCard();
 // Make the bottom nav visible immediately on the initial active (setup) screen.
 document.getElementById('bottom-nav').classList.toggle('visible',
   document.querySelector('.screen.active')?.classList.contains('has-nav'));
