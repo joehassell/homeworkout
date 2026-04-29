@@ -24,11 +24,11 @@
   <div class="option-group">
     <label>Workout Type</label>
     <div class="option-pills" id="type-pills">
-      <div class="pill" data-value="strength" onclick="selectPill(this)">Strength<span class="pill-sub">Heavy &amp; slow</span></div>
-      <div class="pill selected" data-value="hiit" onclick="selectPill(this)">HIIT<span class="pill-sub">Intervals</span></div>
-      <div class="pill" data-value="conditioning" onclick="selectPill(this)">Conditioning<span class="pill-sub">High volume</span></div>
-      <div class="pill" data-value="functional" onclick="selectPill(this)">Functional<span class="pill-sub">Multi-joint</span></div>
-      <div class="pill" data-value="yoga" onclick="selectPill(this)">Yoga<span class="pill-sub">Mind &amp; body</span></div>
+      <button type="button" class="pill" data-value="strength" onclick="selectPill(this)">Strength<span class="pill-sub">Heavy &amp; slow</span></button>
+      <button type="button" class="pill selected" data-value="hiit" onclick="selectPill(this)">HIIT<span class="pill-sub">Intervals</span></button>
+      <button type="button" class="pill" data-value="conditioning" onclick="selectPill(this)">Conditioning<span class="pill-sub">High volume</span></button>
+      <button type="button" class="pill" data-value="functional" onclick="selectPill(this)">Functional<span class="pill-sub">Multi-joint</span></button>
+      <button type="button" class="pill" data-value="yoga" onclick="selectPill(this)">Yoga<span class="pill-sub">Mind &amp; body</span></button>
     </div>
     <div class="template-link-wrap"><a href="#" class="template-link" onclick="event.preventDefault();showTemplatePicker()">or choose a template &rarr;</a></div>
   </div>
@@ -36,46 +36,46 @@
   <div class="option-group" id="yoga-style-group" style="display:none;">
     <label>Yoga Style</label>
     <div class="option-pills" id="yoga-style-pills">
-      <div class="pill selected" data-value="vinyasa" onclick="selectPill(this)">Vinyasa Flow<span class="pill-sub">Breath-synced</span></div>
-      <div class="pill" data-value="hatha" onclick="selectPill(this)">Hatha<span class="pill-sub">Alignment</span></div>
-      <div class="pill" data-value="yin" onclick="selectPill(this)">Yin<span class="pill-sub">Deep holds</span></div>
-      <div class="pill" data-value="power" onclick="selectPill(this)">Power<span class="pill-sub">Athletic</span></div>
-      <div class="pill" data-value="restorative" onclick="selectPill(this)">Restorative<span class="pill-sub">Gentle</span></div>
+      <button type="button" class="pill selected" data-value="vinyasa" onclick="selectPill(this)">Vinyasa Flow<span class="pill-sub">Breath-synced</span></button>
+      <button type="button" class="pill" data-value="hatha" onclick="selectPill(this)">Hatha<span class="pill-sub">Alignment</span></button>
+      <button type="button" class="pill" data-value="yin" onclick="selectPill(this)">Yin<span class="pill-sub">Deep holds</span></button>
+      <button type="button" class="pill" data-value="power" onclick="selectPill(this)">Power<span class="pill-sub">Athletic</span></button>
+      <button type="button" class="pill" data-value="restorative" onclick="selectPill(this)">Restorative<span class="pill-sub">Gentle</span></button>
     </div>
   </div>
 
   <div class="option-group" id="yoga-experience-group" style="display:none;">
     <label>Yoga Experience</label>
     <div class="option-pills" id="yoga-experience-pills">
-      <div class="pill" data-value="new" onclick="selectYogaExperience(this)">New<span class="pill-sub">First time</span></div>
-      <div class="pill" data-value="some" onclick="selectYogaExperience(this)">Some practice<span class="pill-sub">A few classes</span></div>
-      <div class="pill selected" data-value="confident" onclick="selectYogaExperience(this)">Confident<span class="pill-sub">Regular practice</span></div>
-      <div class="pill" data-value="experienced" onclick="selectYogaExperience(this)">Experienced<span class="pill-sub">Years of practice</span></div>
+      <button type="button" class="pill" data-value="new" onclick="selectYogaExperience(this)">New<span class="pill-sub">First time</span></button>
+      <button type="button" class="pill" data-value="some" onclick="selectYogaExperience(this)">Some practice<span class="pill-sub">A few classes</span></button>
+      <button type="button" class="pill selected" data-value="confident" onclick="selectYogaExperience(this)">Confident<span class="pill-sub">Regular practice</span></button>
+      <button type="button" class="pill" data-value="experienced" onclick="selectYogaExperience(this)">Experienced<span class="pill-sub">Years of practice</span></button>
     </div>
   </div>
 
   <div class="option-group" id="yoga-equipment-group" style="display:none;">
     <label>Yoga Equipment</label>
     <div class="option-pills option-pills-multi" id="yoga-equipment-pills">
-      <div class="pill selected" data-value="mat" onclick="toggleYogaEquipPill(this)">Mat</div>
-      <div class="pill" data-value="block" onclick="toggleYogaEquipPill(this)">Block</div>
-      <div class="pill" data-value="strap" onclick="toggleYogaEquipPill(this)">Strap</div>
-      <div class="pill" data-value="bolster" onclick="toggleYogaEquipPill(this)">Bolster</div>
-      <div class="pill" data-value="blanket" onclick="toggleYogaEquipPill(this)">Blanket</div>
-      <div class="pill selected" data-value="wall" onclick="toggleYogaEquipPill(this)">Wall</div>
-      <div class="pill" data-value="chair" onclick="toggleYogaEquipPill(this)">Chair</div>
+      <button type="button" class="pill selected" data-value="mat" onclick="toggleYogaEquipPill(this)">Mat</button>
+      <button type="button" class="pill" data-value="block" onclick="toggleYogaEquipPill(this)">Block</button>
+      <button type="button" class="pill" data-value="strap" onclick="toggleYogaEquipPill(this)">Strap</button>
+      <button type="button" class="pill" data-value="bolster" onclick="toggleYogaEquipPill(this)">Bolster</button>
+      <button type="button" class="pill" data-value="blanket" onclick="toggleYogaEquipPill(this)">Blanket</button>
+      <button type="button" class="pill selected" data-value="wall" onclick="toggleYogaEquipPill(this)">Wall</button>
+      <button type="button" class="pill" data-value="chair" onclick="toggleYogaEquipPill(this)">Chair</button>
     </div>
   </div>
 
   <div class="option-group">
     <label>Duration</label>
     <div class="option-pills" id="duration-pills">
-      <div class="pill" data-value="15" onclick="selectPill(this)">15<span class="pill-sub">min</span></div>
-      <div class="pill" data-value="20" onclick="selectPill(this)">20<span class="pill-sub">min</span></div>
-      <div class="pill selected" data-value="30" onclick="selectPill(this)">30<span class="pill-sub">min</span></div>
-      <div class="pill" data-value="45" onclick="selectPill(this)">45<span class="pill-sub">min</span></div>
-      <div class="pill" data-value="60" onclick="selectPill(this)">60<span class="pill-sub">min</span></div>
-      <div class="pill" data-value="custom" onclick="selectCustomDuration(this)">Custom<span class="pill-sub">pick</span></div>
+      <button type="button" class="pill" data-value="15" onclick="selectPill(this)">15<span class="pill-sub">min</span></button>
+      <button type="button" class="pill" data-value="20" onclick="selectPill(this)">20<span class="pill-sub">min</span></button>
+      <button type="button" class="pill selected" data-value="30" onclick="selectPill(this)">30<span class="pill-sub">min</span></button>
+      <button type="button" class="pill" data-value="45" onclick="selectPill(this)">45<span class="pill-sub">min</span></button>
+      <button type="button" class="pill" data-value="60" onclick="selectPill(this)">60<span class="pill-sub">min</span></button>
+      <button type="button" class="pill" data-value="custom" onclick="selectCustomDuration(this)">Custom<span class="pill-sub">pick</span></button>
     </div>
     <div class="custom-dur-wrap" id="custom-dur-wrap">
       <input type="number" id="custom-dur-input" min="15" max="180" step="5" value="40" oninput="updateCustomDuration(this)">
@@ -86,51 +86,51 @@
   <div class="option-group" id="intensity-group">
     <label>Intensity</label>
     <div class="option-pills" id="intensity-pills">
-      <div class="pill" data-value="light" onclick="selectPill(this)">Light<span class="pill-sub">Easy pace</span></div>
-      <div class="pill selected" data-value="moderate" onclick="selectPill(this)">Moderate<span class="pill-sub">Steady</span></div>
-      <div class="pill" data-value="high" onclick="selectPill(this)">High<span class="pill-sub">All out</span></div>
+      <button type="button" class="pill" data-value="light" onclick="selectPill(this)">Light<span class="pill-sub">Easy pace</span></button>
+      <button type="button" class="pill selected" data-value="moderate" onclick="selectPill(this)">Moderate<span class="pill-sub">Steady</span></button>
+      <button type="button" class="pill" data-value="high" onclick="selectPill(this)">High<span class="pill-sub">All out</span></button>
     </div>
   </div>
 
   <div class="option-group" id="sets-group">
     <label>Sets</label>
     <div class="option-pills" id="sets-pills">
-      <div class="pill" data-value="1" onclick="selectPill(this)">1<span class="pill-sub">set</span></div>
-      <div class="pill" data-value="2" onclick="selectPill(this)">2<span class="pill-sub">sets</span></div>
-      <div class="pill selected" data-value="3" onclick="selectPill(this)">3<span class="pill-sub">sets</span></div>
-      <div class="pill" data-value="4" onclick="selectPill(this)">4<span class="pill-sub">sets</span></div>
+      <button type="button" class="pill" data-value="1" onclick="selectPill(this)">1<span class="pill-sub">set</span></button>
+      <button type="button" class="pill" data-value="2" onclick="selectPill(this)">2<span class="pill-sub">sets</span></button>
+      <button type="button" class="pill selected" data-value="3" onclick="selectPill(this)">3<span class="pill-sub">sets</span></button>
+      <button type="button" class="pill" data-value="4" onclick="selectPill(this)">4<span class="pill-sub">sets</span></button>
     </div>
   </div>
 
   <div class="option-group">
     <label>Focus<span class="focus-hint" id="focus-hint">tap to cycle: include → boost → exclude</span></label>
     <div class="focus-pills" id="focus-pills">
-      <div class="pill focus-pill fs-include" data-region="upper" onclick="cycleFocus(this)">Upper</div>
-      <div class="pill focus-pill fs-include" data-region="upper_push" onclick="cycleFocus(this)">Push</div>
-      <div class="pill focus-pill fs-include" data-region="upper_pull" onclick="cycleFocus(this)">Pull</div>
-      <div class="pill focus-pill fs-include" data-region="lower" onclick="cycleFocus(this)">Lower</div>
-      <div class="pill focus-pill fs-include" data-region="core" onclick="cycleFocus(this)">Core</div>
-      <div class="pill focus-pill fs-include" data-region="full_body" onclick="cycleFocus(this)">Full body</div>
-      <div class="pill focus-pill fs-include" data-region="posterior" onclick="cycleFocus(this)">Mobility</div>
+      <button type="button" class="pill focus-pill fs-include" data-region="upper" onclick="cycleFocus(this)">Upper</button>
+      <button type="button" class="pill focus-pill fs-include" data-region="upper_push" onclick="cycleFocus(this)">Push</button>
+      <button type="button" class="pill focus-pill fs-include" data-region="upper_pull" onclick="cycleFocus(this)">Pull</button>
+      <button type="button" class="pill focus-pill fs-include" data-region="lower" onclick="cycleFocus(this)">Lower</button>
+      <button type="button" class="pill focus-pill fs-include" data-region="core" onclick="cycleFocus(this)">Core</button>
+      <button type="button" class="pill focus-pill fs-include" data-region="full_body" onclick="cycleFocus(this)">Full body</button>
+      <button type="button" class="pill focus-pill fs-include" data-region="posterior" onclick="cycleFocus(this)">Mobility</button>
     </div>
   </div>
 
   <div class="option-group" id="equipment-group">
     <label>Equipment Available</label>
     <div class="equip-presets">
-      <div class="equip-preset" onclick="applyEquipPreset('none')">No equipment</div>
-      <div class="equip-preset" onclick="applyEquipPreset('light')">Light home</div>
-      <div class="equip-preset" onclick="applyEquipPreset('full')">Full home gym</div>
-      <div class="equip-preset" onclick="applyEquipPreset('commercial')">Commercial gym</div>
+      <button type="button" class="equip-preset" onclick="applyEquipPreset('none')">No equipment</button>
+      <button type="button" class="equip-preset" onclick="applyEquipPreset('light')">Light home</button>
+      <button type="button" class="equip-preset" onclick="applyEquipPreset('full')">Full home gym</button>
+      <button type="button" class="equip-preset" onclick="applyEquipPreset('commercial')">Commercial gym</button>
     </div>
     <div class="equip-tier" id="equipment-basic">
       <div class="equip-tier-header">
         <span class="tier-arrow">&#x25BC;</span> Basic
       </div>
       <div class="option-pills option-pills-multi">
-        <div class="pill selected" data-value="bodyweight" onclick="toggleEquipmentPill(this)">Bodyweight</div>
-        <div class="pill selected" data-value="mat" onclick="toggleEquipmentPill(this)">Mat</div>
-        <div class="pill selected" data-value="skipping rope" onclick="toggleEquipmentPill(this)">Skipping Rope</div>
+        <button type="button" class="pill selected" data-value="bodyweight" onclick="toggleEquipmentPill(this)">Bodyweight</button>
+        <button type="button" class="pill selected" data-value="mat" onclick="toggleEquipmentPill(this)">Mat</button>
+        <button type="button" class="pill selected" data-value="skipping rope" onclick="toggleEquipmentPill(this)">Skipping Rope</button>
       </div>
     </div>
     <div class="equip-tier" id="equipment-home">
@@ -138,11 +138,11 @@
         <span class="tier-arrow">&#x25BC;</span> Home Gym
       </div>
       <div class="option-pills option-pills-multi">
-        <div class="pill selected" data-value="dumbbell" onclick="toggleEquipmentPill(this)">Dumbbell</div>
-        <div class="pill selected" data-value="kettlebell" onclick="toggleEquipmentPill(this)">Kettlebell</div>
-        <div class="pill selected" data-value="bench" onclick="toggleEquipmentPill(this)">Bench</div>
-        <div class="pill selected" data-value="chinup bar" onclick="toggleEquipmentPill(this)">Chin-up Bar</div>
-        <div class="pill selected" data-value="medicine ball" onclick="toggleEquipmentPill(this)">Medicine Ball</div>
+        <button type="button" class="pill selected" data-value="dumbbell" onclick="toggleEquipmentPill(this)">Dumbbell</button>
+        <button type="button" class="pill selected" data-value="kettlebell" onclick="toggleEquipmentPill(this)">Kettlebell</button>
+        <button type="button" class="pill selected" data-value="bench" onclick="toggleEquipmentPill(this)">Bench</button>
+        <button type="button" class="pill selected" data-value="chinup bar" onclick="toggleEquipmentPill(this)">Chin-up Bar</button>
+        <button type="button" class="pill selected" data-value="medicine ball" onclick="toggleEquipmentPill(this)">Medicine Ball</button>
       </div>
     </div>
     <div class="equip-tier collapsed" id="equipment-commercial">
@@ -150,7 +150,7 @@
         <span class="tier-arrow">&#x25BC;</span> Commercial
       </div>
       <div class="option-pills option-pills-multi">
-        <div class="pill selected" data-value="barbell" onclick="toggleEquipmentPill(this)">Barbell</div>
+        <button type="button" class="pill selected" data-value="barbell" onclick="toggleEquipmentPill(this)">Barbell</button>
       </div>
     </div>
   </div>
@@ -344,11 +344,11 @@
       <div id="age-band-group">
         <label class="settings-label">Age band</label>
         <div class="option-pills" id="age-band-pills">
-          <div class="pill" data-value="under_18" onclick="selectProfilePill(this,'age_band')">Under 18</div>
-          <div class="pill" data-value="18-39" onclick="selectProfilePill(this,'age_band')">18-39</div>
-          <div class="pill selected" data-value="40-54" onclick="selectProfilePill(this,'age_band')">40-54</div>
-          <div class="pill" data-value="55-69" onclick="selectProfilePill(this,'age_band')">55-69</div>
-          <div class="pill" data-value="70+" onclick="selectProfilePill(this,'age_band')">70+</div>
+          <button type="button" class="pill" data-value="under_18" onclick="selectProfilePill(this,'age_band')">Under 18</button>
+          <button type="button" class="pill" data-value="18-39" onclick="selectProfilePill(this,'age_band')">18-39</button>
+          <button type="button" class="pill selected" data-value="40-54" onclick="selectProfilePill(this,'age_band')">40-54</button>
+          <button type="button" class="pill" data-value="55-69" onclick="selectProfilePill(this,'age_band')">55-69</button>
+          <button type="button" class="pill" data-value="70+" onclick="selectProfilePill(this,'age_band')">70+</button>
         </div>
       </div>
       <div id="age-hk-display" class="settings-row is-native-only" style="display:none;"></div>
@@ -356,10 +356,10 @@
   <div class="settings-row settings-row-stack">
     <label class="settings-label">Fitness level</label>
     <div class="option-pills" id="fitness-pills">
-      <div class="pill selected" data-value="untrained" onclick="selectProfilePill(this,'fitness_level')">Untrained</div>
-      <div class="pill" data-value="beginner" onclick="selectProfilePill(this,'fitness_level')">Beginner</div>
-      <div class="pill" data-value="intermediate" onclick="selectProfilePill(this,'fitness_level')">Intermediate</div>
-      <div class="pill" data-value="advanced" onclick="selectProfilePill(this,'fitness_level')">Advanced</div>
+      <button type="button" class="pill selected" data-value="untrained" onclick="selectProfilePill(this,'fitness_level')">Untrained</button>
+      <button type="button" class="pill" data-value="beginner" onclick="selectProfilePill(this,'fitness_level')">Beginner</button>
+      <button type="button" class="pill" data-value="intermediate" onclick="selectProfilePill(this,'fitness_level')">Intermediate</button>
+      <button type="button" class="pill" data-value="advanced" onclick="selectProfilePill(this,'fitness_level')">Advanced</button>
     </div>
   </div>
   <div class="settings-row">
@@ -369,26 +369,26 @@
   <div class="settings-row settings-row-stack">
     <label class="settings-label">Mobility limits</label>
     <div class="option-pills option-pills-multi" id="mobility-pills">
-      <div class="pill" data-value="knees" onclick="toggleMobilityPill(this)">Knees</div>
-      <div class="pill" data-value="hips" onclick="toggleMobilityPill(this)">Hips</div>
-      <div class="pill" data-value="shoulders" onclick="toggleMobilityPill(this)">Shoulders</div>
-      <div class="pill" data-value="lower_back" onclick="toggleMobilityPill(this)">Lower Back</div>
-      <div class="pill" data-value="wrists" onclick="toggleMobilityPill(this)">Wrists</div>
-      <div class="pill" data-value="ankles" onclick="toggleMobilityPill(this)">Ankles</div>
-      <div class="pill" data-value="neck" onclick="toggleMobilityPill(this)">Neck</div>
+      <button type="button" class="pill" data-value="knees" onclick="toggleMobilityPill(this)">Knees</button>
+      <button type="button" class="pill" data-value="hips" onclick="toggleMobilityPill(this)">Hips</button>
+      <button type="button" class="pill" data-value="shoulders" onclick="toggleMobilityPill(this)">Shoulders</button>
+      <button type="button" class="pill" data-value="lower_back" onclick="toggleMobilityPill(this)">Lower Back</button>
+      <button type="button" class="pill" data-value="wrists" onclick="toggleMobilityPill(this)">Wrists</button>
+      <button type="button" class="pill" data-value="ankles" onclick="toggleMobilityPill(this)">Ankles</button>
+      <button type="button" class="pill" data-value="neck" onclick="toggleMobilityPill(this)">Neck</button>
     </div>
     <div class="settings-hint">Select any areas where you have pain or limited range of motion.</div>
   </div>
   <div class="settings-row settings-row-stack" id="goals-group">
     <label class="settings-label">Goals<span class="focus-hint" style="margin-left:8px;">pick up to 3</span></label>
     <div class="goal-pills" id="goal-pills">
-      <div class="pill" data-value="weight-loss" onclick="toggleGoalPill(this)">Weight loss<span class="pill-sub">Burn fat</span></div>
-      <div class="pill" data-value="cardio-fitness" onclick="toggleGoalPill(this)">Cardio fitness<span class="pill-sub">Endurance</span></div>
-      <div class="pill" data-value="strength" onclick="toggleGoalPill(this)">Strength<span class="pill-sub">Get stronger</span></div>
-      <div class="pill" data-value="mobility" onclick="toggleGoalPill(this)">Mobility<span class="pill-sub">Move better</span></div>
-      <div class="pill" data-value="flexibility" onclick="toggleGoalPill(this)">Flexibility<span class="pill-sub">Stretch deeper</span></div>
-      <div class="pill" data-value="recovery" onclick="toggleGoalPill(this)">Recovery<span class="pill-sub">Active rest</span></div>
-      <div class="pill" data-value="general" onclick="toggleGoalPill(this)">General fitness<span class="pill-sub">All-round</span></div>
+      <button type="button" class="pill" data-value="weight-loss" onclick="toggleGoalPill(this)">Weight loss<span class="pill-sub">Burn fat</span></button>
+      <button type="button" class="pill" data-value="cardio-fitness" onclick="toggleGoalPill(this)">Cardio fitness<span class="pill-sub">Endurance</span></button>
+      <button type="button" class="pill" data-value="strength" onclick="toggleGoalPill(this)">Strength<span class="pill-sub">Get stronger</span></button>
+      <button type="button" class="pill" data-value="mobility" onclick="toggleGoalPill(this)">Mobility<span class="pill-sub">Move better</span></button>
+      <button type="button" class="pill" data-value="flexibility" onclick="toggleGoalPill(this)">Flexibility<span class="pill-sub">Stretch deeper</span></button>
+      <button type="button" class="pill" data-value="recovery" onclick="toggleGoalPill(this)">Recovery<span class="pill-sub">Active rest</span></button>
+      <button type="button" class="pill" data-value="general" onclick="toggleGoalPill(this)">General fitness<span class="pill-sub">All-round</span></button>
     </div>
     <div class="settings-hint">Goals shape your workout: prioritised muscle groups get more exercises.</div>
   </div>
@@ -471,8 +471,8 @@
   <div class="settings-row">
     <label class="settings-label">Units</label>
     <div class="option-pills" id="units-pills">
-      <div class="pill" data-value="metric" onclick="setUnits('metric')">Metric<span class="pill-sub">kg / cm</span></div>
-      <div class="pill" data-value="imperial" onclick="setUnits('imperial')">Imperial<span class="pill-sub">lb / ft</span></div>
+      <button type="button" class="pill" data-value="metric" onclick="setUnits('metric')">Metric<span class="pill-sub">kg / cm</span></button>
+      <button type="button" class="pill" data-value="imperial" onclick="setUnits('imperial')">Imperial<span class="pill-sub">lb / ft</span></button>
     </div>
   </div>
   </div>
@@ -522,19 +522,19 @@
   <div class="lib-panel" id="lib-exercises" style="display:none;">
     <input type="text" class="exlib-search" id="exlib-search" placeholder="Search exercises..." oninput="renderExerciseLibrary()">
     <div class="exlib-filters" id="exlib-body-filters">
-      <span class="exlib-filter-pill" data-filter="body" data-value="lower" onclick="toggleExlibFilter(this)">Lower</span>
-      <span class="exlib-filter-pill" data-filter="body" data-value="upper_push" onclick="toggleExlibFilter(this)">Upper Push</span>
-      <span class="exlib-filter-pill" data-filter="body" data-value="upper_pull" onclick="toggleExlibFilter(this)">Upper Pull</span>
-      <span class="exlib-filter-pill" data-filter="body" data-value="core" onclick="toggleExlibFilter(this)">Core</span>
-      <span class="exlib-filter-pill" data-filter="body" data-value="full_body" onclick="toggleExlibFilter(this)">Full Body</span>
-      <span class="exlib-filter-pill" data-filter="body" data-value="posterior" onclick="toggleExlibFilter(this)">Mobility</span>
-      <span class="exlib-filter-pill" data-filter="body" data-value="yoga" onclick="toggleExlibFilter(this)">Yoga</span>
+      <button type="button" class="exlib-filter-pill" data-filter="body" data-value="lower" onclick="toggleExlibFilter(this)">Lower</button>
+      <button type="button" class="exlib-filter-pill" data-filter="body" data-value="upper_push" onclick="toggleExlibFilter(this)">Upper Push</button>
+      <button type="button" class="exlib-filter-pill" data-filter="body" data-value="upper_pull" onclick="toggleExlibFilter(this)">Upper Pull</button>
+      <button type="button" class="exlib-filter-pill" data-filter="body" data-value="core" onclick="toggleExlibFilter(this)">Core</button>
+      <button type="button" class="exlib-filter-pill" data-filter="body" data-value="full_body" onclick="toggleExlibFilter(this)">Full Body</button>
+      <button type="button" class="exlib-filter-pill" data-filter="body" data-value="posterior" onclick="toggleExlibFilter(this)">Mobility</button>
+      <button type="button" class="exlib-filter-pill" data-filter="body" data-value="yoga" onclick="toggleExlibFilter(this)">Yoga</button>
     </div>
     <div class="exlib-filters" id="exlib-equip-filters"></div>
     <div class="exlib-filters" id="exlib-diff-filters">
-      <span class="exlib-filter-pill" data-filter="diff" data-value="1" onclick="toggleExlibFilter(this)">Beginner</span>
-      <span class="exlib-filter-pill" data-filter="diff" data-value="2" onclick="toggleExlibFilter(this)">Intermediate</span>
-      <span class="exlib-filter-pill" data-filter="diff" data-value="3" onclick="toggleExlibFilter(this)">Advanced</span>
+      <button type="button" class="exlib-filter-pill" data-filter="diff" data-value="1" onclick="toggleExlibFilter(this)">Beginner</button>
+      <button type="button" class="exlib-filter-pill" data-filter="diff" data-value="2" onclick="toggleExlibFilter(this)">Intermediate</button>
+      <button type="button" class="exlib-filter-pill" data-filter="diff" data-value="3" onclick="toggleExlibFilter(this)">Advanced</button>
     </div>
     <div class="exlib-stats" id="exlib-stats"></div>
     <div class="exlib-list" id="exlib-list"></div>

@@ -48,7 +48,8 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   background: var(--surface); border: 2px solid var(--border);
   text-align: center; cursor: pointer; transition: all var(--t-quick);
   font-size: 0.95rem; font-weight: 500; touch-action: manipulation;
-  color: var(--text);
+  color: var(--text); font-family: inherit; line-height: inherit;
+  -webkit-appearance: none; appearance: none;
 }
 .pill.selected { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); }
 .pill:active { transform: scale(0.96); }
@@ -88,7 +89,7 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
   background: var(--surface2); border: 1px solid var(--border);
   color: var(--text-dim); font-size: 0.72rem; font-weight: 600;
   text-align: center; cursor: pointer; touch-action: manipulation;
-  transition: all 0.15s;
+  transition: all 0.15s; font-family: inherit; -webkit-appearance: none; appearance: none;
 }
 .equip-preset:active { background: var(--border); }
 .equip-tier { margin-bottom: 8px; }
@@ -957,7 +958,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 .exlib-search:focus { outline: none; border-color: var(--accent); }
 .exlib-search::placeholder { color: var(--text-dim); }
 .exlib-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
-.exlib-filter-pill { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-dim); font-size: 0.75rem; font-weight: 600; cursor: pointer; touch-action: manipulation; white-space: nowrap; }
+.exlib-filter-pill { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-dim); font-size: 0.75rem; font-weight: 600; cursor: pointer; touch-action: manipulation; white-space: nowrap; font-family: inherit; -webkit-appearance: none; appearance: none; }
 .exlib-filter-pill.selected { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); }
 .exlib-filter-pill:active { transform: scale(0.95); }
 .exlib-stats { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 10px; }

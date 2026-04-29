@@ -1,6 +1,6 @@
 # SimpleWorkoutGen — Project Status
 
-**Last updated:** 2026-04-29
+**Last updated:** 2026-04-30
 **Version:** 1.0 (build 2, resubmitted to App Store)
 **Repo:** [joehassell/homeworkout](https://github.com/joehassell/homeworkout)
 **Web:** [joehassell.github.io/homeworkout](https://joehassell.github.io/homeworkout)
@@ -149,6 +149,62 @@ The app is wrapped in Capacitor 8 instead of the originally planned SwiftUI + WK
 | Timer image animation (fade-in/out on transitions) | Done | #30 |
 | Images in Preview, Timer, and Info modal | Done | #30 |
 | Documentation updated (README, PROJECT_STATUS) | Done | #30 |
+
+### Sprint 5 — UI Refinements, Equipment System, Yoga Fixes (Complete)
+
+| Feature | Status | PR |
+|---------|--------|-----|
+| Focus pills: reset on Build load, add "Upper" master region | Done | #33 |
+| Goals moved from Build to Settings (Profile group) | Done | #33 |
+| Difficulty labels: Beginner / Intermediate / Advanced | Done | #33 |
+| Equipment catalog: 55+ items, 3 tiers, tri-state prefs | Done | #33 |
+| Type-relevant equipment filtering on Build screen | Done | #33 |
+| Yoga preview fix: "3 x 0 exercises" bug resolved | Done | #33 |
+| Yoga poses included in exercise library with filters | Done | #33 |
+| Metric/Imperial units (auto-detected, user-overridable) | Done | #33 |
+| Plan card replaced with 3 buttons (Suggested/Surprise/Generate) | Done | #33 |
+| Skipping rope added back to strength/functional equipment | Done | #33 |
+
+### Sprint 6 — Pricing & Paywall (Complete)
+
+| Feature | Status | PR |
+|---------|--------|-----|
+| Entitlement system (js/entitlement.js) — free/pro state | Done | #35 |
+| StoreKit 2 native plugin (IAPPlugin.swift) | Done | #35 |
+| IAP JS bridge (js/iap.js) — products, purchase, restore | Done | #35 |
+| Paywall modal with 3 product cards + founders tier | Done | #35 |
+| Feature gating at 6 surfaces | Done | #35 |
+| Equipment lock badges on Build screen | Done | #35 |
+| Theme lock badges in Settings | Done | #35 |
+| History 14-day limit for free users + Pro upsell | Done | #35 |
+| Focus boost gated to Pro | Done | #35 |
+| Weight tracking, font scaling, JSON backup gated to Pro | Done | #35 |
+| Apple Watch gated to Pro | Done | #35 |
+| Post-workout soft paywall (every 5th, weekly cap) | Done | #35 |
+| Settings upgrade row + Restore Purchases | Done | #35 |
+| CloudKit founders counter (1,000 cap) | Done | #35 |
+| iOS entitlements for IAP + CloudKit | Done | #35 |
+| App Store Connect handoff document | Done | #35 |
+
+### Code Review Fixes (Complete)
+
+| Feature | Status | PR |
+|---------|--------|-----|
+| HealthKit age band: under-18 → under_18 mismatch | Done | #36 |
+| Entitlement expiration check for cached subscriptions | Done | #36 |
+| Focus state preserved on Build nav (was resetting) | Done | #36 |
+| Paywall close/re-open race condition | Done | #36 |
+| Locale detection edge cases | Done | #36 |
+| iCloud sync key validation (SYNC_KEYS allowlist) | Done | #36 |
+| iOS 15 CSS compat (dvh fallback, color-mix fallback) | Done | #36 |
+| Duplicate tokens.css import removed | Done | #36 |
+| Bear Crawls duplicate exercise removed | Done | #36 |
+| iOS thread safety (IAPPlugin Task leak, WCSession race, HealthKit data race) | Done | #36 |
+| Mobility stretch types corrected | Done | #36 |
+| Template exercise validation tightened + yoga coverage | Done | #36 |
+| Accessibility: user-scalable=no removed, touch targets, contrast | Done | #36 |
+| Interactive div pills → button elements (89 elements) | Done | #36 |
+| Xcode project: IAPPlugin + StoreKit + CloudKit registered | Done | #36 |
 
 ---
 
