@@ -9,7 +9,12 @@
     "sync:ios": "npm run build && npx cap sync ios",
     "open:ios": "npx cap open ios",
     "test": "node tests/test-all.js",
-    "serve": "python3 -m http.server 8080"
+    "serve": "python3 -m http.server 8080",
+    "release": "./scripts/release.sh release",
+    "release:setup": "./scripts/release.sh setup",
+    "release:preflight": "./scripts/release.sh preflight",
+    "release:dry": "./scripts/release.sh dry-run",
+    "release:metadata": "./scripts/release.sh metadata"
   },
   "author": "Joe Hassell",
   "license": "UNLICENSED",

@@ -55,7 +55,9 @@
 	<string>SimpleWorkoutGen reads your body weight to estimate calories burned and your heart rate during workouts for live display.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>SimpleWorkoutGen saves your completed workouts to Apple Health so they appear in the Fitness app.</string>
-<key>NSSupportsLiveActivities</key>
+	<key>NSSupportsLiveActivities</key>
 	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

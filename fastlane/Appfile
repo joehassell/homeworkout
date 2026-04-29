@@ -1,0 +1,6 @@
+app_identifier("com.nomaen.homeworkout")
+team_id("T33B88TGA8")
+
+# Authentication is handled by the App Store Connect API key (.p8) loaded
+# in Fastfile. Apple ID + app-specific password is intentionally not used,
+# because it does not survive 2FA reliably for unattended runs.
