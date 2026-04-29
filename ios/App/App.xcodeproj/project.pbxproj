@@ -34,6 +34,9 @@
 		W10A00002000000000000008 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = W10A00001000000000000008 /* Assets.xcassets */; };
 		W10A00002000000000000009 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = W10A0000100000000000000B /* HealthKit.framework */; };
 		W10A0000200000000000000A /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = W10A0000100000000000000C /* WatchConnectivity.framework */; };
+		LA10000020000000000000001 /* SimpleWorkoutGenLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = LA10000010000000000000001 /* SimpleWorkoutGenLiveActivity.swift */; };
+		LA10000020000000000000002 /* SimpleWorkoutGenLiveActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = LA10000010000000000000002 /* SimpleWorkoutGenLiveActivityBundle.swift */; };
+		LA10000020000000000000003 /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = LA10000010000000000000004 /* ActivityKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,7 +73,30 @@
 		W10A0000100000000000000B /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		W10A0000100000000000000C /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
 		W10A0000100000000000000D /* HomeWorkoutWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HomeWorkoutWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		LA10000010000000000000001 /* SimpleWorkoutGenLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleWorkoutGenLiveActivity.swift; sourceTree = "<group>"; };
+		LA10000010000000000000002 /* SimpleWorkoutGenLiveActivityBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleWorkoutGenLiveActivityBundle.swift; sourceTree = "<group>"; };
+		LA10000010000000000000003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		LA10000010000000000000004 /* ActivityKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = System/Library/Frameworks/ActivityKit.framework; sourceTree = SDKROOT; };
+		LA10000010000000000000005 /* SimpleWorkoutGenLiveActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SimpleWorkoutGenLiveActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXContainerItemProxy section */
+		LA10000080000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = LA10000050000000000000001;
+			remoteInfo = SimpleWorkoutGenLiveActivity;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		LA10000080000000000000002 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = LA10000050000000000000001 /* SimpleWorkoutGenLiveActivity */;
+			targetProxy = LA10000080000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		504EC3011FED79650016851F /* Frameworks */ = {
@@ -93,6 +119,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		LA10000040000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				LA10000020000000000000003 /* ActivityKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -103,6 +137,7 @@
 				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
 				504EC3061FED79650016851F /* App */,
 				W10A00003000000000000001 /* HomeWorkoutWatch */,
+				LA10000030000000000000001 /* SimpleWorkoutGenLiveActivity */,
 				504EC3051FED79650016851F /* Products */,
 				D855E8562FA0318B00ACC5D5 /* Recovered References */,
 			);
@@ -113,6 +148,7 @@
 			children = (
 				504EC3041FED79650016851F /* App.app */,
 				W10A0000100000000000000D /* HomeWorkoutWatch.app */,
+				LA10000010000000000000005 /* SimpleWorkoutGenLiveActivity.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -161,6 +197,7 @@
 			children = (
 				A1B2C3D4E5F60718293A4B5E /* WatchConnectivity.framework */,
 				D539E9C49DCE02AD3F173676 /* ActivityKit.framework */,
+				LA10000010000000000000004 /* ActivityKit.framework */,
 				E3C7A6A16AB446B71C702EFF /* HealthKit.framework */,
 			);
 			name = Frameworks;
@@ -191,6 +228,16 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		LA10000030000000000000001 /* SimpleWorkoutGenLiveActivity */ = {
+			isa = PBXGroup;
+			children = (
+				LA10000010000000000000001 /* SimpleWorkoutGenLiveActivity.swift */,
+				LA10000010000000000000002 /* SimpleWorkoutGenLiveActivityBundle.swift */,
+				LA10000010000000000000003 /* Info.plist */,
+			);
+			path = SimpleWorkoutGenLiveActivity;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -205,6 +252,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				LA10000080000000000000002 /* PBXTargetDependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -231,6 +279,23 @@
 			productReference = W10A0000100000000000000D /* HomeWorkoutWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
+		LA10000050000000000000001 /* SimpleWorkoutGenLiveActivity */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = LA10000070000000000000001 /* Build configuration list for PBXNativeTarget "SimpleWorkoutGenLiveActivity" */;
+			buildPhases = (
+				LA10000040000000000000001 /* Sources */,
+				LA10000040000000000000002 /* Frameworks */,
+				LA10000040000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SimpleWorkoutGenLiveActivity;
+			productName = SimpleWorkoutGenLiveActivity;
+			productReference = LA10000010000000000000005 /* SimpleWorkoutGenLiveActivity.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -246,6 +311,10 @@
 						ProvisioningStyle = Automatic;
 					};
 					W10A00005000000000000001 = {
+						CreatedOnToolsVersion = 15.0;
+						ProvisioningStyle = Automatic;
+					};
+					LA10000050000000000000001 = {
 						CreatedOnToolsVersion = 15.0;
 						ProvisioningStyle = Automatic;
 					};
@@ -269,6 +338,7 @@
 			targets = (
 				504EC3031FED79650016851F /* App */,
 				W10A00005000000000000001 /* HomeWorkoutWatch */,
+				LA10000050000000000000001 /* SimpleWorkoutGenLiveActivity */,
 			);
 		};
 /* End PBXProject section */
@@ -292,6 +362,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				W10A00002000000000000008 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		LA10000040000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,6 +400,15 @@
 				W10A00002000000000000005 /* WorkoutControlsView.swift in Sources */,
 				W10A00002000000000000006 /* IdleView.swift in Sources */,
 				W10A00002000000000000007 /* HeartRateView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		LA10000040000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				LA10000020000000000000001 /* SimpleWorkoutGenLiveActivity.swift in Sources */,
+				LA10000020000000000000002 /* SimpleWorkoutGenLiveActivityBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -545,6 +631,44 @@
 			};
 			name = Release;
 		};
+		LA10000060000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = T33B88TGA8;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SimpleWorkoutGenLiveActivity/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.nomaen.homeworkout.live-activity";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		LA10000060000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = T33B88TGA8;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SimpleWorkoutGenLiveActivity/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.nomaen.homeworkout.live-activity";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -571,6 +695,15 @@
 			buildConfigurations = (
 				W10A00006000000000000001 /* Debug */,
 				W10A00006000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		LA10000070000000000000001 /* Build configuration list for PBXNativeTarget "SimpleWorkoutGenLiveActivity" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				LA10000060000000000000001 /* Debug */,
+				LA10000060000000000000002 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
