@@ -9,6 +9,7 @@
 <title>Workout Builder</title>
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/paywall.css">
 </head>
 <body>
 
@@ -102,7 +103,7 @@
   </div>
 
   <div class="option-group">
-    <label>Focus<span class="focus-hint">tap to cycle: include → boost → exclude</span></label>
+    <label>Focus<span class="focus-hint" id="focus-hint">tap to cycle: include → boost → exclude</span></label>
     <div class="focus-pills" id="focus-pills">
       <div class="pill focus-pill fs-include" data-region="upper" onclick="cycleFocus(this)">Upper</div>
       <div class="pill focus-pill fs-include" data-region="upper_push" onclick="cycleFocus(this)">Push</div>
@@ -321,6 +322,10 @@
     <div class="hist-section-label">Sessions</div>
     <div id="hist-list"></div>
   </div>
+  <div class="hist-pro-banner" id="hist-pro-upsell" style="display:none;" onclick="Paywall.open('history')">
+    <p class="hist-pro-count"></p>
+    <span class="pro-badge">PRO</span> <span style="font-size:0.85rem;color:var(--text-dim);">See your full history, heatmap &amp; stats</span>
+  </div>
   <div class="hist-empty" id="hist-empty" style="display:none;">
     <p style="font-size:1.1rem;margin-bottom:8px;">No workouts yet</p>
     <p style="color:var(--text-dim);margin-bottom:16px;">Complete your first session to see it here.</p>
@@ -472,6 +477,15 @@
   </div>
   </div>
 
+  <div class="settings-group" id="settings-upgrade-row">
+    <div class="settings-group-label">Subscription</div>
+    <div class="settings-upgrade-row">
+      <span class="settings-label">SimpleWorkoutGen Pro</span>
+      <button class="btn btn-primary" onclick="Paywall.open('settings')" style="font-size:0.85rem;padding:8px 20px;">Upgrade</button>
+    </div>
+    <div class="settings-hint" id="settings-tier-hint">Free tier — bodyweight &amp; mat workouts</div>
+  </div>
+
   <div class="settings-group">
     <div class="settings-group-label">Data</div>
     <div class="settings-row settings-row-stack">
@@ -483,6 +497,10 @@
       </div>
     </div>
     <div class="settings-hint">Export downloads a JSON file with your sessions, equipment, and toggles. Import replaces all three.</div>
+    <div class="settings-row" style="margin-top:8px;">
+      <label class="settings-label">Restore Purchases</label>
+      <button type="button" class="settings-action" onclick="Paywall.restorePurchases()">Restore</button>
+    </div>
   </div>
 </div>
 
@@ -632,6 +650,7 @@
   </button>
 </nav>
 
+<script src="js/entitlement.js"></script>
 <script src="js/exercises.js"></script>
 <script src="js/builder.js"></script>
 <script src="js/yoga.js"></script>
@@ -639,6 +658,8 @@
 <script src="js/capability.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/history.js"></script>
+<script src="js/iap.js"></script>
+<script src="js/paywall.js"></script>
 <script>
 // ═══════════════════════════════════════════════════
 // EXERCISE DATABASE WITH INSTRUCTIONS
@@ -1095,6 +1116,8 @@ let currentHeartRate = 0;
 
 function initWatchConnectivity() {
   if (!isNative()) return;
+  // Watch is Pro-only
+  if (!Entitlement.isPro()) return;
   try {
     const wc = window.Capacitor.Plugins.WatchConnectivityPlugin;
 
@@ -1333,10 +1356,15 @@ function applyTheme(name) {
   else document.documentElement.setAttribute('data-theme', name);
   document.querySelectorAll('#theme-row .theme-swatch').forEach(sw => {
     sw.classList.toggle('active', sw.dataset.theme === name);
+    sw.classList.toggle('pro-lock', !Entitlement.canUseTheme(sw.dataset.theme));
   });
 }
 
 function setTheme(name) {
+  if (!Entitlement.canUseTheme(name)) {
+    Paywall.open('theme');
+    return;
+  }
   applyTheme(name);
   saveAppSettings();
 }
@@ -1351,6 +1379,10 @@ function applyFontScale(idx) {
 }
 
 function stepFont(delta) {
+  if (!Entitlement.canUseFontScale()) {
+    Paywall.open('settings');
+    return;
+  }
   applyFontScale(currentFontIdx + delta);
   saveAppSettings();
 }
@@ -1405,6 +1437,10 @@ function loadAppSettings() {
 }
 
 function exportBackup() {
+  if (!Entitlement.canUseBackup()) {
+    Paywall.open('settings');
+    return;
+  }
   const data = window.storage.exportData();
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -1744,6 +1780,11 @@ function toggleYogaUI(isYoga) {
 
 function toggleEquipmentPill(el) {
   const val = el.dataset.value;
+  // Gate: free users can only use bodyweight + mat
+  if (!Entitlement.canUseEquipment(val)) {
+    Paywall.open('equipment');
+    return;
+  }
   if (selectedEquipment.has(val)) {
     selectedEquipment.delete(val);
     el.classList.remove('selected');
@@ -1774,7 +1815,11 @@ function saveEquipmentSelection() {
 
 function syncEquipmentPillUI() {
   document.querySelectorAll('#equipment-group .equip-tier .pill').forEach(p => {
-    p.classList.toggle('selected', selectedEquipment.has(p.dataset.value));
+    const val = p.dataset.value;
+    p.classList.toggle('selected', selectedEquipment.has(val));
+    // Show lock badge on equipment that requires Pro
+    const locked = !Entitlement.canUseEquipment(val);
+    p.classList.toggle('pro-lock', locked);
   });
 }
 
@@ -1792,6 +1837,12 @@ const EQUIP_PRESETS = {
 function applyEquipPreset(preset) {
   const items = EQUIP_PRESETS[preset];
   if (!items) return;
+  // For free users, filter preset to only allowed equipment
+  const filtered = Entitlement.isPro() ? items : items.filter(e => Entitlement.canUseEquipment(e));
+  if (filtered.length < items.length && !Entitlement.isPro()) {
+    Paywall.open('equipment');
+    return;
+  }
   selectedEquipment = new Set(items);
   syncEquipmentPillUI();
   saveEquipmentSelection();
@@ -2266,7 +2317,9 @@ function cycleFocus(el) {
   const region = el.dataset.region;
   if (!region) return;
   const cur = focusState[region] || 'include';
-  const next = FOCUS_STATES[(FOCUS_STATES.indexOf(cur) + 1) % FOCUS_STATES.length];
+  // Free users: include → exclude only (skip boost/increase)
+  const states = Entitlement.canUseFocusBoost() ? FOCUS_STATES : ['include', 'exclude'];
+  const next = states[(states.indexOf(cur) + 1) % states.length];
   focusState[region] = next;
   el.className = 'pill focus-pill fs-' + next;
   saveFocus();
@@ -3685,7 +3738,7 @@ function updateTimerUI() {
     timerEls.strengthDone.classList.remove('visible');
     timerEls.setTypeRow.classList.remove('visible');
     timerEls.repTarget.textContent = '';
-    timerEls.weightInput.classList.add('visible');
+    if (Entitlement.canUseWeightTracking()) timerEls.weightInput.classList.add('visible');
     // Sync the input value to the entry's saved weight so navigation between exercises preserves it.
     timerEls.weightVal.value = w.actualWeightKg != null ? (userUnits === 'imperial' ? Math.round(kgToLb(w.actualWeightKg) * 10) / 10 : w.actualWeightKg) : '';
     timerEls.weightSaved.textContent = w.actualWeightKg != null ? 'saved' : '';
@@ -4033,11 +4086,14 @@ function saveAndFinish() {
   }
   pendingSessionId = null;
   showScreen('setup');
+  // Surface 5: soft paywall after every 5th workout (weekly cap)
+  if (window.Paywall) Paywall.maybeShowCompletionPaywall();
 }
 
 function skipFinish() {
   pendingSessionId = null;
   showScreen('setup');
+  if (window.Paywall) Paywall.maybeShowCompletionPaywall();
 }
 
 // ═══════════════════════════════════════════════════
@@ -4595,6 +4651,34 @@ loadEquipmentSelection();
 loadAppSettings();
 loadFocus();
 rebuildBuildEquipment();
+// Entitlement: sync UI on tier changes
+function syncTierUI() {
+  syncEquipmentPillUI();
+  applyTheme(currentTheme);
+  if (window.history_view) window.history_view.refresh();
+  var ent = Entitlement.get();
+  var upgradeRow = document.getElementById('settings-upgrade-row');
+  if (upgradeRow) upgradeRow.style.display = ent.tier === 'pro' ? 'none' : '';
+  var hint = document.getElementById('settings-tier-hint');
+  if (hint) {
+    if (ent.tier === 'pro') {
+      hint.textContent = 'Pro' + (ent.isFounder ? ' (Founder)' : '') + ' \u2014 ' + (ent.source || 'active');
+    } else {
+      hint.textContent = 'Free tier \u2014 bodyweight & mat workouts';
+    }
+  }
+  var focusHint = document.getElementById('focus-hint');
+  if (focusHint) {
+    focusHint.textContent = Entitlement.canUseFocusBoost()
+      ? 'tap to cycle: include \u2192 boost \u2192 exclude'
+      : 'tap to cycle: include \u2192 exclude';
+  }
+}
+if (window.Entitlement) {
+  Entitlement.onChange(syncTierUI);
+  // Initial sync on load
+  syncTierUI();
+}
 // Defer non-critical native init so first paint isn't blocked
 setTimeout(() => {
   initHealthKit();

@@ -158,18 +158,37 @@
     row.classList.toggle('expanded');
   }
 
+  function filterByTier(sessions) {
+    if (window.Entitlement && window.Entitlement.canUseFullHistory()) return sessions;
+    var limit = (window.Entitlement && window.Entitlement.historyDayLimit()) || 14;
+    var cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - limit);
+    return sessions.filter(function (s) { return new Date(s.date) >= cutoff; });
+  }
+
   function refresh() {
     if (!window.storage) return;
-    const sessions = window.storage.loadSessions();
-    const statsEl = document.getElementById('hist-stats');
-    const heatEl = document.getElementById('hist-heatmap');
-    const listEl = document.getElementById('hist-list');
+    var allSessions = window.storage.loadSessions();
+    var sessions = filterByTier(allSessions);
+    var hasHidden = allSessions.length > sessions.length;
+
+    var statsEl = document.getElementById('hist-stats');
+    var heatEl = document.getElementById('hist-heatmap');
+    var listEl = document.getElementById('hist-list');
     var emptyEl = document.getElementById('hist-empty');
+    var proEl = document.getElementById('hist-pro-upsell');
     var isEmpty = sessions.length === 0;
+
     if (statsEl) { renderStats(statsEl, computeStats(sessions)); statsEl.style.display = isEmpty ? 'none' : ''; }
     if (heatEl) { renderHeatmap(heatEl, sessions); heatEl.parentElement.style.display = isEmpty ? 'none' : ''; }
     if (listEl) { renderList(listEl, sessions); listEl.parentElement.style.display = isEmpty ? 'none' : ''; }
     if (emptyEl) { emptyEl.style.display = isEmpty ? '' : 'none'; }
+
+    // Show/hide Pro upsell banner
+    if (proEl) {
+      proEl.style.display = hasHidden ? '' : 'none';
+      proEl.querySelector('.hist-pro-count').textContent = (allSessions.length - sessions.length) + ' older sessions hidden';
+    }
   }
 
   // Avoid clobbering window.history (the browser API)
