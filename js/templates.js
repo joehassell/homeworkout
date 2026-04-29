@@ -1,8 +1,6 @@
 (function () {
   'use strict';
 
-  const FITNESS_RANK = { untrained: 0, beginner: 1, intermediate: 2, advanced: 3 };
-
   // ── Template database ──────────────────────────────
 
   const TEMPLATES = [
@@ -390,7 +388,8 @@
 
   // ── Filtering ──────────────────────────────────────
   function fitnessAtLeast(userLevel, required) {
-    return (FITNESS_RANK[userLevel] || 0) >= (FITNESS_RANK[required] || 0);
+    var FR = window.capability.FITNESS_RANK;
+    return (FR[userLevel] || 0) >= (FR[required] || 0);
   }
   function getTemplatesForType(type, equipment, fitnessLevel) {
     var eqSet = equipment instanceof Set ? equipment : new Set(equipment || []);
