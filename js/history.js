@@ -167,6 +167,10 @@
     if (statsEl) renderStats(statsEl, computeStats(sessions));
     if (heatEl) renderHeatmap(heatEl, sessions);
     if (listEl) renderList(listEl, sessions);
+    var emptyEl = document.getElementById('hist-empty');
+    if (emptyEl) {
+      emptyEl.style.display = sessions.length === 0 ? '' : 'none';
+    }
   }
 
   // Avoid clobbering window.history (the browser API)

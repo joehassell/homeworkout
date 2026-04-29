@@ -370,7 +370,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
   letter-spacing: 0.06em; color: var(--text-dim);
 }
 .plan-card-refresh {
-  width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+  min-width: 44px; min-height: 44px; border-radius: 8px; border: 1px solid var(--border);
   background: var(--surface2); color: var(--text-dim); font-size: 1.1rem;
   cursor: pointer; touch-action: manipulation;
   display: flex; align-items: center; justify-content: center;
@@ -493,7 +493,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 
 /* Template picker */
 .template-link-wrap { text-align: center; margin-top: 6px; }
-.template-link { color: var(--accent); font-size: 0.82rem; text-decoration: none; opacity: 0.85; }
+.template-link { color: var(--accent); font-size: 0.85rem; text-decoration: none; opacity: 0.85; display: inline-block; padding: 10px 16px; }
 .template-link:active { opacity: 1; }
 .template-list { max-height: 55vh; overflow-y: auto; margin: 12px 0; display: flex; flex-direction: column; gap: 8px; }
 .tpl-card {
@@ -1079,6 +1079,9 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 .exlib-item-actions .exlib-fav.active { background: var(--green-soft); }
 #exercise-library { display: none; flex-direction: column; min-height: 100vh; min-height: 100dvh; padding: 20px; padding-top: calc(20px + env(safe-area-inset-top, 0px)); padding-bottom: env(safe-area-inset-bottom, 20px); }
 #exercise-library.active { display: flex; }
+#history h2, #settings h2, #library h2, #preview h2, #done h2 {
+  font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em;
+}
 </style>
 </head>
 <body>
@@ -1257,7 +1260,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 <!-- PREVIEW -->
 <div id="preview" class="screen">
   <div class="preview-header">
-    <h1>Your Workout</h1>
+    <h2>Your Workout</h2>
     <button class="btn btn-ghost" onclick="showScreen('setup')" style="padding:8px 14px;font-size:0.85rem;">Back</button>
   </div>
   <div class="preview-meta" id="preview-meta"></div>
@@ -1341,7 +1344,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 
 <!-- DONE -->
 <div id="done" class="screen">
-  <h1>Done!</h1>
+  <h2>Done!</h2>
   <p style="color:var(--text-dim);">Nice work. Session complete.</p>
   <div class="done-stats">
     <div class="done-stat"><div class="val" id="d-exercises">0</div><div class="lbl">Exercises</div></div>
@@ -1400,7 +1403,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 <!-- HISTORY -->
 <div id="history" class="screen has-nav">
   <div class="screen-header">
-    <h1>History</h1>
+    <h2>History</h2>
   </div>
   <div class="hist-stats" id="hist-stats"></div>
   <div class="hist-heatmap-wrap">
@@ -1411,12 +1414,17 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
     <div class="hist-section-label">Sessions</div>
     <div id="hist-list"></div>
   </div>
+  <div class="hist-empty" id="hist-empty" style="display:none;">
+    <p style="font-size:1.1rem;margin-bottom:8px;">No workouts yet</p>
+    <p style="color:var(--text-dim);margin-bottom:16px;">Complete your first session to see it here.</p>
+    <button class="btn btn-primary" onclick="navTo('setup')">Build a Workout</button>
+  </div>
 </div>
 
 <!-- SETTINGS -->
 <div id="settings" class="screen has-nav">
   <div class="screen-header">
-    <h1>Settings</h1>
+    <h2>Settings</h2>
   </div>
   <div class="settings-row settings-row-stack">
     <div class="settings-profile-header">Profile</div>
@@ -1539,7 +1547,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 <!-- LIBRARY -->
 <div id="library" class="screen has-nav">
   <div class="screen-header">
-    <h1>Library</h1>
+    <h2>Library</h2>
   </div>
   <div class="library-list" id="library-list"></div>
 </div>
