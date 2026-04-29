@@ -316,6 +316,24 @@ html.is-native .fs-toggle { display: none; }
 html.is-native .ios-fs-hint { display: none !important; }
 .is-native-only { display: none; }
 html.is-native .is-native-only { display: flex; }
+
+/* Music mini-player bar */
+.music-bar {
+  position: fixed; bottom: calc(62px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0;
+  display: none; align-items: center; gap: 8px;
+  background: var(--surface); border-top: 1px solid var(--border);
+  padding: 8px 16px;
+  z-index: 45;
+}
+html.is-native .music-bar.visible { display: flex; }
+.music-info { flex: 1; min-width: 0; }
+.music-title { font-size: 0.85rem; font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.music-artist { font-size: 0.7rem; color: var(--text-dim); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.music-controls { display: flex; gap: 4px; }
+.music-btn { background: none; border: none; color: var(--text); font-size: 1.1rem; padding: 8px; cursor: pointer; touch-action: manipulation; }
+.music-btn:active { opacity: 0.6; }
+.music-play { font-size: 1.3rem; }
+html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-area-inset-bottom, 0px)); }
 .sanskrit-name { font-style: italic; color: var(--text-dim); font-size: 0.85em; }
 .ios-fs-hint {
   position: fixed; bottom: 88px; left: 16px; right: 16px;
@@ -1455,6 +1473,10 @@ html.is-native .is-native-only { display: flex; }
     <label class="settings-label" for="set-voice">Voice</label>
     <button type="button" id="set-voice" class="settings-toggle" onclick="toggleVoiceFromSettings()">On</button>
   </div>
+  <div class="settings-row is-native-only">
+    <label class="settings-label">Music Controls</label>
+    <button type="button" id="set-music" class="settings-toggle on" onclick="toggleMusicSetting()">On</button>
+  </div>
   <div class="settings-row settings-row-stack">
     <label class="settings-label">Theme</label>
     <div class="theme-row" id="theme-row">
@@ -1610,6 +1632,19 @@ html.is-native .is-native-only { display: flex; }
     <h2 id="swap-title">Swap exercise</h2>
     <div class="swap-list" id="swap-list"></div>
     <button class="modal-close" onclick="closeSwap()">Cancel</button>
+  </div>
+</div>
+
+<!-- MUSIC MINI-PLAYER -->
+<div class="music-bar is-native-only" id="music-bar" style="display:none;">
+  <div class="music-info">
+    <span class="music-title" id="music-title">Not Playing</span>
+    <span class="music-artist" id="music-artist"></span>
+  </div>
+  <div class="music-controls">
+    <button class="music-btn" onclick="musicPrev()" aria-label="Previous">&#x23EE;</button>
+    <button class="music-btn music-play" id="music-play-btn" onclick="musicToggle()" aria-label="Play/Pause">&#x25B6;</button>
+    <button class="music-btn" onclick="musicNext()" aria-label="Next">&#x23ED;</button>
   </div>
 </div>
 
@@ -2096,6 +2131,84 @@ function isNative() {
   return !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 }
 
+// ── Apple Music bridge ──────────────────────────────────
+let musicAvailable = false;
+let musicEnabled = true;
+
+async function initMusic() {
+  if (!isNative()) return;
+  try {
+    const mp = window.Capacitor.Plugins.MusicPlugin;
+    const { available } = await mp.isAvailable();
+    musicAvailable = available;
+    if (!available) return;
+
+    mp.addListener('musicStateChanged', (data) => {
+      updateMusicBar(data);
+    });
+
+    const state = await mp.getNowPlaying();
+    updateMusicBar(state);
+  } catch (e) {}
+}
+
+function updateMusicBar(data) {
+  const bar = document.getElementById('music-bar');
+  const title = document.getElementById('music-title');
+  const artist = document.getElementById('music-artist');
+  const playBtn = document.getElementById('music-play-btn');
+  if (!bar) return;
+
+  if (!musicEnabled) {
+    bar.classList.remove('visible');
+    document.documentElement.classList.remove('music-bar-visible');
+    return;
+  }
+
+  if (data.title) {
+    bar.classList.add('visible');
+    document.documentElement.classList.add('music-bar-visible');
+    title.textContent = data.title;
+    artist.textContent = data.artist || '';
+    playBtn.innerHTML = data.isPlaying ? '&#x23F8;' : '&#x25B6;';
+  } else {
+    bar.classList.remove('visible');
+    document.documentElement.classList.remove('music-bar-visible');
+  }
+}
+
+function musicToggle() {
+  if (!musicAvailable) return;
+  const mp = window.Capacitor.Plugins.MusicPlugin;
+  mp.getNowPlaying().then(s => s.isPlaying ? mp.pause() : mp.play());
+}
+
+function musicNext() {
+  if (!musicAvailable) return;
+  window.Capacitor.Plugins.MusicPlugin.next();
+}
+
+function musicPrev() {
+  if (!musicAvailable) return;
+  window.Capacitor.Plugins.MusicPlugin.previous();
+}
+
+function toggleMusicSetting() {
+  musicEnabled = !musicEnabled;
+  const btn = document.getElementById('set-music');
+  if (btn) {
+    btn.textContent = musicEnabled ? 'On' : 'Off';
+    btn.classList.toggle('on', musicEnabled);
+  }
+  const bar = document.getElementById('music-bar');
+  if (bar && !musicEnabled) { bar.classList.remove('visible'); document.documentElement.classList.remove('music-bar-visible'); }
+  if (musicEnabled && musicAvailable) {
+    const mp = window.Capacitor.Plugins.MusicPlugin;
+    mp.getNowPlaying().then(s => updateMusicBar(s));
+  }
+  saveAppSettings();
+}
+
 // ── HealthKit bridge ──────────────────────────────────
 let healthKitReady = false;
 let healthKitSessionId = null;
@@ -2567,6 +2680,7 @@ function loadAppSettings() {
       const s = JSON.parse(raw);
       if (typeof s.soundEnabled === 'boolean') soundEnabled = s.soundEnabled;
       if (typeof s.voiceEnabled === 'boolean') voiceEnabled = s.voiceEnabled;
+      if (typeof s.musicEnabled === 'boolean') musicEnabled = s.musicEnabled;
       if (typeof s.theme === 'string') currentTheme = s.theme;
       if (typeof s.fontIdx === 'number') currentFontIdx = s.fontIdx;
       if (typeof s.weightKg === 'number') userWeightKg = s.weightKg;
@@ -2594,6 +2708,8 @@ function loadAppSettings() {
   } catch (e) {}
   syncSoundUI();
   syncVoiceUI();
+  const musicBtn = document.getElementById('set-music');
+  if (musicBtn) { musicBtn.textContent = musicEnabled ? 'On' : 'Off'; musicBtn.classList.toggle('on', musicEnabled); }
   applyTheme(currentTheme);
   applyFontScale(currentFontIdx);
   const wEl = document.getElementById('set-weight');
@@ -2647,7 +2763,7 @@ function importBackup(file) {
 function saveAppSettings() {
   try {
     localStorage.setItem('wk_settings', JSON.stringify({
-      soundEnabled, voiceEnabled,
+      soundEnabled, voiceEnabled, musicEnabled,
       theme: currentTheme, fontIdx: currentFontIdx,
       weightKg: userWeightKg,
       userProfile: userProfile,
@@ -5442,6 +5558,7 @@ loadFocus();
 initHealthKit();
 initWatchConnectivity();
 initCloudSync();
+initMusic();
 // Render weekly plan card
 renderPlanCard();
 // Make the bottom nav visible immediately on the initial active (setup) screen.
