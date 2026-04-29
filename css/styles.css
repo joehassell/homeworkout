@@ -30,6 +30,9 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .btn-danger:active { filter: brightness(0.85); transform: scale(0.97); }
 .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
 .btn-ghost:active { background: var(--border); }
+.btn-suggestion { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-glow); }
+.btn-suggestion:active { background: var(--accent-glow); }
+.btn-suggestion:disabled { opacity: 0.5; cursor: default; }
 .btn-full { width: 100%; }
 
 /* Setup */

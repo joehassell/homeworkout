@@ -20,15 +20,6 @@
     <p>Build your session</p>
   </div>
 
-  <div class="plan-card" id="plan-card">
-    <div class="plan-card-header">
-      <span class="plan-card-title">Today's Suggested Workout</span>
-      <button class="plan-card-refresh" onclick="refreshPlan()" aria-label="Refresh plan">&#x21bb;</button>
-    </div>
-    <div class="plan-card-body" id="plan-card-body" onclick="applyPlanSuggestion()"></div>
-    <div class="plan-week" id="plan-week"></div>
-  </div>
-
   <div class="option-group">
     <label>Workout Type</label>
     <div class="option-pills" id="type-pills">
@@ -166,6 +157,7 @@
   </div><!-- /.setup-scroll-area -->
   <div class="generate-section">
     <div class="gen-error" id="gen-error"></div>
+    <button class="btn btn-suggestion btn-full" id="suggested-btn" onclick="applySuggestionAndGenerate()" style="margin-bottom:8px;">Suggested for you today</button>
     <button class="btn btn-ghost btn-full" onclick="surpriseMe()" style="margin-bottom:8px;">Surprise Me</button>
     <button class="btn btn-primary btn-full" onclick="generateWorkout()" style="font-size:1.1rem;padding:16px;">Generate Workout</button>
   </div>
@@ -2178,7 +2170,7 @@ function syncEquipFromPrefs() {
 
 // Equipment relevant to each workout type
 const TYPE_EQUIPMENT = {
-  strength: ['bodyweight','mat','dumbbell','kettlebell','bench','barbell','chinup bar','medicine ball',
+  strength: ['bodyweight','mat','skipping rope','dumbbell','kettlebell','bench','barbell','chinup bar','medicine ball',
     'resistance band','trx','parallettes','ez curl bar','power rack','smith machine','flat bench','incline bench',
     'decline bench','preacher curl bench','olympic platform','cable column','cable crossover','lat pulldown',
     'seated cable row','chest press machine','shoulder press machine','pec deck','rear delt fly',
@@ -2191,7 +2183,7 @@ const TYPE_EQUIPMENT = {
   conditioning: ['bodyweight','mat','dumbbell','kettlebell','skipping rope','medicine ball','resistance band',
     'bench','chinup bar','treadmill','stationary bike upright','stationary bike recumbent','elliptical',
     'rowing machine','stair climber','air bike','ski erg','sled'],
-  functional: ['bodyweight','mat','dumbbell','kettlebell','bench','medicine ball','resistance band',
+  functional: ['bodyweight','mat','skipping rope','dumbbell','kettlebell','bench','medicine ball','resistance band',
     'chinup bar','trx','parallettes','barbell','cable column','sled'],
   yoga: ['mat'],
 };
@@ -4506,47 +4498,24 @@ function refreshPlan() {
 
 function renderPlanCard(plan) {
   if (!plan) plan = loadOrGeneratePlan();
-  const body = document.getElementById('plan-card-body');
-  const week = document.getElementById('plan-week');
-  if (!body || !week) return;
+  const btn = document.getElementById('suggested-btn');
+  if (!btn) return;
 
   const today = todayString();
   const todayPlan = plan.find(d => d.date === today);
 
-  if (todayPlan && !todayPlan.rest) {
-    body.classList.remove('rest-day');
-    body.innerHTML =
-      '<div>' +
-        '<div class="plan-card-type">' + todayPlan.type + '</div>' +
-        '<div class="plan-card-detail">' + todayPlan.duration + ' min' + (todayPlan.completed ? ' &middot; Done!' : '') + '</div>' +
-      '</div>' +
-      '<span class="plan-card-cta">' + (todayPlan.completed ? '&#10003;' : 'Tap to start &rarr;') + '</span>';
+  if (todayPlan && !todayPlan.rest && !todayPlan.completed) {
+    const typeName = todayPlan.type.charAt(0).toUpperCase() + todayPlan.type.slice(1);
+    btn.textContent = 'Suggested for you today: ' + typeName + ' ' + todayPlan.duration + 'min';
+    btn.style.display = '';
+    btn.disabled = false;
   } else if (todayPlan && todayPlan.rest) {
-    body.classList.add('rest-day');
-    body.innerHTML =
-      '<div>' +
-        '<div class="plan-card-type" style="color:var(--text-dim);">Rest Day</div>' +
-        '<div class="plan-card-detail">Recovery &amp; recharge</div>' +
-      '</div>';
+    btn.textContent = 'Today is a rest day';
+    btn.style.display = '';
+    btn.disabled = true;
   } else {
-    body.classList.add('rest-day');
-    body.innerHTML = '<div><div class="plan-card-type" style="color:var(--text-dim);">No plan</div></div>';
+    btn.style.display = 'none';
   }
-
-  // Render week dots
-  const dayNames = ['S','M','T','W','T','F','S'];
-  week.innerHTML = plan.map(d => {
-    let dotClass = 'plan-dot';
-    if (d.date === today) dotClass += ' today';
-    if (d.completed) dotClass += ' completed';
-    else if (d.rest) dotClass += ' rest';
-    else if (d.date < today) dotClass += ' past';
-    else dotClass += ' planned';
-    const dayLabel = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const dateObj = new Date(d.date + 'T12:00:00');
-    const shortDay = dayLabel[dateObj.getDay()].charAt(0);
-    return '<div class="plan-day"><span>' + shortDay + '</span><div class="' + dotClass + '"></div></div>';
-  }).join('');
 }
 
 function applyPlanSuggestion() {
@@ -4564,16 +4533,18 @@ function applyPlanSuggestion() {
     p.classList.toggle('selected', p.dataset.value === config.type);
   });
   toggleYogaUI(config.type === 'yoga');
+  rebuildBuildEquipment();
 
   document.querySelectorAll('#duration-pills .pill').forEach(p => {
     p.classList.toggle('selected', p.dataset.value === String(config.duration));
   });
   const wrap = document.getElementById('custom-dur-wrap');
   if (wrap) wrap.classList.remove('visible');
+}
 
-  // Scroll to generate button
-  const scrollArea = document.querySelector('#setup .setup-scroll-area');
-  if (scrollArea) scrollArea.scrollTo({ top: scrollArea.scrollHeight, behavior: 'smooth' });
+function applySuggestionAndGenerate() {
+  applyPlanSuggestion();
+  generateWorkout();
 }
 
 function leastDoneType() {
