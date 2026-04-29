@@ -687,6 +687,38 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 .done-star.filled { color: var(--yellow); }
 
 /* Library screen */
+.library-tabs { display: flex; gap: 4px; padding: 0 0 12px; }
+.lib-tab { flex: 1; padding: 8px 0; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-dim); font-size: 0.82rem; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.15s; touch-action: manipulation; }
+.lib-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.lib-panel { min-height: 100px; }
+
+/* Equipment catalog */
+.equip-legend { display: flex; gap: 14px; margin-bottom: 14px; font-size: 0.78rem; color: var(--text-dim); }
+.equip-legend-item { display: flex; align-items: center; gap: 5px; }
+.equip-state-dot { width: 10px; height: 10px; border-radius: 50%; }
+.equip-state-dot.eq-always { background: var(--green); }
+.equip-state-dot.eq-maybe { background: var(--accent); }
+.equip-state-dot.eq-never { background: var(--red); }
+
+.equip-catalog-tier { margin-bottom: 16px; }
+.equip-catalog-tier-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 8px; }
+.equip-catalog-item { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 4px; cursor: pointer; transition: border-color 0.15s; touch-action: manipulation; }
+.equip-catalog-item:active { border-color: var(--accent); }
+.equip-catalog-name { flex: 1; font-size: 0.88rem; font-weight: 500; color: var(--text); }
+.equip-catalog-count { font-size: 0.72rem; color: var(--text-dim); }
+.equip-catalog-count.dim { opacity: 0.5; }
+.equip-pref-label { font-size: 0.72rem; font-weight: 600; min-width: 52px; text-align: right; }
+.equip-catalog-item.eq-always { border-left: 3px solid var(--green); }
+.equip-catalog-item.eq-always .equip-pref-label { color: var(--green); }
+.equip-catalog-item.eq-maybe { border-left: 3px solid var(--accent); }
+.equip-catalog-item.eq-maybe .equip-pref-label { color: var(--accent); }
+.equip-catalog-item.eq-never { border-left: 3px solid var(--red); opacity: 0.6; }
+.equip-catalog-item.eq-never .equip-pref-label { color: var(--red); }
+
+/* Locked equipment pill (always preference) */
+.pill.eq-locked { opacity: 0.7; cursor: default; }
+.pill.eq-locked::after { content: ' \u2713'; }
+
 .library-list { display: flex; flex-direction: column; gap: 10px; }
 .library-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
 .library-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -895,7 +927,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 .exlib-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .exlib-back { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-dim); display: flex; align-items: center; justify-content: center; cursor: pointer; touch-action: manipulation; flex-shrink: 0; font-size: 1.2rem; }
 .exlib-back:active { background: var(--border); }
-.exlib-search { flex: 1; padding: 10px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-size: 0.9rem; font-family: inherit; }
+.exlib-search { width: 100%; box-sizing: border-box; padding: 10px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-size: 0.9rem; font-family: inherit; margin-bottom: 10px; }
 .exlib-search:focus { outline: none; border-color: var(--accent); }
 .exlib-search::placeholder { color: var(--text-dim); }
 .exlib-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -913,6 +945,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 .exlib-item-name { flex: 1; font-weight: 600; font-size: 0.9rem; cursor: pointer; touch-action: manipulation; }
 .exlib-item-name:active { opacity: 0.6; }
 .exlib-cat-badge { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.exlib-sanskrit { font-size: 0.75rem; font-style: italic; color: var(--text-dim); font-weight: 400; }
 .exlib-diff { font-size: 0.7rem; color: var(--text-dim); letter-spacing: 1px; }
 .exlib-item-meta { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 6px; }
 .exlib-equip-chip { display: inline-block; font-size: 0.65rem; padding: 1px 6px; border-radius: 4px; background: var(--surface2); color: var(--text-dim); margin-right: 4px; }
@@ -923,14 +956,7 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 .exlib-item-actions .exlib-exclude.active { background: var(--red-soft); }
 .exlib-item-actions .exlib-fav { border-color: var(--green); color: var(--green); }
 .exlib-item-actions .exlib-fav.active { background: var(--green-soft); }
-/* Library sub-tabs */
-.library-tabs { display: flex; gap: 4px; margin-bottom: 16px; padding: 4px; background: var(--surface); border-radius: 10px; }
-.lib-tab { flex: 1; padding: 10px; border: none; background: none; color: var(--text-dim); font-size: 0.85rem; font-weight: 600; border-radius: 8px; cursor: pointer; touch-action: manipulation; }
-.lib-tab.active { background: var(--accent); color: #fff; }
-.lib-panel { display: none; }
-.lib-panel.active { display: block; }
-.lib-empty { text-align: center; padding: 40px 20px; color: var(--text-dim); }
-.lib-empty p:first-child { font-size: 1.1rem; color: var(--text); margin-bottom: 8px; }
+/* Exercise library is now inline in Library tab */
 
 /* Settings groups */
 .settings-group { margin-bottom: 20px; }

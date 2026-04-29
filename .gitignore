@@ -10,6 +10,7 @@ package-lock.json
 
 # macOS noise
 .DS_Store
+.gstack/
 
 # Fastlane — generated artifacts (source of truth lives in docs/APP_STORE_LISTING.md
 # and screenshots/; release.sh regenerates these every run)

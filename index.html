@@ -113,25 +113,13 @@
   <div class="option-group">
     <label>Focus<span class="focus-hint">tap to cycle: include → boost → exclude</span></label>
     <div class="focus-pills" id="focus-pills">
+      <div class="pill focus-pill fs-include" data-region="upper" onclick="cycleFocus(this)">Upper</div>
       <div class="pill focus-pill fs-include" data-region="upper_push" onclick="cycleFocus(this)">Push</div>
       <div class="pill focus-pill fs-include" data-region="upper_pull" onclick="cycleFocus(this)">Pull</div>
       <div class="pill focus-pill fs-include" data-region="lower" onclick="cycleFocus(this)">Lower</div>
       <div class="pill focus-pill fs-include" data-region="core" onclick="cycleFocus(this)">Core</div>
       <div class="pill focus-pill fs-include" data-region="full_body" onclick="cycleFocus(this)">Full body</div>
       <div class="pill focus-pill fs-include" data-region="posterior" onclick="cycleFocus(this)">Mobility</div>
-    </div>
-  </div>
-
-  <div class="option-group" id="goals-group">
-    <label>Goals<span class="focus-hint">pick up to 3</span></label>
-    <div class="goal-pills" id="goal-pills">
-      <div class="pill" data-value="weight-loss" onclick="toggleGoalPill(this)">Weight loss<span class="pill-sub">Burn fat</span></div>
-      <div class="pill" data-value="cardio-fitness" onclick="toggleGoalPill(this)">Cardio fitness<span class="pill-sub">Endurance</span></div>
-      <div class="pill" data-value="strength" onclick="toggleGoalPill(this)">Strength<span class="pill-sub">Get stronger</span></div>
-      <div class="pill" data-value="mobility" onclick="toggleGoalPill(this)">Mobility<span class="pill-sub">Move better</span></div>
-      <div class="pill" data-value="flexibility" onclick="toggleGoalPill(this)">Flexibility<span class="pill-sub">Stretch deeper</span></div>
-      <div class="pill" data-value="recovery" onclick="toggleGoalPill(this)">Recovery<span class="pill-sub">Active rest</span></div>
-      <div class="pill" data-value="general" onclick="toggleGoalPill(this)">General fitness<span class="pill-sub">All-round</span></div>
     </div>
   </div>
 
@@ -241,7 +229,7 @@
   <button class="btn-add-rest" id="t-add-rest" onclick="addRest()">+10s Rest</button>
   <button class="btn-strength-done" id="t-strength-done" onclick="finishStrengthSet()">Done</button>
   <div class="strength-weight-input" id="t-weight-input">
-    <label for="t-weight-val">Weight (kg) <button class="plate-link" onclick="openPlateCalc()">plates</button></label>
+    <label for="t-weight-val"><span id="t-weight-label">Weight (kg)</span> <button class="plate-link" onclick="openPlateCalc()">plates</button></label>
     <div class="strength-weight-row">
       <input type="number" inputmode="decimal" step="0.5" id="t-weight-val" placeholder="--" oninput="saveSetWeight()">
       <span class="strength-weight-saved" id="t-weight-saved"></span>
@@ -280,7 +268,7 @@
   </div>
   <div class="done-tonnage" id="done-tonnage">
     <div class="done-tonnage-stats">
-      <div class="done-tonnage-stat"><div class="val" id="d-tonnage">0</div><div class="lbl">Tonnage (kg)</div></div>
+      <div class="done-tonnage-stat"><div class="val" id="d-tonnage">0</div><div class="lbl" id="d-tonnage-label">Tonnage (kg)</div></div>
       <div class="done-tonnage-stat"><div class="val" id="d-working-sets">0</div><div class="lbl">Working Sets</div></div>
       <div class="done-tonnage-stat"><div class="val" id="d-top-set">-</div><div class="lbl">Top Set</div></div>
     </div>
@@ -394,12 +382,25 @@
     </div>
     <div class="settings-hint">Select any areas where you have pain or limited range of motion.</div>
   </div>
+  <div class="settings-row settings-row-stack" id="goals-group">
+    <label class="settings-label">Goals<span class="focus-hint" style="margin-left:8px;">pick up to 3</span></label>
+    <div class="goal-pills" id="goal-pills">
+      <div class="pill" data-value="weight-loss" onclick="toggleGoalPill(this)">Weight loss<span class="pill-sub">Burn fat</span></div>
+      <div class="pill" data-value="cardio-fitness" onclick="toggleGoalPill(this)">Cardio fitness<span class="pill-sub">Endurance</span></div>
+      <div class="pill" data-value="strength" onclick="toggleGoalPill(this)">Strength<span class="pill-sub">Get stronger</span></div>
+      <div class="pill" data-value="mobility" onclick="toggleGoalPill(this)">Mobility<span class="pill-sub">Move better</span></div>
+      <div class="pill" data-value="flexibility" onclick="toggleGoalPill(this)">Flexibility<span class="pill-sub">Stretch deeper</span></div>
+      <div class="pill" data-value="recovery" onclick="toggleGoalPill(this)">Recovery<span class="pill-sub">Active rest</span></div>
+      <div class="pill" data-value="general" onclick="toggleGoalPill(this)">General fitness<span class="pill-sub">All-round</span></div>
+    </div>
+    <div class="settings-hint">Goals shape your workout: prioritised muscle groups get more exercises.</div>
+  </div>
   <div class="settings-row" id="settings-height-row">
     <label class="settings-label" for="set-height">Height</label>
     <div style="display:flex;align-items:center;gap:8px;">
-      <input type="number" id="set-height" class="settings-input" value="170" min="100" max="250" step="1"
-        onchange="saveHeightSetting()" style="width:70px;padding:8px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:0.9rem;text-align:center;">
-      <span class="settings-label" style="margin:0;opacity:0.6;">cm</span>
+      <input type="text" id="set-height" class="settings-input" value="170"
+        onchange="saveHeightSetting()" style="width:90px;padding:8px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:0.9rem;text-align:center;">
+      <span class="settings-label units-label-height" style="margin:0;opacity:0.6;">cm</span>
     </div>
   </div>
   <div class="profile-count" id="profile-count"></div>
@@ -470,6 +471,20 @@
       <button type="button" class="font-step fs-up" onclick="stepFont(1)" aria-label="Larger font">A+</button>
     </div>
   </div>
+  <div class="settings-row">
+    <label class="settings-label">Units</label>
+    <div class="option-pills" id="units-pills">
+      <div class="pill" data-value="metric" onclick="setUnits('metric')">Metric<span class="pill-sub">kg / cm</span></div>
+      <div class="pill" data-value="imperial" onclick="setUnits('imperial')">Imperial<span class="pill-sub">lb / ft</span></div>
+    </div>
+  </div>
+  <div class="settings-row is-native-only" id="settings-weight-row">
+    <label class="settings-label" for="set-weight">Body Weight</label>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <input type="number" id="set-weight" class="settings-input" value="70" min="30" max="300" step="0.5"
+        onchange="saveWeightSetting()" style="width:70px;padding:8px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:0.9rem;text-align:center;">
+      <span class="settings-label units-label-weight" style="margin:0;opacity:0.6;">kg</span>
+    </div>
   </div>
 
   <div class="settings-group">
@@ -492,20 +507,16 @@
     <h2>Library</h2>
   </div>
   <div class="library-tabs">
-    <button class="lib-tab active" data-tab="programs" onclick="switchLibTab('programs')">Programs</button>
-    <button class="lib-tab" data-tab="workouts" onclick="switchLibTab('workouts')">Workouts</button>
+    <button class="lib-tab active" data-tab="workouts" onclick="switchLibTab('workouts')">Workouts</button>
     <button class="lib-tab" data-tab="exercises" onclick="switchLibTab('exercises')">Exercises</button>
+    <button class="lib-tab" data-tab="equipment" onclick="switchLibTab('equipment')">Equipment</button>
   </div>
-  <div id="lib-programs" class="lib-panel active">
-    <div class="lib-empty">
-      <p>Programs</p>
-      <p>Coming soon</p>
-    </div>
-  </div>
-  <div id="lib-workouts" class="lib-panel">
+  <!-- Workouts panel -->
+  <div class="lib-panel" id="lib-workouts">
     <div class="library-list" id="library-list"></div>
   </div>
-  <div id="lib-exercises" class="lib-panel">
+  <!-- Exercises panel -->
+  <div class="lib-panel" id="lib-exercises" style="display:none;">
     <input type="text" class="exlib-search" id="exlib-search" placeholder="Search exercises..." oninput="renderExerciseLibrary()">
     <div class="exlib-filters" id="exlib-body-filters">
       <span class="exlib-filter-pill" data-filter="body" data-value="lower" onclick="toggleExlibFilter(this)">Lower</span>
@@ -514,18 +525,27 @@
       <span class="exlib-filter-pill" data-filter="body" data-value="core" onclick="toggleExlibFilter(this)">Core</span>
       <span class="exlib-filter-pill" data-filter="body" data-value="full_body" onclick="toggleExlibFilter(this)">Full Body</span>
       <span class="exlib-filter-pill" data-filter="body" data-value="posterior" onclick="toggleExlibFilter(this)">Mobility</span>
+      <span class="exlib-filter-pill" data-filter="body" data-value="yoga" onclick="toggleExlibFilter(this)">Yoga</span>
     </div>
     <div class="exlib-filters" id="exlib-equip-filters"></div>
     <div class="exlib-filters" id="exlib-diff-filters">
-      <span class="exlib-filter-pill" data-filter="diff" data-value="1" onclick="toggleExlibFilter(this)">Diff 1</span>
-      <span class="exlib-filter-pill" data-filter="diff" data-value="2" onclick="toggleExlibFilter(this)">Diff 2</span>
-      <span class="exlib-filter-pill" data-filter="diff" data-value="3" onclick="toggleExlibFilter(this)">Diff 3</span>
+      <span class="exlib-filter-pill" data-filter="diff" data-value="1" onclick="toggleExlibFilter(this)">Beginner</span>
+      <span class="exlib-filter-pill" data-filter="diff" data-value="2" onclick="toggleExlibFilter(this)">Intermediate</span>
+      <span class="exlib-filter-pill" data-filter="diff" data-value="3" onclick="toggleExlibFilter(this)">Advanced</span>
     </div>
     <div class="exlib-stats" id="exlib-stats"></div>
     <div class="exlib-list" id="exlib-list"></div>
   </div>
+  <!-- Equipment panel -->
+  <div class="lib-panel" id="lib-equipment" style="display:none;">
+    <div class="equip-legend">
+      <span class="equip-legend-item"><span class="equip-state-dot eq-always"></span> Always</span>
+      <span class="equip-legend-item"><span class="equip-state-dot eq-maybe"></span> Maybe</span>
+      <span class="equip-legend-item"><span class="equip-state-dot eq-never"></span> Never</span>
+    </div>
+    <div id="equip-catalog"></div>
+  </div>
 </div>
-
 
 <!-- SWITCH SIDES OVERLAY -->
 <div class="switch-overlay" id="switch-overlay"><span>Switch sides</span></div>
@@ -554,11 +574,11 @@
   <div class="plate-calc">
     <h3>Plate Calculator</h3>
     <div class="plate-calc-row">
-      <label>Target (kg)</label>
+      <label id="plate-target-label">Target (kg)</label>
       <input type="number" inputmode="decimal" id="plate-target" step="0.5" oninput="calcPlates()">
     </div>
     <div class="plate-calc-row">
-      <label>Bar (kg)</label>
+      <label id="plate-bar-label">Bar (kg)</label>
       <input type="number" inputmode="decimal" id="plate-bar" value="20" step="0.5" oninput="calcPlates()">
     </div>
     <div class="plate-calc-result" id="plate-result">Enter a target weight above.</div>
@@ -646,6 +666,36 @@
 // ═══════════════════════════════════════════════════
 let config = { type:'hiit', duration:30, intensity:'moderate', sets:3, yogaStyle:'vinyasa', yogaExperience:'confident' };
 let yogaEquipment = new Set(['mat', 'wall']);
+
+// ── Units (metric/imperial) ──────────────────────────
+// Internal storage is always metric (kg, cm). Display converts as needed.
+const IMPERIAL_LOCALES = ['en-US', 'en-LR', 'my-MM'];
+function detectLocaleUnits() {
+  try {
+    const lang = navigator.language || navigator.languages?.[0] || 'en';
+    return IMPERIAL_LOCALES.some(l => lang.startsWith(l.split('-')[0]) && lang.includes(l.split('-')[1])) ? 'imperial' : 'metric';
+  } catch (e) { return 'metric'; }
+}
+let userUnits = detectLocaleUnits();
+// Conversion helpers
+function kgToLb(kg) { return kg * 2.20462; }
+function lbToKg(lb) { return lb / 2.20462; }
+function cmToFtIn(cm) { const totalIn = cm / 2.54; const ft = Math.floor(totalIn / 12); const inches = Math.round(totalIn % 12); return ft + "'" + inches + '"'; }
+function ftInToCm(ft, inches) { return (ft * 12 + inches) * 2.54; }
+function displayWeight(kg) { return userUnits === 'imperial' ? kgToLb(kg).toFixed(1) : kg.toFixed(1); }
+function displayWeightUnit() { return userUnits === 'imperial' ? 'lb' : 'kg'; }
+function displayHeight(cm) { return userUnits === 'imperial' ? cmToFtIn(cm) : cm + ''; }
+function displayHeightUnit() { return userUnits === 'imperial' ? '' : 'cm'; }
+function parseWeightInput(val) { return userUnits === 'imperial' ? lbToKg(parseFloat(val)) : parseFloat(val); }
+function parseHeightInput(val) {
+  if (userUnits === 'imperial') {
+    // Parse ft'in" or just a number (treated as inches)
+    const match = String(val).match(/(\d+)'?\s*(\d*)/);
+    if (match) return ftInToCm(parseInt(match[1]) || 0, parseInt(match[2]) || 0);
+    return parseFloat(val) * 2.54; // fallback: treat as inches
+  }
+  return parseFloat(val);
+}
 let userGoals = [];
 let lastCustomDuration = 40;
 const ALL_EQUIPMENT = ['bodyweight','mat','dumbbell','kettlebell','barbell','bench','chinup bar','medicine ball','skipping rope'];
@@ -1153,7 +1203,7 @@ function nativeHaptic(style) {
 
 // ── iCloud sync bridge ──────────────────────────────
 const SYNC_KEYS = ['wk_sessions','wk_settings','wk_equipment','wk_focus',
-                   'wk_saved_workouts','wk_exercise_prs','wk_weekly_plan'];
+                   'wk_saved_workouts','wk_exercise_prs','wk_weekly_plan','wk_equip_prefs'];
 
 async function initCloudSync() {
   if (!isNative()) return;
@@ -1176,6 +1226,7 @@ async function initCloudSync() {
         if (data.key === 'wk_settings') loadAppSettings();
         if (data.key === 'wk_equipment') loadEquipmentSelection();
         if (data.key === 'wk_focus') loadFocus();
+        if (data.key === 'wk_equip_prefs') { loadEquipPrefs(); syncEquipFromPrefs(); }
       }
     });
   } catch (e) { /* degrade silently */ }
@@ -1345,6 +1396,9 @@ function loadAppSettings() {
       if (Array.isArray(s.yogaEquipment)) {
         yogaEquipment = new Set(s.yogaEquipment);
       }
+      if (typeof s.units === 'string' && (s.units === 'metric' || s.units === 'imperial')) {
+        userUnits = s.units;
+      }
     }
   } catch (e) {}
   // Restore last custom duration
@@ -1358,8 +1412,7 @@ function loadAppSettings() {
   if (musicBtn) { musicBtn.textContent = musicEnabled ? 'On' : 'Off'; musicBtn.classList.toggle('on', musicEnabled); }
   applyTheme(currentTheme);
   applyFontScale(currentFontIdx);
-  const wEl = document.getElementById('set-weight');
-  if (wEl) wEl.value = userWeightKg;
+  syncUnitsUI();
   syncProfileUI();
   syncGoalUI();
   syncYogaExperienceUI();
@@ -1417,6 +1470,7 @@ function saveAppSettings() {
       userGoals: userGoals,
       yogaExperience: config.yogaExperience,
       yogaEquipment: [...yogaEquipment],
+      units: userUnits,
     }));
     cloudPush('wk_settings');
   } catch (e) {}
@@ -1426,9 +1480,10 @@ function saveAppSettings() {
 function saveWeightSetting() {
   const el = document.getElementById('set-weight');
   if (!el) return;
-  const v = parseFloat(el.value);
-  if (v >= 30 && v <= 300) {
-    userWeightKg = v;
+  const raw = parseFloat(el.value);
+  const kg = userUnits === 'imperial' ? lbToKg(raw) : raw;
+  if (kg >= 20 && kg <= 300) {
+    userWeightKg = kg;
     saveAppSettings();
   }
 }
@@ -1436,11 +1491,58 @@ function saveWeightSetting() {
 function saveHeightSetting() {
   const el = document.getElementById('set-height');
   if (!el) return;
-  const v = parseInt(el.value);
-  if (v >= 100 && v <= 250) {
-    userProfile.height_cm = v;
+  const cm = parseHeightInput(el.value);
+  if (cm >= 60 && cm <= 260) {
+    userProfile.height_cm = Math.round(cm);
     saveAppSettings();
   }
+}
+
+function setUnits(unit) {
+  userUnits = unit;
+  saveAppSettings();
+  syncUnitsUI();
+}
+
+function syncUnitsUI() {
+  // Units pills
+  document.querySelectorAll('#units-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === userUnits);
+  });
+  const wu = displayWeightUnit();
+  // Settings weight label + value
+  document.querySelectorAll('.units-label-weight').forEach(el => el.textContent = wu);
+  const wEl = document.getElementById('set-weight');
+  if (wEl) {
+    const val = userUnits === 'imperial' ? kgToLb(userWeightKg) : userWeightKg;
+    wEl.value = Math.round(val * 10) / 10;
+    wEl.step = userUnits === 'imperial' ? '1' : '0.5';
+  }
+  // Settings height label + value
+  document.querySelectorAll('.units-label-height').forEach(el => el.textContent = displayHeightUnit());
+  const hEl = document.getElementById('set-height');
+  if (hEl) {
+    const cm = userProfile.height_cm || 170;
+    hEl.value = userUnits === 'imperial' ? cmToFtIn(cm) : cm;
+    hEl.placeholder = userUnits === 'imperial' ? '5\'10"' : '170';
+  }
+  // Timer weight label
+  const twl = document.getElementById('t-weight-label');
+  if (twl) twl.textContent = 'Weight (' + wu + ')';
+  // Plate calculator labels
+  const ptl = document.getElementById('plate-target-label');
+  if (ptl) ptl.textContent = 'Target (' + wu + ')';
+  const pbl = document.getElementById('plate-bar-label');
+  if (pbl) pbl.textContent = 'Bar (' + wu + ')';
+  // Plate bar default
+  const barEl = document.getElementById('plate-bar');
+  if (barEl && !barEl.dataset.userSet) barEl.value = userUnits === 'imperial' ? '45' : '20';
+  // Done tonnage label
+  const dtl = document.getElementById('d-tonnage-label');
+  if (dtl) dtl.textContent = 'Tonnage (' + wu + ')';
+  // 1RM calc placeholder
+  const ormW = document.getElementById('orm-weight');
+  if (ormW) ormW.placeholder = wu;
 }
 
 function selectProfilePill(el, field) {
@@ -1588,15 +1690,54 @@ function showScreen(id) {
 
 function navTo(screen) {
   if (screen === 'history' && window.history_view) window.history_view.refresh();
-  if (screen === 'library') renderLibrary();
+  if (screen === 'library') { renderLibrary(); renderExerciseLibraryInline(); }
+  if (screen === 'setup') { resetFocus(); }
   showScreen(screen);
+}
+
+function resetFocus() {
+  focusState = { ...DEFAULT_FOCUS };
+  syncFocusUI();
+}
+
+function switchLibTab(tab) {
+  document.querySelectorAll('.lib-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.querySelectorAll('.lib-panel').forEach(p => p.style.display = 'none');
+  const panel = document.getElementById('lib-' + tab);
+  if (panel) panel.style.display = '';
+  if (tab === 'exercises') renderExerciseLibraryInline();
+  if (tab === 'equipment') renderEquipmentCatalog();
+}
+
+function renderExerciseLibraryInline() {
+  // Build equipment filter pills
+  const equipContainer = document.getElementById('exlib-equip-filters');
+  if (equipContainer) {
+    equipContainer.innerHTML = '';
+    const allEquip = new Set();
+    getAllExercises().forEach(e => e.equip.forEach(eq => allEquip.add(eq)));
+    for (const eq of [...allEquip].sort()) {
+      const pill = document.createElement('span');
+      pill.className = 'exlib-filter-pill';
+      pill.dataset.filter = 'equip';
+      pill.dataset.value = eq;
+      pill.textContent = eq.charAt(0).toUpperCase() + eq.slice(1);
+      pill.onclick = function() { toggleExlibFilter(this); };
+      equipContainer.appendChild(pill);
+    }
+  }
+  exlibFilters = { body: null, equip: null, diff: null };
+  document.querySelectorAll('.exlib-filter-pill').forEach(p => p.classList.remove('selected'));
+  const searchEl = document.getElementById('exlib-search');
+  if (searchEl) searchEl.value = '';
+  renderExerciseLibrary();
 }
 function selectPill(el) {
   el.parentElement.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
   el.classList.add('selected');
   const group = el.parentElement.id;
   const val = el.dataset.value;
-  if (group === 'type-pills') { config.type = val; toggleYogaUI(val === 'yoga'); }
+  if (group === 'type-pills') { config.type = val; toggleYogaUI(val === 'yoga'); rebuildBuildEquipment(); }
   if (group === 'duration-pills') {
     config.duration = parseInt(val);
     const wrap = document.getElementById('custom-dur-wrap');
@@ -1614,7 +1755,6 @@ function toggleYogaUI(isYoga) {
   document.getElementById('intensity-group').style.display = isYoga ? 'none' : '';
   document.getElementById('sets-group').style.display = isYoga ? 'none' : '';
   document.getElementById('equipment-group').style.display = isYoga ? 'none' : '';
-  document.getElementById('goals-group').style.display = isYoga ? 'none' : '';
 }
 
 function toggleEquipmentPill(el) {
@@ -1742,16 +1882,14 @@ function syncYogaEquipmentUI() {
 let exlibFilters = { body: null, equip: null, diff: null };
 
 function showExerciseLibrary() {
+  // Navigate to library and switch to exercises tab
   navTo('library');
   switchLibTab('exercises');
-  renderExerciseLibrary();
 }
 
-function switchLibTab(tab) {
-  document.querySelectorAll('.lib-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  document.querySelectorAll('.lib-panel').forEach(p => p.classList.toggle('active', p.id === 'lib-' + tab));
-  if (tab === 'workouts') renderLibrary();
-  if (tab === 'exercises') renderExerciseLibrary();
+function closeExerciseLibrary() {
+  navTo('library');
+  switchLibTab('workouts');
 }
 
 function toggleExlibFilter(el) {
@@ -1767,6 +1905,23 @@ function toggleExlibFilter(el) {
     exlibFilters[filterType] = val;
   }
   renderExerciseLibrary();
+}
+
+function getAllExercises() {
+  // Merge DB + YOGA_DB into a unified list for the exercise library
+  const yogaDB = (window.yoga && window.yoga.YOGA_DB) || [];
+  const yogaNormalized = yogaDB.map(p => ({
+    name: p.name,
+    cat: p.cat,
+    equip: ['mat'],
+    muscles: p.muscles || [],
+    types: ['yoga'],
+    diff: p.diff || 1,
+    info: p.narration ? p.narration[0] : '',
+    sanskrit: p.sanskrit,
+    _isYoga: true,
+  }));
+  return [...DB, ...yogaNormalized];
 }
 
 function renderExerciseLibrary() {
@@ -1786,8 +1941,9 @@ function renderExerciseLibrary() {
   const searchVal = (document.getElementById('exlib-search')?.value || '').toLowerCase();
   const blacklist = exerciseSettings.exercise_blacklist || [];
   const whitelist = exerciseSettings.exercise_whitelist || [];
+  const allExercises = getAllExercises();
 
-  let filtered = DB.filter(ex => {
+  let filtered = allExercises.filter(ex => {
     // Search
     if (searchVal) {
       const nameMatch = ex.name.toLowerCase().includes(searchVal);
@@ -1796,8 +1952,12 @@ function renderExerciseLibrary() {
     }
     // Body part filter
     if (exlibFilters.body) {
-      const cats = REGIONS[exlibFilters.body] || [];
-      if (!cats.includes(ex.cat)) return false;
+      if (exlibFilters.body === 'yoga') {
+        if (!ex.cat.startsWith('yoga-')) return false;
+      } else {
+        const cats = REGIONS[exlibFilters.body] || [];
+        if (!cats.includes(ex.cat)) return false;
+      }
     }
     // Equipment filter
     if (exlibFilters.equip) {
@@ -1815,24 +1975,26 @@ function renderExerciseLibrary() {
   const favCount = whitelist.length;
   const statsEl = document.getElementById('exlib-stats');
   if (statsEl) {
-    statsEl.innerHTML = 'Showing <strong>' + filtered.length + '</strong> of ' + DB.length +
+    statsEl.innerHTML = 'Showing <strong>' + filtered.length + '</strong> of ' + allExercises.length +
       ' &middot; ' + excludedCount + ' excluded, ' + favCount + ' favourited';
   }
 
   // Render list
   const listEl = document.getElementById('exlib-list');
   if (!listEl) return;
-  const diffPips = d => { let s = ''; for (let i = 0; i < d; i++) s += '\u25CF'; return s; };
+  const DIFF_LABELS = { 1: 'Beginner', 2: 'Intermediate', 3: 'Advanced' };
+  const diffLabel = d => DIFF_LABELS[d] || ('Level ' + d);
 
   listEl.innerHTML = filtered.map(ex => {
     const isExcluded = blacklist.includes(ex.name);
     const isFav = whitelist.includes(ex.name);
     const cls = isExcluded ? ' excluded' : isFav ? ' favourited' : '';
+    const sanskritHtml = ex.sanskrit ? ' <span class="exlib-sanskrit">' + ex.sanskrit + '</span>' : '';
     return '<div class="exlib-item' + cls + '" data-name="' + ex.name.replace(/"/g, '&quot;') + '">' +
       '<div class="exlib-item-top">' +
-        '<span class="exlib-item-name" onclick="showInfo(\'' + ex.name.replace(/'/g, "\\'") + '\')">' + ex.name + '</span>' +
+        '<span class="exlib-item-name" onclick="showInfo(\'' + ex.name.replace(/'/g, "\\'") + '\')">' + ex.name + sanskritHtml + '</span>' +
         '<span class="exlib-cat-badge">' + ex.cat + '</span>' +
-        '<span class="exlib-diff">' + diffPips(ex.diff) + '</span>' +
+        '<span class="exlib-diff">' + diffLabel(ex.diff) + '</span>' +
       '</div>' +
       '<div class="exlib-item-meta">' +
         ex.equip.map(e => '<span class="exlib-equip-chip">' + e + '</span>').join('') +
@@ -1874,6 +2036,217 @@ function toggleExlibFav(name) {
   }
   saveAppSettings();
   renderExerciseLibrary();
+}
+
+// ═══════════════════════════════════════════════════
+// EQUIPMENT CATALOG & PREFERENCES
+// ═══════════════════════════════════════════════════
+
+const EQUIPMENT_CATALOG = {
+  basic: [
+    { id: 'bodyweight', name: 'Bodyweight' },
+    { id: 'mat', name: 'Mat' },
+    { id: 'skipping rope', name: 'Skipping Rope' },
+  ],
+  home: [
+    { id: 'dumbbell', name: 'Dumbbells' },
+    { id: 'kettlebell', name: 'Kettlebell' },
+    { id: 'bench', name: 'Bench' },
+    { id: 'chinup bar', name: 'Chin-up Bar' },
+    { id: 'medicine ball', name: 'Medicine Ball' },
+    { id: 'resistance band', name: 'Resistance Band' },
+    { id: 'foam roller', name: 'Foam Roller' },
+    { id: 'ab wheel', name: 'Ab Wheel' },
+    { id: 'trx', name: 'TRX / Suspension Trainer' },
+    { id: 'parallettes', name: 'Parallettes' },
+  ],
+  commercial: [
+    { id: 'barbell', name: 'Barbell' },
+    { id: 'ez curl bar', name: 'EZ Curl Bar' },
+    { id: 'power rack', name: 'Power Rack' },
+    { id: 'smith machine', name: 'Smith Machine' },
+    { id: 'flat bench', name: 'Flat Bench' },
+    { id: 'incline bench', name: 'Incline Bench' },
+    { id: 'decline bench', name: 'Decline Bench' },
+    { id: 'preacher curl bench', name: 'Preacher Curl Bench' },
+    { id: 'olympic platform', name: 'Olympic Platform' },
+    { id: 'cable column', name: 'Cable Column' },
+    { id: 'cable crossover', name: 'Cable Crossover' },
+    { id: 'lat pulldown', name: 'Lat Pulldown' },
+    { id: 'seated cable row', name: 'Seated Cable Row' },
+    { id: 'chest press machine', name: 'Chest Press Machine' },
+    { id: 'shoulder press machine', name: 'Shoulder Press Machine' },
+    { id: 'pec deck', name: 'Pec Deck' },
+    { id: 'rear delt fly', name: 'Rear Delt Fly Machine' },
+    { id: 'leg press', name: 'Leg Press' },
+    { id: 'leg extension', name: 'Leg Extension' },
+    { id: 'seated leg curl', name: 'Seated Leg Curl' },
+    { id: 'lying leg curl', name: 'Lying Leg Curl' },
+    { id: 'hip abductor', name: 'Hip Abductor' },
+    { id: 'hip adductor', name: 'Hip Adductor' },
+    { id: 'calf raise machine', name: 'Calf Raise Machine' },
+    { id: 'assisted pull-up/dip', name: 'Assisted Pull-up / Dip' },
+    { id: 'hack squat', name: 'Hack Squat' },
+    { id: 'belt squat', name: 'Belt Squat' },
+    { id: 't-bar row', name: 'T-Bar Row' },
+    { id: 'iso-lateral chest press', name: 'Iso-Lateral Chest Press' },
+    { id: 'iso-lateral row', name: 'Iso-Lateral Row' },
+    { id: 'iso-lateral shoulder press', name: 'Iso-Lateral Shoulder Press' },
+    { id: 'iso-lateral pulldown', name: 'Iso-Lateral Pulldown' },
+    { id: 'back extension bench', name: 'Back Extension Bench' },
+    { id: 'glute-ham developer', name: 'Glute-Ham Developer' },
+    { id: 'reverse hyper', name: 'Reverse Hyper' },
+    { id: 'treadmill', name: 'Treadmill' },
+    { id: 'stationary bike upright', name: 'Stationary Bike (Upright)' },
+    { id: 'stationary bike recumbent', name: 'Stationary Bike (Recumbent)' },
+    { id: 'elliptical', name: 'Elliptical' },
+    { id: 'rowing machine', name: 'Rowing Machine' },
+    { id: 'stair climber', name: 'Stair Climber' },
+    { id: 'air bike', name: 'Air Bike' },
+    { id: 'ski erg', name: 'Ski Erg' },
+    { id: 'sled', name: 'Sled' },
+  ],
+};
+
+const EQUIP_PREF_STATES = ['maybe', 'always', 'never'];
+
+// Equipment preferences: { equipId: 'always' | 'never' | 'maybe' }
+let equipPrefs = {};
+
+function loadEquipPrefs() {
+  try {
+    const raw = localStorage.getItem('wk_equip_prefs');
+    if (raw) equipPrefs = JSON.parse(raw) || {};
+  } catch (e) {}
+}
+
+function saveEquipPrefs() {
+  try {
+    localStorage.setItem('wk_equip_prefs', JSON.stringify(equipPrefs));
+    cloudPush('wk_equip_prefs');
+  } catch (e) {}
+  // Re-sync build screen equipment from preferences
+  syncEquipFromPrefs();
+}
+
+function getEquipPref(id) {
+  return equipPrefs[id] || 'maybe';
+}
+
+function cycleEquipPref(el) {
+  const id = el.dataset.equipId;
+  const cur = getEquipPref(id);
+  const next = EQUIP_PREF_STATES[(EQUIP_PREF_STATES.indexOf(cur) + 1) % EQUIP_PREF_STATES.length];
+  equipPrefs[id] = next;
+  el.className = 'equip-catalog-item eq-' + next;
+  el.querySelector('.equip-pref-label').textContent = next.charAt(0).toUpperCase() + next.slice(1);
+  saveEquipPrefs();
+}
+
+function renderEquipmentCatalog() {
+  const container = document.getElementById('equip-catalog');
+  if (!container) return;
+  // Count exercises per equipment
+  const exCount = {};
+  DB.forEach(e => e.equip.forEach(eq => { exCount[eq] = (exCount[eq] || 0) + 1; }));
+
+  let html = '';
+  const TIER_LABELS = { basic: 'Basic', home: 'Home Gym', commercial: 'Commercial Gym' };
+  for (const [tier, items] of Object.entries(EQUIPMENT_CATALOG)) {
+    html += '<div class="equip-catalog-tier"><div class="equip-catalog-tier-label">' + TIER_LABELS[tier] + '</div>';
+    items.forEach(item => {
+      const pref = getEquipPref(item.id);
+      const count = exCount[item.id] || 0;
+      html += '<div class="equip-catalog-item eq-' + pref + '" data-equip-id="' + item.id + '" onclick="cycleEquipPref(this)">' +
+        '<span class="equip-catalog-name">' + item.name + '</span>' +
+        (count > 0 ? '<span class="equip-catalog-count">' + count + ' exercises</span>' : '<span class="equip-catalog-count dim">no exercises yet</span>') +
+        '<span class="equip-pref-label">' + pref.charAt(0).toUpperCase() + pref.slice(1) + '</span>' +
+      '</div>';
+    });
+    html += '</div>';
+  }
+  container.innerHTML = html;
+}
+
+// Sync the Build screen equipment selection from preferences
+function syncEquipFromPrefs() {
+  selectedEquipment = new Set();
+  for (const [tier, items] of Object.entries(EQUIPMENT_CATALOG)) {
+    items.forEach(item => {
+      const pref = getEquipPref(item.id);
+      if (pref === 'always') selectedEquipment.add(item.id);
+      else if (pref === 'maybe') selectedEquipment.add(item.id); // Default to selected, user can toggle
+    });
+  }
+  // Rebuild build-screen equipment pills based on type
+  rebuildBuildEquipment();
+  saveEquipmentSelection();
+}
+
+// Equipment relevant to each workout type
+const TYPE_EQUIPMENT = {
+  strength: ['bodyweight','mat','dumbbell','kettlebell','bench','barbell','chinup bar','medicine ball',
+    'resistance band','trx','parallettes','ez curl bar','power rack','smith machine','flat bench','incline bench',
+    'decline bench','preacher curl bench','olympic platform','cable column','cable crossover','lat pulldown',
+    'seated cable row','chest press machine','shoulder press machine','pec deck','rear delt fly',
+    'leg press','leg extension','seated leg curl','lying leg curl','hip abductor','hip adductor',
+    'calf raise machine','assisted pull-up/dip','hack squat','belt squat','t-bar row',
+    'iso-lateral chest press','iso-lateral row','iso-lateral shoulder press','iso-lateral pulldown',
+    'back extension bench','glute-ham developer','reverse hyper'],
+  hiit: ['bodyweight','mat','dumbbell','kettlebell','skipping rope','medicine ball','resistance band',
+    'treadmill','stationary bike upright','elliptical','rowing machine','air bike','ski erg','sled'],
+  conditioning: ['bodyweight','mat','dumbbell','kettlebell','skipping rope','medicine ball','resistance band',
+    'bench','chinup bar','treadmill','stationary bike upright','stationary bike recumbent','elliptical',
+    'rowing machine','stair climber','air bike','ski erg','sled'],
+  functional: ['bodyweight','mat','dumbbell','kettlebell','bench','medicine ball','resistance band',
+    'chinup bar','trx','parallettes','barbell','cable column','sled'],
+  yoga: ['mat'],
+};
+
+function rebuildBuildEquipment() {
+  const type = config.type || 'hiit';
+  if (type === 'yoga') return; // yoga has its own equipment
+
+  const relevant = TYPE_EQUIPMENT[type] || TYPE_EQUIPMENT.hiit;
+  const basicEl = document.querySelector('#equipment-basic .option-pills-multi');
+  const homeEl = document.querySelector('#equipment-home .option-pills-multi');
+  const commEl = document.querySelector('#equipment-commercial .option-pills-multi');
+  if (!basicEl || !homeEl || !commEl) return;
+
+  function buildPills(tierItems, container) {
+    container.innerHTML = '';
+    tierItems.forEach(item => {
+      if (!relevant.includes(item.id)) return;
+      const pref = getEquipPref(item.id);
+      if (pref === 'never') return;
+      const pill = document.createElement('div');
+      pill.className = 'pill' + (selectedEquipment.has(item.id) ? ' selected' : '') + (pref === 'always' ? ' eq-locked' : '');
+      pill.dataset.value = item.id;
+      pill.textContent = item.name;
+      if (pref === 'always') {
+        // Always equipment can't be deselected
+        pill.onclick = function() {};
+        pill.title = 'Marked as "always" in Equipment library';
+      } else {
+        pill.onclick = function() { toggleEquipmentPill(this); };
+      }
+      container.appendChild(pill);
+    });
+  }
+
+  buildPills(EQUIPMENT_CATALOG.basic, basicEl);
+  buildPills(EQUIPMENT_CATALOG.home, homeEl);
+  buildPills(EQUIPMENT_CATALOG.commercial, commEl);
+
+  // Hide tiers with no visible pills
+  document.getElementById('equipment-basic').style.display = basicEl.children.length ? '' : 'none';
+  document.getElementById('equipment-home').style.display = homeEl.children.length ? '' : 'none';
+  const commGroup = document.getElementById('equipment-commercial');
+  if (commEl.children.length) {
+    commGroup.style.display = '';
+  } else {
+    commGroup.style.display = 'none';
+  }
 }
 
 // ── Custom duration ──────────────────────────
@@ -1948,6 +2321,7 @@ function shuffle(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.
 
 // Body region → exercise categories. PDR §6.5 region taxonomy mapped to existing cats.
 const REGIONS = {
+  upper:      ['push-h', 'push-v', 'pull-h', 'pull-v'],
   upper_push: ['push-h', 'push-v'],
   upper_pull: ['pull-h', 'pull-v'],
   lower:      ['lower-squat', 'lower-hinge'],
@@ -1956,7 +2330,8 @@ const REGIONS = {
   posterior:  ['mobility'],
 };
 const FOCUS_STATES = ['include', 'increase', 'exclude'];
-let focusState = { upper_push:'include', upper_pull:'include', lower:'include', core:'include', full_body:'include', posterior:'include' };
+const DEFAULT_FOCUS = { upper:'include', upper_push:'include', upper_pull:'include', lower:'include', core:'include', full_body:'include', posterior:'include' };
+let focusState = { ...DEFAULT_FOCUS };
 
 // Warmup category preferences per workout type (in priority order). Cardio always first → pulse raiser.
 const WARMUP_POOL_BY_TYPE = {
@@ -2017,7 +2392,27 @@ function deriveIntensity(exercise, type, intensitySetting) {
 }
 
 function catFocusState(cat) {
+  // Check 'upper' region first for push/pull categories (acts as a master toggle)
+  const upperCats = REGIONS.upper || [];
+  if (upperCats.includes(cat)) {
+    const upperState = focusState.upper || 'include';
+    if (upperState === 'exclude') return 'exclude';
+    // Also check the specific sub-region (push/pull)
+    for (const [region, cats] of Object.entries(REGIONS)) {
+      if (region === 'upper') continue;
+      if (cats.includes(cat)) {
+        const subState = focusState[region] || 'include';
+        if (subState === 'exclude') return 'exclude';
+        // Boost if either upper or sub-region is set to increase
+        if (upperState === 'increase' || subState === 'increase') return 'increase';
+        return 'include';
+      }
+    }
+    return upperState;
+  }
+  // Non-upper categories
   for (const [region, cats] of Object.entries(REGIONS)) {
+    if (region === 'upper') continue;
     if (cats.includes(cat)) return focusState[region] || 'include';
   }
   return 'include';
@@ -2537,16 +2932,21 @@ function renderPreview() {
 
   const tplHeader = activeTemplateName
     ? '<div class="preview-tpl-name">' + escapeHtml(activeTemplateName) + '</div>' : '';
+  const isYoga = config.type === 'yoga';
+  const countTag = isYoga
+    ? '<span class="meta-tag">' + workout.filter(w => w.section === 'yoga').length + ' poses</span>'
+    : '<span class="meta-tag">' + sets + ' &times; ' + mainPerSet + ' exercises</span>';
   document.getElementById('preview-meta').innerHTML = tplHeader +
     '<span class="meta-tag">'+config.type.toUpperCase()+'</span>'+
-    '<span class="meta-tag">'+config.intensity+'</span>'+
+    (isYoga ? '<span class="meta-tag">' + (config.yogaStyle || 'vinyasa') + '</span>' : '<span class="meta-tag">'+config.intensity+'</span>') +
     '<span class="meta-tag">~'+totalMin+' min</span>'+
-    '<span class="meta-tag">'+sets+' &times; '+mainPerSet+' exercises</span>';
+    countTag;
 
   const list = document.getElementById('exercise-list');
   let lastSetIdx = -1;
   let warmupHeaderShown = false;
   let cooldownHeaderShown = false;
+  let lastYogaPhase = null;
   list.innerHTML = workout.map((w, i) => {
     const equipStr = (w.exercise.equip || []).join(', ');
     const muscleStr = (w.exercise.muscles || []).join(', ');
@@ -2554,6 +2954,10 @@ function renderPreview() {
     if (w.section === 'warmup' && !warmupHeaderShown) {
       warmupHeaderShown = true;
       header = '<div class="set-header">Warm-up <span class="set-rest">continuous · ' + Math.ceil(workout.filter(x => x.section==='warmup').reduce((s,x)=>s+x.workSec,0)/60) + ' min</span></div>';
+    } else if (w.section === 'yoga' && w.phase && w.phase !== lastYogaPhase) {
+      lastYogaPhase = w.phase;
+      const phaseLabel = YOGA_PHASE_LABELS[w.phase] || w.phase.toUpperCase();
+      header = '<div class="set-header">' + phaseLabel + '</div>';
     } else if (w.section === 'main' && w.setIdx !== lastSetIdx) {
       lastSetIdx = w.setIdx;
       header = '<div class="set-header">Set ' + (w.setIdx + 1) + ' of ' + sets + '</div>';
@@ -2803,10 +3207,12 @@ function selectSetRpe(val) {
 }
 
 // ── Plate Calculator ──
-const STANDARD_PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
+const STANDARD_PLATES_KG = [25, 20, 15, 10, 5, 2.5, 1.25];
+const STANDARD_PLATES_LB = [45, 35, 25, 10, 5, 2.5];
 function openPlateCalc() {
   const wVal = document.getElementById('t-weight-val');
   if (wVal && wVal.value) document.getElementById('plate-target').value = wVal.value;
+  syncUnitsUI(); // refresh labels
   calcPlates();
   document.getElementById('plate-calc-overlay').classList.add('active');
 }
@@ -2817,45 +3223,52 @@ function calcPlates() {
   const target = parseFloat(document.getElementById('plate-target').value) || 0;
   const bar = parseFloat(document.getElementById('plate-bar').value) || 0;
   const result = document.getElementById('plate-result');
+  const wu = displayWeightUnit();
+  const plateSizes = userUnits === 'imperial' ? STANDARD_PLATES_LB : STANDARD_PLATES_KG;
   if (target <= 0) { result.textContent = 'Enter a target weight above.'; return; }
-  if (target <= bar) { result.innerHTML = '<span class="plate-label">Bar only</span> (' + bar + ' kg)'; return; }
+  if (target <= bar) { result.innerHTML = '<span class="plate-label">Bar only</span> (' + bar + ' ' + wu + ')'; return; }
   let remaining = (target - bar) / 2;
   if (remaining < 0) { result.textContent = 'Target is less than bar weight.'; return; }
   const plates = [];
-  for (const p of STANDARD_PLATES) {
+  for (const p of plateSizes) {
     while (remaining >= p - 0.001) { plates.push(p); remaining -= p; }
   }
   if (remaining > 0.01) {
-    result.textContent = 'Cannot make exact weight with standard plates (' + (remaining * 2).toFixed(2) + ' kg remaining).';
+    result.textContent = 'Cannot make exact weight with standard plates (' + (remaining * 2).toFixed(2) + ' ' + wu + ' remaining).';
     return;
   }
-  const perSide = plates.map(p => p + ' kg').join(' + ');
+  const perSide = plates.map(p => p + ' ' + wu).join(' + ');
   const totalPerSide = plates.reduce((a, b) => a + b, 0);
-  result.innerHTML = '<span class="plate-label">' + totalPerSide + ' kg per side:</span> ' + perSide;
+  result.innerHTML = '<span class="plate-label">' + totalPerSide + ' ' + wu + ' per side:</span> ' + perSide;
 }
 
 // ── 1RM Calculator (in info modal) ──
 function render1RMCalc() {
+  const wu = displayWeightUnit();
   return '<div class="orm-calc">' +
     '<h3>1RM Calculator</h3>' +
-    '<div class="orm-calc-row"><label>Weight</label><input type="number" inputmode="decimal" id="orm-weight" step="0.5" placeholder="kg" oninput="update1RMCalc()"></div>' +
+    '<div class="orm-calc-row"><label>Weight</label><input type="number" inputmode="decimal" id="orm-weight" step="0.5" placeholder="' + wu + '" oninput="update1RMCalc()"></div>' +
     '<div class="orm-calc-row"><label>Reps</label><input type="number" inputmode="numeric" id="orm-reps" placeholder="reps" oninput="update1RMCalc()"></div>' +
     '<div id="orm-output"></div>' +
   '</div>';
 }
 function update1RMCalc() {
-  const w = parseFloat(document.getElementById('orm-weight').value) || 0;
+  const raw = parseFloat(document.getElementById('orm-weight').value) || 0;
   const r = parseInt(document.getElementById('orm-reps').value) || 0;
   const out = document.getElementById('orm-output');
-  if (w <= 0 || r <= 0) { out.innerHTML = ''; return; }
-  const est = epley1RM(w, r);
+  if (raw <= 0 || r <= 0) { out.innerHTML = ''; return; }
+  const wu = displayWeightUnit();
+  // Convert input to kg for calculation, then back for display
+  const wKg = userUnits === 'imperial' ? lbToKg(raw) : raw;
+  const estKg = epley1RM(wKg, r);
+  const est = userUnits === 'imperial' ? kgToLb(estKg) : estKg;
   const pcts = [90, 85, 80, 75, 70, 65, 60];
-  let table = '<div class="orm-result">Estimated 1RM: <strong>' + est.toFixed(1) + ' kg</strong></div>' +
+  let table = '<div class="orm-result">Estimated 1RM: <strong>' + est.toFixed(1) + ' ' + wu + '</strong></div>' +
     '<table class="orm-pct-table"><tr><th>%</th><th>Weight</th><th>~Reps</th></tr>';
   pcts.forEach(pct => {
     const pWeight = Math.round(est * pct / 100 * 10) / 10;
     const pReps = pct >= 90 ? '1-2' : pct >= 80 ? '3-5' : pct >= 70 ? '6-8' : '10-12';
-    table += '<tr><td>' + pct + '%</td><td>' + pWeight.toFixed(1) + ' kg</td><td>' + pReps + '</td></tr>';
+    table += '<tr><td>' + pct + '%</td><td>' + pWeight.toFixed(1) + ' ' + wu + '</td><td>' + pReps + '</td></tr>';
   });
   table += '</table>';
   out.innerHTML = table;
@@ -3289,7 +3702,7 @@ function updateTimerUI() {
     timerEls.repTarget.textContent = '';
     timerEls.weightInput.classList.add('visible');
     // Sync the input value to the entry's saved weight so navigation between exercises preserves it.
-    timerEls.weightVal.value = w.actualWeightKg != null ? w.actualWeightKg : '';
+    timerEls.weightVal.value = w.actualWeightKg != null ? (userUnits === 'imperial' ? Math.round(kgToLb(w.actualWeightKg) * 10) / 10 : w.actualWeightKg) : '';
     timerEls.weightSaved.textContent = w.actualWeightKg != null ? 'saved' : '';
   } else {
     timerEls.strengthDone.classList.remove('visible');
@@ -3302,9 +3715,9 @@ function updateTimerUI() {
 function saveSetWeight() {
   const w = workout[timerState.idx];
   if (!w) return;
-  const val = parseFloat(document.getElementById('t-weight-val').value);
-  if (Number.isFinite(val) && val >= 0) {
-    w.actualWeightKg = val;
+  const raw = parseFloat(document.getElementById('t-weight-val').value);
+  if (Number.isFinite(raw) && raw >= 0) {
+    w.actualWeightKg = userUnits === 'imperial' ? lbToKg(raw) : raw;
     document.getElementById('t-weight-saved').textContent = 'saved';
   } else {
     delete w.actualWeightKg;
@@ -3570,9 +3983,13 @@ function finishWorkout() {
   var tonnageEl = document.getElementById('done-tonnage');
   if (config.type === 'strength' && tonnage > 0) {
     tonnageEl.classList.add('visible');
-    document.getElementById('d-tonnage').textContent = Math.round(tonnage).toLocaleString();
+    const wu = displayWeightUnit();
+    const dispTonnage = userUnits === 'imperial' ? kgToLb(tonnage) : tonnage;
+    document.getElementById('d-tonnage').textContent = Math.round(dispTonnage).toLocaleString();
+    document.getElementById('d-tonnage-label').textContent = 'Tonnage (' + wu + ')';
     document.getElementById('d-working-sets').textContent = workingSetsCount;
-    document.getElementById('d-top-set').textContent = topSetWeight > 0 ? topSetWeight + 'kg x' + topSetReps : '-';
+    const dispTopSet = userUnits === 'imperial' ? Math.round(kgToLb(topSetWeight)) : topSetWeight;
+    document.getElementById('d-top-set').textContent = topSetWeight > 0 ? dispTopSet + wu + ' x' + topSetReps : '-';
   } else {
     tonnageEl.classList.remove('visible');
   }
@@ -4209,9 +4626,11 @@ function surpriseMe() {
   generateWorkout();
 }
 
+loadEquipPrefs();
 loadEquipmentSelection();
 loadAppSettings();
 loadFocus();
+rebuildBuildEquipment();
 // Defer non-critical native init so first paint isn't blocked
 setTimeout(() => {
   initHealthKit();
