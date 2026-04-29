@@ -69,6 +69,7 @@ function loadModule(file) {
 }
 
 // Load in dependency order
+loadModule('js/exercises.js');
 loadModule('js/builder.js');
 loadModule('js/yoga.js');
 loadModule('js/capability.js');
