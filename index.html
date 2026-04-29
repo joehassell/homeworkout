@@ -2063,6 +2063,41 @@ let savedWorkouts = JSON.parse(localStorage.getItem('wk_saved_workouts') || '[]'
 let pendingSaveWorkout = false;
 let pendingSaveRating = 3;
 let timerState = { running:false, paused:false, idx:0, phase:'work', remaining:0, intervalId:null, startedAt:null };
+let timerEls = {};
+function cacheTimerEls() {
+  timerEls = {
+    timer: document.getElementById('timer'),
+    phase: document.getElementById('t-phase'),
+    name: document.getElementById('t-name'),
+    detail: document.getElementById('t-detail'),
+    time: document.getElementById('t-time'),
+    total: document.getElementById('t-total'),
+    bar: document.getElementById('t-bar'),
+    exProgress: document.getElementById('t-ex-progress'),
+    setProgress: document.getElementById('t-set-progress'),
+    repTarget: document.getElementById('t-rep-target'),
+    addRest: document.getElementById('t-add-rest'),
+    restReason: document.getElementById('t-rest-reason'),
+    strengthDone: document.getElementById('t-strength-done'),
+    weightInput: document.getElementById('t-weight-input'),
+    pauseLabel: document.getElementById('t-pause-label'),
+    pauseIcon: document.getElementById('t-pause-icon'),
+    hr: document.getElementById('t-hr'),
+    hrVal: document.getElementById('t-hr-val'),
+    prBadge: document.getElementById('t-pr-badge'),
+    setTypeRow: document.getElementById('t-set-type-row'),
+    next: document.getElementById('t-next'),
+    nextInfo: document.getElementById('t-next-info'),
+    prev: document.getElementById('t-prev'),
+    weightVal: document.getElementById('t-weight-val'),
+    weightSaved: document.getElementById('t-weight-saved'),
+    sound: document.getElementById('t-sound'),
+    voice: document.getElementById('t-voice'),
+    hrZone: document.getElementById('t-hr-zone'),
+  };
+}
+const YOGA_PHASE_LABELS = { centering:'CENTERING', 'sun-sal':'SUN SALUTATION', standing:'STANDING', balance:'BALANCE', floor:'FLOOR', seated:'SEATED', 'core-flow':'CORE FLOW', supported:'SUPPORTED', savasana:'SAVASANA' };
+const POST_WARMUP_LABEL = 'Rest \u2014 get ready';
 let currentSetType = 'normal';          // set type for strength mode
 let pendingSetRpeResolve = null;        // resolve callback for per-set RPE overlay
 let strengthSetLog = [];                // per-set log for current workout [{name, type, reps, weight_kg, rpe}]
@@ -2460,7 +2495,6 @@ function watchSendState() {
   try {
     const w = workout[timerState.idx];
     const next = workout[timerState.idx + 1];
-    const mainCount = workout.filter(e => e.section === 'main').length;
     window.Capacitor.Plugins.WatchConnectivityPlugin.sendWorkoutState({
       exerciseName: w ? w.exercise.name : '',
       phase: timerState.phase,
@@ -2468,8 +2502,8 @@ function watchSendState() {
       section: w ? w.section : 'main',
       nextExerciseName: next ? next.exercise.name : '',
       exerciseIndex: timerState.idx,
-      exerciseCount: mainCount,
-      totalRemaining: computeTotalRemaining(),
+      exerciseCount: timerState.mainCount,
+      totalRemaining: timerState.totalRemaining,
       isPaused: timerState.paused,
       workoutType: config.type,
     });
@@ -3464,7 +3498,7 @@ function buildWarmup(type, equipment, totalSec, usedNames, capCaps, capProfile, 
   if (out.length > 0) {
     const last = out[out.length - 1];
     last.restSec = POST_WARMUP_REST;
-    last.restLabel = 'Rest — get ready';
+    last.restLabel = POST_WARMUP_LABEL;
   }
   return out;
 }
@@ -3729,6 +3763,18 @@ function generateWorkout() {
     }
   }
 
+  // Pre-compute phase labels to avoid per-tick array scans
+  let warmupCount = 0, cooldownCount = 0, warmupIdx = 0, cooldownIdx = 0;
+  workout.forEach(w => {
+    if (w.section === 'warmup') { warmupCount++; }
+    if (w.section === 'cooldown') { cooldownCount++; }
+  });
+  warmupIdx = 0; cooldownIdx = 0;
+  workout.forEach(w => {
+    if (w.section === 'warmup') { warmupIdx++; w._phaseLabel = 'WARM-UP ' + warmupIdx + ' OF ' + warmupCount; }
+    else if (w.section === 'cooldown') { cooldownIdx++; w._phaseLabel = 'COOLDOWN ' + cooldownIdx + ' OF ' + cooldownCount; }
+  });
+
   renderPreview();
   showScreen('preview');
 }
@@ -3852,7 +3898,7 @@ function applyInterSetRest() {
   if (warmups.length > 0) {
     workout.filter(w => w.section === 'warmup').forEach((w, i, arr) => {
       w.restSec = (i === arr.length - 1) ? POST_WARMUP_REST : 0;
-      w.restLabel = (i === arr.length - 1) ? 'Rest — get ready' : null;
+      w.restLabel = (i === arr.length - 1) ? POST_WARMUP_LABEL : null;
     });
   }
   // Cooldown entries have no inter-rest.
@@ -4057,8 +4103,7 @@ function chooseSwap(name) {
     if (t.section === 'warmup') { t.workSec = WARMUP_PER_MOVE; }
     else if (t.section === 'cooldown') { t.workSec = COOLDOWN_PER_MOVE; }
   });
-  if (entry.section === 'main') applyInterSetRest();
-  else applyInterSetRest(); // also refreshes warmup/cooldown timing
+  applyInterSetRest();
   closeSwap();
   renderPreview();
 }
@@ -4213,9 +4258,12 @@ function startWorkout() {
     countdownVoiceFired:null,      // last index for which 3-2-1 voice fired
   };
   showScreen('timer');
+  cacheTimerEls();
+  timerState.mainCount = workout.filter(w => w.section === 'main').length;
+  timerState.totalRemaining = computeTotalRemaining();
   // Reset toggle UI state
-  document.getElementById('t-sound').classList.toggle('active', soundEnabled);
-  document.getElementById('t-voice').classList.toggle('active', voiceEnabled);
+  timerEls.sound.classList.toggle('active', soundEnabled);
+  timerEls.voice.classList.toggle('active', voiceEnabled);
   updateTimerUI();
   const first = workout[0];
   if (config.type === 'yoga') {
@@ -4234,27 +4282,23 @@ function startWorkout() {
   enterFullscreen();
   maybeShowIosFsHint();
   // HealthKit: start workout session + Live Activity
-  const mainCount = workout.filter(w => w.section === 'main').length;
-  hkStartWorkout(first.exercise.name, first.workSec, first.section, 0, mainCount);
+  hkStartWorkout(first.exercise.name, first.workSec, first.section, 0, timerState.mainCount);
   // Watch: notify workout started
   watchSendCommand('workoutStart', { workoutType: config.type });
   watchSendState();
   // Reset HR display — show waiting state if HealthKit connected
   currentHeartRate = 0;
   resetHRZoneCoachState();
-  const hrEl = document.getElementById('t-hr');
-  const hrVal = document.getElementById('t-hr-val');
-  const hrZone = document.getElementById('t-hr-zone');
-  if (hrEl && hrVal) {
+  if (timerEls.hr && timerEls.hrVal) {
     if (healthKitReady && isNative()) {
-      hrEl.style.display = '';
-      hrVal.textContent = '--';
-      hrEl.classList.add('waiting');
+      timerEls.hr.style.display = '';
+      timerEls.hrVal.textContent = '--';
+      timerEls.hr.classList.add('waiting');
     } else {
-      hrEl.style.display = 'none';
+      timerEls.hr.style.display = 'none';
     }
   }
-  if (hrZone) hrZone.style.display = 'none';
+  if (timerEls.hrZone) timerEls.hrZone.style.display = 'none';
 }
 
 async function requestWakeLock() {
@@ -4265,6 +4309,7 @@ async function requestWakeLock() {
 
 function tick() {
   if (timerState.paused || !timerState.running) return;
+  if (!timerState.paused) timerState.totalRemaining--;
   watchSendState();
   // Yoga timer path — no countdown beeps, uses narration instead
   if (config.type === 'yoga') {
@@ -4398,7 +4443,7 @@ function advancePhase() {
       // Post-warmup rest: special voice + maybe ramp-up prompt.
       const nextIdx = timerState.idx + 1;
       const nextEntry = workout[nextIdx];
-      if (w.section === 'warmup' && w.restLabel === 'Rest — get ready') {
+      if (w.section === 'warmup' && w.restLabel === POST_WARMUP_LABEL) {
         speak('Warm-up done. Get ready.');
       } else if (nextEntry) {
         const sideHint = nextEntry.single_sided ? ' (single side)' : '';
@@ -4433,6 +4478,7 @@ function advanceYogaPhase() {
   timerState.phase = 'work';
   timerState.remaining = next.workSec;
   timerState.switchFiredForIdx = null;
+  timerState.totalRemaining = computeTotalRemaining();
   yogaChime();
   initYogaNarration(next);
   if (next.single_sided) {
@@ -4452,6 +4498,7 @@ function advanceExercise() {
   timerState.elapsed = 0;
   timerState.switchFiredForIdx = null;
   timerState.strengthSide = 0;
+  timerState.totalRemaining = computeTotalRemaining();
   beepWork();
   // Single-sided cue: announce the starting side after the exercise name.
   if (w.section === 'main' && w.single_sided) {
@@ -4465,14 +4512,14 @@ function phaseLabelFor(w, phase) {
   if (!w) return phase.toUpperCase();
   if (w.section === 'yoga') {
     if (phase === 'rest') return 'TRANSITION';
-    const yogaLabels = { centering:'CENTERING', 'sun-sal':'SUN SALUTATION', standing:'STANDING', balance:'BALANCE', floor:'FLOOR', seated:'SEATED', 'core-flow':'CORE FLOW', supported:'SUPPORTED', savasana:'SAVASANA' };
-    return yogaLabels[w.yogaPhase] || 'YOGA';
+    return YOGA_PHASE_LABELS[w.yogaPhase] || 'YOGA';
   }
   if (phase === 'rest') {
     if (w.restLabel) return w.restLabel.toUpperCase();
     return 'REST';
   }
-  // work
+  // work — use pre-computed label if available
+  if (w._phaseLabel) return w._phaseLabel;
   if (w.section === 'warmup') {
     const warmups = workout.filter(x => x.section === 'warmup');
     const pos = warmups.indexOf(w) + 1;
@@ -4488,154 +4535,129 @@ function phaseLabelFor(w, phase) {
 
 function updateTimerUI() {
   const w = workout[timerState.idx];
-  const timerEl = document.getElementById('timer');
-  timerEl.className = 'screen active phase-' + timerState.phase;
+  timerEls.timer.className = 'screen active phase-' + timerState.phase;
 
-  const phaseEl = document.getElementById('t-phase');
-  phaseEl.textContent = phaseLabelFor(w, timerState.phase);
-  phaseEl.className = 'timer-phase ' + timerState.phase;
+  timerEls.phase.textContent = phaseLabelFor(w, timerState.phase);
+  timerEls.phase.className = 'timer-phase ' + timerState.phase;
 
-  const nameEl = document.getElementById('t-name');
   const isYoga = config.type === 'yoga';
   if (timerState.phase === 'work') {
     if (isYoga && w.exercise.sanskrit) {
-      nameEl.innerHTML = w.exercise.name + ' <span class="sanskrit-name">' + w.exercise.sanskrit + '</span>';
+      timerEls.name.innerHTML = w.exercise.name + ' <span class="sanskrit-name">' + w.exercise.sanskrit + '</span>';
     } else {
-      nameEl.innerHTML = w.exercise.name + ' ' + infoBtn(w.exercise.name);
+      timerEls.name.innerHTML = w.exercise.name + ' ' + infoBtn(w.exercise.name);
     }
   } else if (isYoga) {
     const nextPose = timerState.idx + 1 < workout.length ? workout[timerState.idx + 1].exercise.name : '';
-    nameEl.innerHTML = nextPose ? 'Transitioning to ' + nextPose : 'Transition';
+    timerEls.name.innerHTML = nextPose ? 'Transitioning to ' + nextPose : 'Transition';
   } else {
-    nameEl.innerHTML = 'Rest';
+    timerEls.name.innerHTML = 'Rest';
   }
 
-  document.getElementById('t-detail').textContent = timerState.phase === 'work'
+  timerEls.detail.textContent = timerState.phase === 'work'
     ? (isYoga ? (w.exercise.muscles || []).join(', ') : w.exercise.equip.join(', ') + ' - ' + w.exercise.muscles.join(', '))
     : 'Next: ' + (timerState.idx + 1 < workout.length ? workout[timerState.idx + 1].exercise.name : 'Done!');
 
   // Hide inappropriate controls for yoga
-  document.getElementById('t-add-rest').style.display = isYoga ? 'none' : '';
+  timerEls.addRest.style.display = isYoga ? 'none' : '';
 
   // Rest reason badge: shown during main rest (PDR §6.4 reason badge).
-  const reasonEl = document.getElementById('t-rest-reason');
   if (timerState.phase === 'rest' && w.restReason) {
-    reasonEl.textContent = w.restReason;
-    reasonEl.style.display = 'inline-block';
+    timerEls.restReason.textContent = w.restReason;
+    timerEls.restReason.style.display = 'inline-block';
   } else {
-    reasonEl.style.display = 'none';
+    timerEls.restReason.style.display = 'none';
   }
 
   const strengthWork = isStrengthWorkPhase();
   const displaySec = strengthWork ? (timerState.elapsed || 0) : timerState.remaining;
   const mins = Math.floor(displaySec / 60);
   const secs = displaySec % 60;
-  const timeEl = document.getElementById('t-time');
-  timeEl.textContent = mins + ':' + String(secs).padStart(2,'0');
+  timerEls.time.textContent = mins + ':' + String(secs).padStart(2,'0');
   // Countdown enhancement: enlarge digits in final 3s of timed phases.
   const inFinal = !strengthWork && timerState.phase !== 'done' && timerState.remaining > 0 && timerState.remaining <= 3;
-  timeEl.classList.toggle('countdown-final', inFinal);
+  timerEls.time.classList.toggle('countdown-final', inFinal);
 
   // Total-remaining is meaningless during strength count-up (work duration is unknown),
   // so we only show it for non-strength flows.
-  const totalEl = document.getElementById('t-total');
   if (strengthWork) {
-    totalEl.textContent = '';
+    timerEls.total.textContent = '';
   } else {
-    let totalRem = timerState.remaining;
-    for (let i = timerState.idx; i < workout.length; i++) {
-      if (i === timerState.idx) {
-        if (timerState.phase === 'work') totalRem += workout[i].restSec;
-      } else {
-        totalRem += workout[i].workSec + workout[i].restSec;
-      }
-    }
+    const totalRem = timerState.totalRemaining;
     const tMins = Math.floor(totalRem / 60);
     const tSecs = totalRem % 60;
-    totalEl.textContent = tMins + ':' + String(tSecs).padStart(2,'0') + ' remaining';
+    timerEls.total.textContent = tMins + ':' + String(tSecs).padStart(2,'0') + ' remaining';
   }
 
-  const bar = document.getElementById('t-bar');
   if (strengthWork) {
     // No defined target; pulse-fill subtly using elapsed mod 60s as a moving indicator.
-    bar.style.width = ((timerState.elapsed || 0) % 60) / 60 * 100 + '%';
+    timerEls.bar.style.width = ((timerState.elapsed || 0) % 60) / 60 * 100 + '%';
   } else {
     const maxSec = timerState.phase === 'work' ? w.workSec : w.restSec;
     const pct = maxSec > 0 ? ((maxSec - timerState.remaining) / maxSec) * 100 : 0;
-    bar.style.width = pct + '%';
+    timerEls.bar.style.width = pct + '%';
   }
-  bar.className = 'timer-progress-bar ' + timerState.phase;
+  timerEls.bar.className = 'timer-progress-bar ' + timerState.phase;
 
-  document.getElementById('t-ex-progress').textContent = 'Exercise ' + (timerState.idx + 1) + ' of ' + workout.length;
+  timerEls.exProgress.textContent = 'Exercise ' + (timerState.idx + 1) + ' of ' + workout.length;
 
-  const setEl = document.getElementById('t-set-progress');
   if (w.section === 'main' && config.sets > 1) {
-    setEl.textContent = 'Set ' + ((w.setIdx ?? 0) + 1) + ' of ' + config.sets;
+    timerEls.setProgress.textContent = 'Set ' + ((w.setIdx ?? 0) + 1) + ' of ' + config.sets;
   } else {
-    setEl.textContent = w.section === 'warmup' ? 'Warmup' : (w.section === 'cooldown' ? 'Cooldown' : '');
+    timerEls.setProgress.textContent = w.section === 'warmup' ? 'Warmup' : (w.section === 'cooldown' ? 'Cooldown' : '');
   }
 
   const nextIdx = timerState.idx + 1;
   const nextEntry = workout[nextIdx];
-  document.getElementById('t-next').textContent = nextEntry ? nextEntry.exercise.name : 'Finish';
+  timerEls.next.textContent = nextEntry ? nextEntry.exercise.name : 'Finish';
 
   // Show the next exercise's description during rest only — gives the user a moment to read up.
   // Strength ramp-up prompt overrides during the post-warmup rest if the first main is loaded.
-  const nextInfoEl = document.getElementById('t-next-info');
   if (
-    timerState.phase === 'rest' && w.section === 'warmup' && w.restLabel === 'Rest — get ready' &&
+    timerState.phase === 'rest' && w.section === 'warmup' && w.restLabel === POST_WARMUP_LABEL &&
     config.type === 'strength' && nextEntry &&
     nextEntry.exercise.equip.some(eq => LOADED_EQUIP.includes(eq))
   ) {
-    nextInfoEl.innerHTML =
+    timerEls.nextInfo.innerHTML =
       '<strong style="color:var(--accent);">Ramp-up:</strong> before your first working set of ' +
       escapeHtml(nextEntry.exercise.name) +
       ', do 2 light sets at ~50% and ~70% of your working weight.';
   } else {
-    nextInfoEl.textContent = (timerState.phase === 'rest' && nextEntry) ? (nextEntry.exercise.info || '') : '';
+    timerEls.nextInfo.textContent = (timerState.phase === 'rest' && nextEntry) ? (nextEntry.exercise.info || '') : '';
   }
 
   // Swap pause/play icon + label based on state.
-  const pauseLabel = document.getElementById('t-pause-label');
-  const pauseIcon = document.getElementById('t-pause-icon');
-  pauseLabel.textContent = timerState.paused ? 'Resume' : 'Pause';
-  pauseIcon.innerHTML = timerState.paused
+  timerEls.pauseLabel.textContent = timerState.paused ? 'Resume' : 'Pause';
+  timerEls.pauseIcon.innerHTML = timerState.paused
     ? '<polygon points="6 4 20 12 6 20"/>'
     : '<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>';
-  document.getElementById('t-prev').disabled = timerState.idx === 0;
+  timerEls.prev.disabled = timerState.idx === 0;
 
-  const addRestBtn = document.getElementById('t-add-rest');
-  if (timerState.phase === 'rest') addRestBtn.classList.add('visible');
-  else addRestBtn.classList.remove('visible');
+  if (timerState.phase === 'rest') timerEls.addRest.classList.add('visible');
+  else timerEls.addRest.classList.remove('visible');
 
   // Strength-mode: show Done button during work; show rep target + weight input during rest.
   // Weight input must be hidden during warmup/cooldown (PDR §6.1, §6.2).
-  const doneBtn = document.getElementById('t-strength-done');
-  const repEl = document.getElementById('t-rep-target');
-  const wEl = document.getElementById('t-weight-input');
-  const wInput = document.getElementById('t-weight-val');
-  const wSaved = document.getElementById('t-weight-saved');
-  const setTypeRow = document.getElementById('t-set-type-row');
   const isStrengthMain = w && w.section === 'main' && config.type === 'strength';
   if (isStrengthMain && timerState.phase === 'work') {
-    doneBtn.classList.add('visible');
-    setTypeRow.classList.add('visible');
+    timerEls.strengthDone.classList.add('visible');
+    timerEls.setTypeRow.classList.add('visible');
     const sideLabel = w.single_sided ? (timerState.strengthSide === 0 ? 'Right side · ' : 'Left side · ') : '';
-    repEl.textContent = sideLabel + 'Target: ' + window.builder.repTarget(w.exercise.diff);
-    wEl.classList.remove('visible');
+    timerEls.repTarget.textContent = sideLabel + 'Target: ' + window.builder.repTarget(w.exercise.diff);
+    timerEls.weightInput.classList.remove('visible');
   } else if (isStrengthMain && timerState.phase === 'rest') {
-    doneBtn.classList.remove('visible');
-    setTypeRow.classList.remove('visible');
-    repEl.textContent = '';
-    wEl.classList.add('visible');
+    timerEls.strengthDone.classList.remove('visible');
+    timerEls.setTypeRow.classList.remove('visible');
+    timerEls.repTarget.textContent = '';
+    timerEls.weightInput.classList.add('visible');
     // Sync the input value to the entry's saved weight so navigation between exercises preserves it.
-    wInput.value = w.actualWeightKg != null ? w.actualWeightKg : '';
-    wSaved.textContent = w.actualWeightKg != null ? 'saved' : '';
+    timerEls.weightVal.value = w.actualWeightKg != null ? w.actualWeightKg : '';
+    timerEls.weightSaved.textContent = w.actualWeightKg != null ? 'saved' : '';
   } else {
-    doneBtn.classList.remove('visible');
-    setTypeRow.classList.remove('visible');
-    repEl.textContent = '';
-    wEl.classList.remove('visible');
+    timerEls.strengthDone.classList.remove('visible');
+    timerEls.setTypeRow.classList.remove('visible');
+    timerEls.repTarget.textContent = '';
+    timerEls.weightInput.classList.remove('visible');
   }
 }
 
@@ -5555,10 +5577,13 @@ function surpriseMe() {
 loadEquipmentSelection();
 loadAppSettings();
 loadFocus();
-initHealthKit();
-initWatchConnectivity();
-initCloudSync();
-initMusic();
+// Defer non-critical native init so first paint isn't blocked
+setTimeout(() => {
+  initHealthKit();
+  initWatchConnectivity();
+  initCloudSync();
+  initMusic();
+}, 0);
 // Render weekly plan card
 renderPlanCard();
 // Make the bottom nav visible immediately on the initial active (setup) screen.
