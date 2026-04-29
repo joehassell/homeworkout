@@ -5362,14 +5362,11 @@ function pickTypeForDay(dist, recentTypes, dayIndex) {
   recentTypes.forEach(t => { if (counts[t] !== undefined) counts[t]++; });
 
   // Rest days: if dist.rest > 0, distribute them evenly
-  const restDays = dist.rest || 0;
-  if (restDays > 0) {
-    const totalWorkouts = 7 - restDays;
-    // Put rest on every N-th day
-    const restInterval = Math.floor(7 / restDays);
-    if (dayIndex > 0 && dayIndex % restInterval === 0 && restDays > 0) {
-      return 'rest';
-    }
+  const restDays = dist.rest || 1; // always at least 1 rest day
+  const restInterval = Math.max(2, Math.floor(7 / restDays));
+  // Place rest on specific day indices (e.g., rest=1 → day 6, rest=2 → days 3,6)
+  if ((dayIndex + 1) % restInterval === 0) {
+    return 'rest';
   }
 
   // Find the type most under-represented relative to its target share
