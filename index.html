@@ -473,6 +473,23 @@ html.is-native .is-native-only { display: flex; }
 .swap-item-meta { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
 .swap-empty { color: var(--text-dim); font-size: 0.9rem; padding: 16px 0; text-align: center; }
 
+/* Template picker */
+.template-link-wrap { text-align: center; margin-top: 6px; }
+.template-link { color: var(--accent); font-size: 0.82rem; text-decoration: none; opacity: 0.85; }
+.template-link:active { opacity: 1; }
+.template-list { max-height: 55vh; overflow-y: auto; margin: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.tpl-card {
+  text-align: left; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px; color: var(--text);
+  cursor: pointer; touch-action: manipulation; transition: background 0.15s;
+}
+.tpl-card:active { background: var(--border); }
+.tpl-card-name { font-weight: 600; font-size: 0.95rem; }
+.tpl-card-meta { font-size: 0.75rem; color: var(--text-dim); margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; }
+.tpl-card-desc { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; line-height: 1.3; }
+.tpl-card-empty { color: var(--text-dim); font-size: 0.9rem; padding: 16px 0; text-align: center; }
+.preview-tpl-name { font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+
 .preview-actions { display: flex; gap: 10px; }
 .preview-actions .btn { flex: 1; }
 
@@ -623,6 +640,108 @@ html.is-native .is-native-only { display: flex; }
 }
 .strength-weight-input input:focus { border-color: var(--accent); }
 .strength-weight-saved { font-size: 0.75rem; color: var(--green); min-width: 50px; }
+
+/* Set type pills */
+.set-type-row { display: none; gap: 6px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+.set-type-row.visible { display: flex; }
+.set-type-pill {
+  padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border);
+  background: transparent; color: var(--text-dim); font-size: 0.75rem; font-weight: 600;
+  cursor: pointer; touch-action: manipulation; transition: all 0.15s;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.set-type-pill:active { transform: scale(0.94); }
+.set-type-pill.selected { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* Per-set RPE overlay */
+.set-rpe-overlay {
+  display: none; position: fixed; inset: 0; z-index: 90;
+  background: rgba(0,0,0,0.82); align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px; padding: 20px;
+}
+.set-rpe-overlay.active { display: flex; }
+.set-rpe-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+.set-rpe-pills { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.set-rpe-pill {
+  width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--border);
+  background: var(--surface); color: var(--text); font-size: 1rem; font-weight: 700;
+  cursor: pointer; touch-action: manipulation; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.set-rpe-pill:active { transform: scale(0.92); }
+.set-rpe-pill[data-rpe="6"], .set-rpe-pill[data-rpe="7"] { border-color: var(--green); color: var(--green); }
+.set-rpe-pill[data-rpe="8"] { border-color: var(--yellow); color: var(--yellow); }
+.set-rpe-pill[data-rpe="9"] { border-color: var(--orange); color: var(--orange); }
+.set-rpe-pill[data-rpe="10"] { border-color: var(--red); color: var(--red); }
+.set-rpe-skip { background: none; border: none; color: var(--text-dim); font-size: 0.9rem; cursor: pointer; padding: 10px 20px; touch-action: manipulation; }
+
+/* PR badge */
+.pr-badge {
+  display: none; background: var(--yellow); color: #0a0a0f;
+  font-size: 0.8rem; font-weight: 800; padding: 4px 12px; border-radius: 20px;
+  animation: pr-pop 0.4s ease;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.pr-badge.visible { display: inline-block; }
+@keyframes pr-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Plate calculator modal */
+.plate-calc-overlay {
+  display: none; position: fixed; inset: 0; z-index: 110;
+  background: rgba(0,0,0,0.8); align-items: center; justify-content: center; padding: 20px;
+}
+.plate-calc-overlay.active { display: flex; }
+.plate-calc {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px; max-width: 360px; width: 100%;
+}
+.plate-calc h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; color: var(--text); }
+.plate-calc-row { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+.plate-calc-row label { font-size: 0.8rem; color: var(--text-dim); min-width: 80px; }
+.plate-calc-row input {
+  flex: 1; padding: 10px; border-radius: 8px; background: var(--surface2);
+  border: 1.5px solid var(--border); color: var(--text); font-size: 1rem; text-align: center;
+  font-family: inherit; outline: none;
+}
+.plate-calc-row input:focus { border-color: var(--accent); }
+.plate-calc-result {
+  margin-top: 12px; padding: 12px; background: var(--surface2); border-radius: 10px;
+  font-size: 0.9rem; color: var(--text); line-height: 1.5; min-height: 2em;
+}
+.plate-calc-result .plate-label { color: var(--accent); font-weight: 600; }
+.plate-link {
+  font-size: 0.7rem; color: var(--accent); cursor: pointer; text-decoration: underline;
+  background: none; border: none; padding: 0; font-family: inherit; touch-action: manipulation;
+}
+
+/* Tonnage stats on done screen */
+.done-tonnage { display: none; margin-top: 16px; }
+.done-tonnage.visible { display: block; }
+.done-tonnage-stats { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.done-tonnage-stat { text-align: center; flex: 1; min-width: 80px; }
+.done-tonnage-stat .val { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+.done-tonnage-stat .lbl { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
+
+/* 1RM calculator in info modal */
+.orm-calc { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+.orm-calc h3 { font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-bottom: 10px; }
+.orm-calc-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.orm-calc-row label { font-size: 0.75rem; color: var(--text-dim); min-width: 50px; }
+.orm-calc-row input {
+  width: 80px; padding: 8px; border-radius: 8px; background: var(--surface2);
+  border: 1.5px solid var(--border); color: var(--text); font-size: 0.95rem;
+  text-align: center; font-family: inherit; outline: none;
+}
+.orm-calc-row input:focus { border-color: var(--accent); }
+.orm-result { font-size: 0.9rem; color: var(--text); margin-top: 8px; }
+.orm-result strong { color: var(--accent); }
+.orm-pct-table { width: 100%; font-size: 0.8rem; margin-top: 8px; border-collapse: collapse; }
+.orm-pct-table th { color: var(--text-dim); text-align: left; padding: 4px 6px; font-weight: 600; }
+.orm-pct-table td { padding: 4px 6px; color: var(--text); }
 .timer-upcoming {
   margin-top: auto;
   width: 100%; max-width: 500px;
@@ -966,6 +1085,7 @@ html.is-native .is-native-only { display: flex; }
       <div class="pill" data-value="functional" onclick="selectPill(this)">Functional<span class="pill-sub">Multi-joint</span></div>
       <div class="pill" data-value="yoga" onclick="selectPill(this)">Yoga<span class="pill-sub">Mind &amp; body</span></div>
     </div>
+    <div class="template-link-wrap"><a href="#" class="template-link" onclick="event.preventDefault();showTemplatePicker()">or choose a template &rarr;</a></div>
   </div>
 
   <div class="option-group" id="yoga-style-group" style="display:none;">
@@ -1155,10 +1275,17 @@ html.is-native .is-native-only { display: flex; }
   <div class="timer-ex-progress" id="t-ex-progress">Exercise 1 of 12</div>
   <div class="timer-set-progress" id="t-set-progress"></div>
   <div class="strength-rep-target" id="t-rep-target"></div>
+  <div class="pr-badge" id="t-pr-badge">New PR!</div>
+  <div class="set-type-row" id="t-set-type-row">
+    <button class="set-type-pill selected" data-type="normal" onclick="selectSetType(this)">Normal</button>
+    <button class="set-type-pill" data-type="warmup" onclick="selectSetType(this)">Warm-up</button>
+    <button class="set-type-pill" data-type="drop" onclick="selectSetType(this)">Drop</button>
+    <button class="set-type-pill" data-type="amrap" onclick="selectSetType(this)">AMRAP</button>
+  </div>
   <button class="btn-add-rest" id="t-add-rest" onclick="addRest()">+10s Rest</button>
   <button class="btn-strength-done" id="t-strength-done" onclick="finishStrengthSet()">Done</button>
   <div class="strength-weight-input" id="t-weight-input">
-    <label for="t-weight-val">Weight (kg)</label>
+    <label for="t-weight-val">Weight (kg) <button class="plate-link" onclick="openPlateCalc()">plates</button></label>
     <div class="strength-weight-row">
       <input type="number" inputmode="decimal" step="0.5" id="t-weight-val" placeholder="--" oninput="saveSetWeight()">
       <span class="strength-weight-saved" id="t-weight-saved"></span>
@@ -1194,6 +1321,13 @@ html.is-native .is-native-only { display: flex; }
     <div class="done-stat"><div class="val" id="d-exercises">0</div><div class="lbl">Exercises</div></div>
     <div class="done-stat"><div class="val" id="d-time">0:00</div><div class="lbl">Duration</div></div>
     <div class="done-stat"><div class="val" id="d-type">HIIT</div><div class="lbl">Type</div></div>
+  </div>
+  <div class="done-tonnage" id="done-tonnage">
+    <div class="done-tonnage-stats">
+      <div class="done-tonnage-stat"><div class="val" id="d-tonnage">0</div><div class="lbl">Tonnage (kg)</div></div>
+      <div class="done-tonnage-stat"><div class="val" id="d-working-sets">0</div><div class="lbl">Working Sets</div></div>
+      <div class="done-tonnage-stat"><div class="val" id="d-top-set">-</div><div class="lbl">Top Set</div></div>
+    </div>
   </div>
   <div class="done-health is-native-only" id="done-health" style="display:none;">
     <span class="done-health-icon" aria-hidden="true">
@@ -1413,6 +1547,36 @@ html.is-native .is-native-only { display: flex; }
   <button onclick="dismissIosFsHint()">Got it</button>
 </div>
 
+<!-- PER-SET RPE OVERLAY -->
+<div class="set-rpe-overlay" id="set-rpe-overlay">
+  <div class="set-rpe-title">Rate this set (RPE)</div>
+  <div class="set-rpe-pills">
+    <button class="set-rpe-pill" data-rpe="6" onclick="selectSetRpe(6)">6</button>
+    <button class="set-rpe-pill" data-rpe="7" onclick="selectSetRpe(7)">7</button>
+    <button class="set-rpe-pill" data-rpe="8" onclick="selectSetRpe(8)">8</button>
+    <button class="set-rpe-pill" data-rpe="9" onclick="selectSetRpe(9)">9</button>
+    <button class="set-rpe-pill" data-rpe="10" onclick="selectSetRpe(10)">10</button>
+  </div>
+  <button class="set-rpe-skip" onclick="selectSetRpe(null)">Skip</button>
+</div>
+
+<!-- PLATE CALCULATOR -->
+<div class="plate-calc-overlay" id="plate-calc-overlay" onclick="if(event.target===this)closePlateCalc()">
+  <div class="plate-calc">
+    <h3>Plate Calculator</h3>
+    <div class="plate-calc-row">
+      <label>Target (kg)</label>
+      <input type="number" inputmode="decimal" id="plate-target" step="0.5" oninput="calcPlates()">
+    </div>
+    <div class="plate-calc-row">
+      <label>Bar (kg)</label>
+      <input type="number" inputmode="decimal" id="plate-bar" value="20" step="0.5" oninput="calcPlates()">
+    </div>
+    <div class="plate-calc-result" id="plate-result">Enter a target weight above.</div>
+    <button class="modal-close" onclick="closePlateCalc()">Close</button>
+  </div>
+</div>
+
 <!-- INFO MODAL -->
 <div class="modal-overlay" id="info-modal" onclick="closeInfoIfBg(event)">
   <div class="modal-content">
@@ -1420,6 +1584,15 @@ html.is-native .is-native-only { display: flex; }
     <div class="modal-meta" id="modal-meta"></div>
     <div class="modal-instructions" id="modal-body"></div>
     <button class="modal-close" onclick="closeInfo()">Got it</button>
+  </div>
+</div>
+
+<!-- TEMPLATE PICKER MODAL -->
+<div class="modal-overlay" id="template-modal" onclick="closeTemplateIfBg(event)">
+  <div class="modal-content">
+    <h2>Choose a Template</h2>
+    <div class="template-list" id="template-list"></div>
+    <button class="modal-close" onclick="closeTemplatePicker()">Cancel</button>
   </div>
 </div>
 
@@ -1454,6 +1627,7 @@ html.is-native .is-native-only { display: flex; }
 
 <script src="js/builder.js"></script>
 <script src="js/yoga.js"></script>
+<script src="js/templates.js"></script>
 <script src="js/capability.js"></script>
 <script src="js/storage.js"></script>
 <script src="js/history.js"></script>
@@ -1846,6 +2020,9 @@ let savedWorkouts = JSON.parse(localStorage.getItem('wk_saved_workouts') || '[]'
 let pendingSaveWorkout = false;
 let pendingSaveRating = 3;
 let timerState = { running:false, paused:false, idx:0, phase:'work', remaining:0, intervalId:null, startedAt:null };
+let currentSetType = 'normal';          // set type for strength mode
+let pendingSetRpeResolve = null;        // resolve callback for per-set RPE overlay
+let strengthSetLog = [];                // per-set log for current workout [{name, type, reps, weight_kg, rpe}]
 let wasPausedBeforeInfo = false;
 let soundEnabled = true;
 let voiceEnabled = true;
@@ -2438,7 +2615,23 @@ function showInfo(exerciseName) {
   document.getElementById('modal-meta').innerHTML =
     '<strong>Equipment:</strong> ' + ex.equip.join(', ') +
     ' &middot; <strong>Muscles:</strong> ' + ex.muscles.join(', ');
-  document.getElementById('modal-body').innerHTML = '<p>' + ex.info + '</p>';
+  // Add 1RM calculator for strength-applicable exercises
+  var ormHtml = '';
+  if (ex.types && ex.types.indexOf('strength') >= 0) {
+    ormHtml = render1RMCalc();
+    // Show existing PR if any
+    var prs = loadPRs();
+    var pr = prs[ex.name];
+    if (pr) {
+      ormHtml = '<div style="margin-top:12px;padding:10px 12px;background:var(--surface2);border-radius:8px;font-size:0.85rem;">' +
+        '<strong style="color:var(--yellow);">PR:</strong> ' +
+        (pr.bestWeight ? pr.bestWeight + ' kg' : '') +
+        (pr.best1RM ? ' &middot; Est 1RM: ' + pr.best1RM.toFixed(1) + ' kg' : '') +
+        (pr.date ? ' <span style="color:var(--text-dim);">(' + pr.date + ')</span>' : '') +
+      '</div>' + ormHtml;
+    }
+  }
+  document.getElementById('modal-body').innerHTML = '<p>' + ex.info + '</p>' + ormHtml;
   document.getElementById('info-modal').classList.add('active');
 }
 
@@ -3076,6 +3269,7 @@ function clearGenError() {
 
 function generateWorkout() {
   clearGenError();
+  activeTemplateName = null;
   // Yoga uses its own generator path
   if (config.type === 'yoga') {
     window.yoga.generateYogaWorkout(config, focusState, workout, config.yogaExperience, yogaEquipment);
@@ -3392,7 +3586,9 @@ function renderPreview() {
   const totalSec = workoutScheduledSec();
   const totalMin = Math.ceil(totalSec / 60);
 
-  document.getElementById('preview-meta').innerHTML =
+  const tplHeader = activeTemplateName
+    ? '<div class="preview-tpl-name">' + escapeHtml(activeTemplateName) + '</div>' : '';
+  document.getElementById('preview-meta').innerHTML = tplHeader +
     '<span class="meta-tag">'+config.type.toUpperCase()+'</span>'+
     '<span class="meta-tag">'+config.intensity+'</span>'+
     '<span class="meta-tag">~'+totalMin+' min</span>'+
@@ -3593,6 +3789,129 @@ function chooseSwap(name) {
 // ═══════════════════════════════════════════════════
 let wakeLock = null;
 
+// ═══════════════════════════════════════════════════
+// STRENGTH TRACKING — PRs, Set Types, Per-Set RPE, Plate Calc, 1RM
+// ═══════════════════════════════════════════════════
+
+// ── PR Storage ──
+const PR_KEY = 'wk_exercise_prs';
+function loadPRs() {
+  try { const r = localStorage.getItem(PR_KEY); return r ? JSON.parse(r) : {}; } catch(e) { return {}; }
+}
+function savePRs(prs) {
+  try { localStorage.setItem(PR_KEY, JSON.stringify(prs)); } catch(e) {}
+}
+function epley1RM(weight, reps) {
+  if (reps <= 0 || weight <= 0) return 0;
+  if (reps === 1) return weight;
+  return Math.round(weight * (1 + reps / 30) * 10) / 10;
+}
+function checkAndUpdatePR(exerciseName, weightKg, reps) {
+  if (!exerciseName || !weightKg || weightKg <= 0 || !reps || reps <= 0) return false;
+  const prs = loadPRs();
+  const existing = prs[exerciseName] || {};
+  const est1rm = epley1RM(weightKg, reps);
+  let isNewPR = false;
+  if (!existing.bestWeight || weightKg > existing.bestWeight) { existing.bestWeight = weightKg; isNewPR = true; }
+  if (!existing.bestReps || (weightKg >= (existing.bestRepsWeight || 0) && reps > (existing.bestReps || 0))) {
+    existing.bestReps = reps; existing.bestRepsWeight = weightKg; isNewPR = true;
+  }
+  if (!existing.best1RM || est1rm > existing.best1RM) { existing.best1RM = est1rm; isNewPR = true; }
+  if (isNewPR) {
+    existing.date = new Date().toISOString().slice(0, 10);
+    prs[exerciseName] = existing;
+    savePRs(prs);
+  }
+  return isNewPR;
+}
+
+// ── Set Type ──
+function selectSetType(el) {
+  document.querySelectorAll('#t-set-type-row .set-type-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  currentSetType = el.dataset.type;
+}
+function resetSetType() {
+  currentSetType = 'normal';
+  document.querySelectorAll('#t-set-type-row .set-type-pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.type === 'normal');
+  });
+}
+
+// ── Per-Set RPE overlay ──
+function showSetRpeOverlay() {
+  return new Promise(resolve => {
+    pendingSetRpeResolve = resolve;
+    document.getElementById('set-rpe-overlay').classList.add('active');
+  });
+}
+function selectSetRpe(val) {
+  document.getElementById('set-rpe-overlay').classList.remove('active');
+  if (pendingSetRpeResolve) {
+    pendingSetRpeResolve(val);
+    pendingSetRpeResolve = null;
+  }
+}
+
+// ── Plate Calculator ──
+const STANDARD_PLATES = [25, 20, 15, 10, 5, 2.5, 1.25];
+function openPlateCalc() {
+  const wVal = document.getElementById('t-weight-val');
+  if (wVal && wVal.value) document.getElementById('plate-target').value = wVal.value;
+  calcPlates();
+  document.getElementById('plate-calc-overlay').classList.add('active');
+}
+function closePlateCalc() {
+  document.getElementById('plate-calc-overlay').classList.remove('active');
+}
+function calcPlates() {
+  const target = parseFloat(document.getElementById('plate-target').value) || 0;
+  const bar = parseFloat(document.getElementById('plate-bar').value) || 0;
+  const result = document.getElementById('plate-result');
+  if (target <= 0) { result.textContent = 'Enter a target weight above.'; return; }
+  if (target <= bar) { result.innerHTML = '<span class="plate-label">Bar only</span> (' + bar + ' kg)'; return; }
+  let remaining = (target - bar) / 2;
+  if (remaining < 0) { result.textContent = 'Target is less than bar weight.'; return; }
+  const plates = [];
+  for (const p of STANDARD_PLATES) {
+    while (remaining >= p - 0.001) { plates.push(p); remaining -= p; }
+  }
+  if (remaining > 0.01) {
+    result.textContent = 'Cannot make exact weight with standard plates (' + (remaining * 2).toFixed(2) + ' kg remaining).';
+    return;
+  }
+  const perSide = plates.map(p => p + ' kg').join(' + ');
+  const totalPerSide = plates.reduce((a, b) => a + b, 0);
+  result.innerHTML = '<span class="plate-label">' + totalPerSide + ' kg per side:</span> ' + perSide;
+}
+
+// ── 1RM Calculator (in info modal) ──
+function render1RMCalc() {
+  return '<div class="orm-calc">' +
+    '<h3>1RM Calculator</h3>' +
+    '<div class="orm-calc-row"><label>Weight</label><input type="number" inputmode="decimal" id="orm-weight" step="0.5" placeholder="kg" oninput="update1RMCalc()"></div>' +
+    '<div class="orm-calc-row"><label>Reps</label><input type="number" inputmode="numeric" id="orm-reps" placeholder="reps" oninput="update1RMCalc()"></div>' +
+    '<div id="orm-output"></div>' +
+  '</div>';
+}
+function update1RMCalc() {
+  const w = parseFloat(document.getElementById('orm-weight').value) || 0;
+  const r = parseInt(document.getElementById('orm-reps').value) || 0;
+  const out = document.getElementById('orm-output');
+  if (w <= 0 || r <= 0) { out.innerHTML = ''; return; }
+  const est = epley1RM(w, r);
+  const pcts = [90, 85, 80, 75, 70, 65, 60];
+  let table = '<div class="orm-result">Estimated 1RM: <strong>' + est.toFixed(1) + ' kg</strong></div>' +
+    '<table class="orm-pct-table"><tr><th>%</th><th>Weight</th><th>~Reps</th></tr>';
+  pcts.forEach(pct => {
+    const pWeight = Math.round(est * pct / 100 * 10) / 10;
+    const pReps = pct >= 90 ? '1-2' : pct >= 80 ? '3-5' : pct >= 70 ? '6-8' : '10-12';
+    table += '<tr><td>' + pct + '%</td><td>' + pWeight.toFixed(1) + ' kg</td><td>' + pReps + '</td></tr>';
+  });
+  table += '</table>';
+  out.innerHTML = table;
+}
+
 function isStrengthWorkPhase() {
   if (!timerState.running || timerState.phase !== 'work') return false;
   const e = workout[timerState.idx];
@@ -3602,6 +3921,8 @@ function isStrengthWorkPhase() {
 function startWorkout() {
   if (workout.length === 0) return;
   ensureAudio();
+  strengthSetLog = [];
+  resetSetType();
   timerState = {
     running:true, paused:false, idx:0, phase:'work',
     remaining:workout[0].workSec, elapsed:0, intervalId:null,
@@ -3745,10 +4066,43 @@ function finishStrengthSet() {
       entry.actualWorkSec = timerState.elapsed || 0;
     }
   }
+
+  // Capture set type and weight before advancing
+  const setType = currentSetType;
+  const weightKg = entry ? (entry.actualWeightKg ?? null) : null;
+  const exerciseName = entry ? entry.exercise.name : '';
+  const diff = entry ? entry.exercise.diff : 1;
+  // Infer reps from rep target text
+  const repStr = window.builder.repTarget(diff);
+  const repMatch = repStr.match(/(\d+)/);
+  const reps = repMatch ? parseInt(repMatch[1]) : 8;
+  // Store set type on entry
+  if (entry) entry.setType = setType;
+
+  // Show per-set RPE, then do PR check + advance
   timerState.strengthSide = 0;
   timerState.remaining = 0;
-  advancePhase();
-  if (timerState.running) updateTimerUI();
+
+  showSetRpeOverlay().then(rpe => {
+    // Log the set
+    strengthSetLog.push({ name: exerciseName, type: setType, reps, weight_kg: weightKg, rpe });
+    if (entry) entry.setRpe = rpe;
+
+    // PR check (skip warmup sets)
+    const prBadge = document.getElementById('t-pr-badge');
+    if (setType !== 'warmup' && weightKg && weightKg > 0) {
+      const isPR = checkAndUpdatePR(exerciseName, weightKg, reps);
+      if (isPR && prBadge) {
+        prBadge.classList.add('visible');
+        setTimeout(() => prBadge.classList.remove('visible'), 3000);
+      }
+    }
+
+    // Reset set type to normal for next set
+    resetSetType();
+    advancePhase();
+    if (timerState.running) updateTimerUI();
+  });
 }
 
 function advancePhase() {
@@ -3979,14 +4333,17 @@ function updateTimerUI() {
   const wEl = document.getElementById('t-weight-input');
   const wInput = document.getElementById('t-weight-val');
   const wSaved = document.getElementById('t-weight-saved');
+  const setTypeRow = document.getElementById('t-set-type-row');
   const isStrengthMain = w && w.section === 'main' && config.type === 'strength';
   if (isStrengthMain && timerState.phase === 'work') {
     doneBtn.classList.add('visible');
+    setTypeRow.classList.add('visible');
     const sideLabel = w.single_sided ? (timerState.strengthSide === 0 ? 'Right side · ' : 'Left side · ') : '';
     repEl.textContent = sideLabel + 'Target: ' + window.builder.repTarget(w.exercise.diff);
     wEl.classList.remove('visible');
   } else if (isStrengthMain && timerState.phase === 'rest') {
     doneBtn.classList.remove('visible');
+    setTypeRow.classList.remove('visible');
     repEl.textContent = '';
     wEl.classList.add('visible');
     // Sync the input value to the entry's saved weight so navigation between exercises preserves it.
@@ -3994,6 +4351,7 @@ function updateTimerUI() {
     wSaved.textContent = w.actualWeightKg != null ? 'saved' : '';
   } else {
     doneBtn.classList.remove('visible');
+    setTypeRow.classList.remove('visible');
     repEl.textContent = '';
     wEl.classList.remove('visible');
   }
@@ -4166,20 +4524,25 @@ function finishWorkout() {
   const mainExercises = workout
     .map((w, i) => ({ w, i }))
     .filter(({ w }) => w.section === 'main')
-    .map(({ w, i }) => ({
-      name: w.exercise.name,
-      category: w.exercise.cat,
-      section: 'main',
-      setIdx: w.setIdx ?? null,
-      workSec: w.workSec,
-      restSec: w.restSec,
-      set_rest_seconds: w.restSec,
-      intensity: w.intensity,
-      single_sided: !!w.single_sided,
-      actualWorkSec: w.actualWorkSec ?? null,
-      completed: !skippedSet.has(i),
-      weightKg: w.actualWeightKg ?? null,
-    }));
+    .map(({ w, i }) => {
+      const rec = {
+        name: w.exercise.name,
+        category: w.exercise.cat,
+        section: 'main',
+        setIdx: w.setIdx ?? null,
+        workSec: w.workSec,
+        restSec: w.restSec,
+        set_rest_seconds: w.restSec,
+        intensity: w.intensity,
+        single_sided: !!w.single_sided,
+        actualWorkSec: w.actualWorkSec ?? null,
+        completed: !skippedSet.has(i),
+        weightKg: w.actualWeightKg ?? null,
+        setType: w.setType || 'normal',
+        setRpe: w.setRpe ?? null,
+      };
+      return rec;
+    });
   const warmupExercises = workout
     .map((w, i) => ({ w, i }))
     .filter(({ w }) => w.section === 'warmup')
@@ -4203,6 +4566,26 @@ function finishWorkout() {
       completed: !skippedSet.has(i),
     }));
 
+  // Strength tonnage + enrichment
+  let tonnage = 0, workingSetsCount = 0, topSetWeight = 0, topSetReps = 0;
+  if (config.type === 'strength') {
+    for (var si = 0; si < strengthSetLog.length; si++) {
+      var sl = strengthSetLog[si], swt = sl.weight_kg || 0, sr = sl.reps || 0;
+      if (sl.type !== 'warmup') { tonnage += swt * sr; workingSetsCount++; }
+      if (swt > topSetWeight || (swt === topSetWeight && sr > topSetReps)) { topSetWeight = swt; topSetReps = sr; }
+    }
+    for (var mei = 0; mei < mainExercises.length; mei++) {
+      var me = mainExercises[mei];
+      var meSets = strengthSetLog.filter(function(s) { return s.name === me.name; });
+      var meBest = meSets.reduce(function(b, s) { return (!b || (s.weight_kg||0) > (b.weight_kg||0)) ? s : b; }, null);
+      if (meBest) {
+        me.best_set = { weight_kg: meBest.weight_kg, reps: meBest.reps };
+        me.estimated_1rm = epley1RM(meBest.weight_kg || 0, meBest.reps || 0) || undefined;
+      }
+      if (meSets.length > 0) me.sets = meSets;
+    }
+  }
+
   const session = {
     date: new Date(timerState.startedAt).toISOString(),
     type: config.type,
@@ -4217,6 +4600,10 @@ function finishWorkout() {
     post_warmup_rest_seconds: POST_WARMUP_REST,
     exercises: mainExercises,
     cooldown: cooldownExercises,
+    strengthSetLog: config.type === 'strength' && strengthSetLog.length > 0 ? strengthSetLog : undefined,
+    tonnage: config.type === 'strength' ? Math.round(tonnage) : undefined,
+    workingSets: config.type === 'strength' ? workingSetsCount : undefined,
+    topSet: config.type === 'strength' && topSetWeight > 0 ? { weight_kg: topSetWeight, reps: topSetReps } : undefined,
     settings_snapshot: {
       palette: currentTheme,
       font_scale: FONT_STEPS[currentFontIdx],
@@ -4236,6 +4623,18 @@ function finishWorkout() {
   document.getElementById('d-exercises').textContent = mainExercises.length;
   document.getElementById('d-time').textContent = eMins + ':' + String(eSecs).padStart(2,'0');
   document.getElementById('d-type').textContent = config.type.toUpperCase();
+
+  // Tonnage display for strength sessions
+  var tonnageEl = document.getElementById('done-tonnage');
+  if (config.type === 'strength' && tonnage > 0) {
+    tonnageEl.classList.add('visible');
+    document.getElementById('d-tonnage').textContent = Math.round(tonnage).toLocaleString();
+    document.getElementById('d-working-sets').textContent = workingSetsCount;
+    document.getElementById('d-top-set').textContent = topSetWeight > 0 ? topSetWeight + 'kg x' + topSetReps : '-';
+  } else {
+    tonnageEl.classList.remove('visible');
+  }
+
   resetDoneCapture();
   showScreen('done');
   // HealthKit: save completed workout with confirmation
@@ -4452,6 +4851,78 @@ function renderLibrary() {
 
 // ═══════════════════════════════════════════════════
 // ADD EXERCISE (Preview)
+// ═══════════════════════════════════════════════════
+
+// ── Template Picker ─────────────────────────────────
+
+let activeTemplateName = null;
+
+function showTemplatePicker() {
+  const fitnessLevel = (userProfile && userProfile.fitness_level) || 'beginner';
+  const tpls = window.templates.getTemplatesForType(config.type, selectedEquipment, fitnessLevel);
+  const list = document.getElementById('template-list');
+  if (tpls.length === 0) {
+    list.innerHTML = '<div class="tpl-card-empty">No templates match your current type, equipment, and fitness level.</div>';
+  } else {
+    list.innerHTML = tpls.map((t, idx) =>
+      '<button class="tpl-card" onclick="applyTemplate(' + idx + ')">' +
+        '<div class="tpl-card-name">' + escapeHtml(t.name) + '</div>' +
+        '<div class="tpl-card-meta">' +
+          '<span>' + t.duration_min + ' min</span>' +
+          '<span>' + t.exercises.length + ' exercises</span>' +
+          '<span>' + t.min_fitness + '</span>' +
+        '</div>' +
+        '<div class="tpl-card-desc">' + escapeHtml(t.description) + '</div>' +
+      '</button>'
+    ).join('');
+  }
+  window._tplFiltered = tpls;
+  document.getElementById('template-modal').classList.add('active');
+}
+
+function closeTemplatePicker() {
+  document.getElementById('template-modal').classList.remove('active');
+}
+
+function closeTemplateIfBg(e) {
+  if (e.target === document.getElementById('template-modal')) closeTemplatePicker();
+}
+
+function applyTemplate(idx) {
+  const tpls = window._tplFiltered || [];
+  const tpl = tpls[idx];
+  if (!tpl) return;
+  closeTemplatePicker();
+
+  // Set config to match template
+  config.type = tpl.type;
+  config.duration = tpl.duration_min;
+  // Select matching type pill
+  document.querySelectorAll('#type-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === tpl.type);
+  });
+  document.querySelectorAll('#duration-pills .pill').forEach(p => {
+    p.classList.toggle('selected', String(p.dataset.value) === String(tpl.duration_min));
+  });
+  toggleYogaUI(tpl.type === 'yoga');
+  if (tpl.type === 'yoga' && tpl.yoga_style) {
+    config.yogaStyle = tpl.yoga_style;
+    document.querySelectorAll('#yoga-style-pills .pill').forEach(p => {
+      p.classList.toggle('selected', p.dataset.value === tpl.yoga_style);
+    });
+  }
+
+  // Build workout from template
+  activeTemplateName = tpl.name;
+  workout = window.templates.buildWorkoutFromTemplate(tpl);
+  if (workout.length === 0) {
+    showGenError('Could not build workout from template — exercise names may not match the database.');
+    return;
+  }
+  showScreen('preview');
+  renderPreview();
+}
+
 // ═══════════════════════════════════════════════════
 
 function showAddExerciseModal() {
