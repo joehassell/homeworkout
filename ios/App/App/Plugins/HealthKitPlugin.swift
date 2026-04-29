@@ -34,6 +34,7 @@ public class HealthKitPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "discardWorkout", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "getBodyWeight", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "getDateOfBirth", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "updateLiveActivity", returnType: CAPPluginReturnPromise),
     ]
 
     private let healthStore = HKHealthStore()
@@ -110,8 +111,9 @@ public class HealthKitPlugin: CAPPlugin, CAPBridgedPlugin {
         activeSessionStart = Date()
         watchOwnsSession = false
 
-        // Start Live Activity (iOS 16.1+)
-        if #available(iOS 16.2, *) {
+        // Start Live Activity (iOS 16.2+, Pro only)
+        let isPro = call.getBool("isPro") ?? false
+        if #available(iOS 16.2, *), isPro {
             startLiveActivity(
                 workoutType: type,
                 exerciseName: call.getString("exerciseName") ?? "",
@@ -289,8 +291,24 @@ public class HealthKitPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
+    @objc func updateLiveActivity(_ call: CAPPluginCall) {
+        guard #available(iOS 16.2, *) else {
+            call.resolve(["updated": false])
+            return
+        }
+        _updateLiveActivity(
+            exerciseName: call.getString("exerciseName") ?? "",
+            remaining: call.getInt("remaining") ?? 0,
+            phase: call.getString("phase") ?? "work",
+            elapsed: call.getInt("elapsed") ?? 0,
+            exerciseIndex: call.getInt("exerciseIndex") ?? 0,
+            exerciseCount: call.getInt("exerciseCount") ?? 0
+        )
+        call.resolve(["updated": true])
+    }
+
     @available(iOS 16.2, *)
-    func updateLiveActivity(
+    private func _updateLiveActivity(
         exerciseName: String,
         remaining: Int,
         phase: String,

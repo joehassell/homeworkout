@@ -8,4 +8,5 @@ CAP_PLUGIN(HealthKitPlugin, "HealthKitPlugin",
     CAP_PLUGIN_METHOD(discardWorkout, CAPPluginReturnPromise);
     CAP_PLUGIN_METHOD(getBodyWeight, CAPPluginReturnPromise);
     CAP_PLUGIN_METHOD(getDateOfBirth, CAPPluginReturnPromise);
+    CAP_PLUGIN_METHOD(updateLiveActivity, CAPPluginReturnPromise);
 )

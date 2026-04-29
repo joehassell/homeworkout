@@ -245,23 +245,46 @@ public class IAPPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     private func incrementFoundersCounter() async {
-        do {
-            let db = IAPPlugin.cloudContainer.publicCloudDatabase
-            let record: CKRecord
+        let db = IAPPlugin.cloudContainer.publicCloudDatabase
+        // Retry loop for optimistic locking — handles concurrent purchases
+        for attempt in 1...3 {
             do {
-                record = try await db.record(for: IAPPlugin.foundersRecordID)
+                let record: CKRecord
+                do {
+                    record = try await db.record(for: IAPPlugin.foundersRecordID)
+                } catch {
+                    // Record doesn't exist yet — create it
+                    let newRecord = CKRecord(recordType: "FoundersCounter", recordID: IAPPlugin.foundersRecordID)
+                    newRecord["count"] = 1
+                    _ = try await db.save(newRecord)
+                    return
+                }
+                let current = record["count"] as? Int ?? 0
+                record["count"] = current + 1
+                // Use CKModifyRecordsOperation for optimistic locking
+                let op = CKModifyRecordsOperation(recordsToSave: [record], recordIDsToDelete: nil)
+                op.savePolicy = .changedKeys
+                op.qualityOfService = .userInitiated
+                return try await withCheckedThrowingContinuation { continuation in
+                    op.modifyRecordsResultBlock = { result in
+                        switch result {
+                        case .success:
+                            continuation.resume()
+                        case .failure(let error):
+                            continuation.resume(throwing: error)
+                        }
+                    }
+                    db.add(op)
+                }
+            } catch let error as CKError where error.code == .serverRecordChanged {
+                // Conflict — another purchase incremented first. Retry with fresh record.
+                NSLog("[IAP] CloudKit founders conflict on attempt %d, retrying", attempt)
+                continue
             } catch {
-                // Record doesn't exist yet — create it
-                let newRecord = CKRecord(recordType: "FoundersCounter", recordID: IAPPlugin.foundersRecordID)
-                newRecord["count"] = 1
-                _ = try await db.save(newRecord)
+                NSLog("[IAP] CloudKit founders increment failed: %@", error.localizedDescription)
                 return
             }
-            let current = record["count"] as? Int ?? 0
-            record["count"] = current + 1
-            _ = try await db.save(record)
-        } catch {
-            NSLog("[IAP] CloudKit founders increment failed: %@", error.localizedDescription)
         }
+        NSLog("[IAP] CloudKit founders increment failed after 3 retries")
     }
 }

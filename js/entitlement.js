@@ -119,10 +119,6 @@
     return isPro();
   }
 
-  function canUseSmartWarmup() {
-    return isPro();
-  }
-
   function canUseWeightTracking() {
     return isPro();
   }
@@ -150,7 +146,6 @@
     canUseFullHistory: canUseFullHistory,
     historyDayLimit: historyDayLimit,
     canUseFocusBoost: canUseFocusBoost,
-    canUseSmartWarmup: canUseSmartWarmup,
     canUseWeightTracking: canUseWeightTracking,
     canUseBackup: canUseBackup,
     canUseFontScale: canUseFontScale,
