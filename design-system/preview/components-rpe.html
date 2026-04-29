@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RPE selectors</title>
+<style>
+  html, body { margin: 0; background: #0a0a0f; color: #e8e8f0; font-family: -apple-system, system-ui, sans-serif; }
+  body { padding: 22px; }
+  .lbl { font-size: 0.7rem; color: #8888a0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .row { display: flex; gap: 4px; justify-content: space-between; }
+  .pill {
+    flex: 1; aspect-ratio: 1; border-radius: 50%; border: 2px solid;
+    background: transparent; font-size: 0.9rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .g { color: #34d399; border-color: #34d399; }
+  .y { color: #fbbf24; border-color: #fbbf24; }
+  .o { color: #fb923c; border-color: #fb923c; }
+  .r { color: #f87171; border-color: #f87171; }
+  .selected.y { background: #fbbf24; color: #0a0a0f; }
+</style>
+</head>
+<body>
+  <div class="lbl">How hard? — RPE 1–10</div>
+  <div class="row">
+    <div class="pill g">1</div><div class="pill g">2</div><div class="pill g">3</div>
+    <div class="pill y">4</div><div class="pill y">5</div><div class="pill y selected">6</div>
+    <div class="pill o">7</div><div class="pill o">8</div>
+    <div class="pill r">9</div><div class="pill r">10</div>
+  </div>
+</body>
+</html>

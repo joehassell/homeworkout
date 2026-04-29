@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SimpleWorkoutGen — Yoga UI kit</title>
+<link rel="stylesheet" href="../app/styles.css">
+<style>
+  body { background: #07070a; }
+  .stage { width: 100%; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .device { width: 390px; height: 780px; border-radius: 36px; overflow: hidden; background: var(--bg); position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 8px #1a1a22, 0 0 0 9px #2a2a3a; }
+  .device .screen, .device .timer-screen { height: 100%; padding-top: 50px; }
+  .status-bar { position: absolute; top: 0; left: 0; right: 0; height: 44px; display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 24px 0; font-size: 0.85rem; font-weight: 600; color: var(--text); z-index: 100; pointer-events: none; }
+  .notch { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 110px; height: 30px; background: #000; border-radius: 999px; z-index: 99; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="YogaSetup.jsx"></script>
+<script type="text/babel" src="YogaFlow.jsx"></script>
+<script type="text/babel">
+const { useState } = React;
+function App() {
+  const [view, setView] = useState("setup");
+  const [style, setStyle] = useState("vinyasa");
+  const [duration, setDuration] = useState(20);
+  return (
+    <div className="stage">
+      <div className="device">
+        <div className="notch" />
+        <div className="status-bar"><span>9:41</span><span>● ● ●</span></div>
+        {view === "setup"
+          ? <YogaSetup style={style} setStyle={setStyle} duration={duration} setDuration={setDuration} onStart={() => setView("flow")} />
+          : <YogaFlow onDone={() => setView("setup")} />}
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

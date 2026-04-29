@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pills — selection states</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; background: #0a0a0f; color: #e8e8f0; font-family: var(--font-sans); }
+  body { padding: 22px; }
+  .row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .pill {
+    flex: 1; min-width: 70px; padding: 12px 8px; border-radius: 10px;
+    background: #16161f; border: 2px solid #2a2a3a; text-align: center;
+    font-size: 0.95rem; font-weight: 500; color: #e8e8f0;
+  }
+  .pill .sub { display: block; font-size: 0.7rem; color: #8888a0; margin-top: 2px; }
+  .pill.selected { border-color: #4f8cff; background: #4f8cff33; color: #4f8cff; }
+  .pill.selected .sub { color: #4f8cff; opacity: 0.7; }
+  .lbl { font-size: 0.7rem; color: #8888a0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+  <div class="lbl">Workout Type</div>
+  <div class="row">
+    <div class="pill">Strength<span class="sub">Heavy &amp; slow</span></div>
+    <div class="pill selected">HIIT<span class="sub">Intervals</span></div>
+    <div class="pill">Conditioning<span class="sub">High volume</span></div>
+    <div class="pill">Functional<span class="sub">Multi-joint</span></div>
+  </div>
+  <div class="lbl">Duration</div>
+  <div class="row">
+    <div class="pill">15<span class="sub">min</span></div>
+    <div class="pill">20<span class="sub">min</span></div>
+    <div class="pill selected">30<span class="sub">min</span></div>
+    <div class="pill">45<span class="sub">min</span></div>
+    <div class="pill">60<span class="sub">min</span></div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,163 @@
+/* SimpleWorkoutGen — Colors & Type
+   Source: index.html :root tokens (dark default) + 4 alt themes
+   The product is theme-able. Below are the canonical token names the app uses.
+*/
+
+:root {
+  /* === DARK (default) === */
+  --bg: #0a0a0f;
+  --surface: #16161f;
+  --surface2: #1e1e2a;
+  --border: #2a2a3a;
+
+  --text: #e8e8f0;
+  --text-dim: #8888a0;
+
+  --accent: #4f8cff;
+  --accent-glow: #4f8cff33;
+  --accent-soft: #4f8cff22;
+
+  --green: #34d399;
+  --green-soft: #34d39922;
+  --red: #f87171;
+  --red-soft: #f8717122;
+  --orange: #fb923c;
+  --orange-soft: #fb923c22;
+  --yellow: #fbbf24;
+  --yellow-soft: #fbbf2422;
+
+  --work-bg: #1a2a1a;   /* timer phase: WORK (greenish wash) */
+  --rest-bg: #1a1a2a;   /* timer phase: REST (bluish wash) */
+
+  /* Heatmap (history) */
+  --hm-1: #14532d;
+  --hm-2: #166534;
+  --hm-3: #16a34a;
+  --hm-4: #4ade80;
+
+  /* Focus-pill states */
+  --include:  #5b6577;
+  --increase: #34d399;
+  --exclude:  #f87171;
+
+  --switch-overlay: rgba(251, 191, 36, 0.92);
+
+  /* === Type === */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+  --font-scale: 1; /* user-tunable: 0.875 / 1 / 1.125 / 1.25 / 1.5 */
+
+  /* Semantic type — sizes tuned to match index.html */
+  --fs-display: 2.5rem;   /* Done h1 */
+  --fs-h1: 2rem;          /* Setup header */
+  --fs-h2: 1.6rem;        /* Screen header */
+  --fs-h3: 1.2rem;        /* Section h2 */
+  --fs-body: 1rem;
+  --fs-small: 0.85rem;
+  --fs-xs: 0.75rem;
+  --fs-eyebrow: 0.7rem;   /* uppercased section labels */
+
+  --fs-timer: 8rem;        /* tabular-nums countdown */
+  --fs-timer-final: 11rem; /* last-3-seconds bloom */
+
+  --tracking-eyebrow: 0.06em;
+  --tracking-tight: -0.02em;
+  --tracking-display: -0.03em;
+
+  /* === Radii === */
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 10px;
+  --r-xl: 12px;
+  --r-2xl: 14px;
+  --r-3xl: 16px;
+  --r-pill: 999px;
+
+  /* === Spacing === */
+  --sp-1: 4px;
+  --sp-2: 6px;
+  --sp-3: 8px;
+  --sp-4: 10px;
+  --sp-5: 12px;
+  --sp-6: 14px;
+  --sp-7: 16px;
+  --sp-8: 20px;
+  --sp-9: 24px;
+  --sp-10: 28px;
+  --sp-12: 32px;
+
+  /* === Motion === */
+  --t-quick: 0.15s ease;
+  --t-base:  0.2s ease;
+  --t-slow:  0.4s ease;
+
+  font-size: calc(16px * var(--font-scale));
+}
+
+/* === MIDNIGHT === */
+[data-theme="midnight"] {
+  --bg: #060912; --surface: #0d1424; --surface2: #131c33; --border: #1d2a47;
+  --text: #e0eaff; --text-dim: #7a8aaa;
+  --accent: #22d3ee; --accent-glow: #22d3ee33; --accent-soft: #22d3ee22;
+  --work-bg: #0a2a26; --rest-bg: #0d1a30;
+  --hm-1: #134e4a; --hm-2: #115e59; --hm-3: #0d9488; --hm-4: #5eead4;
+  --include: #4a5572;
+  --switch-overlay: rgba(34, 211, 238, 0.92);
+}
+
+/* === FOREST === */
+[data-theme="forest"] {
+  --bg: #061410; --surface: #0e1f17; --surface2: #14291f; --border: #1f3b2c;
+  --text: #e8f5e9; --text-dim: #7aa090;
+  --accent: #a3e635; --accent-glow: #a3e63533; --accent-soft: #a3e63522;
+  --green: #4ade80; --green-soft: #4ade8022;
+  --work-bg: #102a17; --rest-bg: #0e1f25;
+  --hm-1: #14532d; --hm-2: #15803d; --hm-3: #22c55e; --hm-4: #86efac;
+  --include: #4a6055; --increase: #a3e635;
+  --switch-overlay: rgba(163, 230, 53, 0.92);
+}
+
+/* === HIGH CONTRAST === */
+[data-theme="hc"] {
+  --bg: #000; --surface: #0a0a0a; --surface2: #1a1a1a; --border: #ffffff66;
+  --text: #ffffff; --text-dim: #cccccc;
+  --accent: #fde047; --accent-glow: #fde04744; --accent-soft: #fde04733;
+  --green: #4ade80; --green-soft: #4ade8033;
+  --red: #fca5a5; --red-soft: #fca5a533;
+  --orange: #fdba74; --orange-soft: #fdba7433;
+  --yellow: #fde047; --yellow-soft: #fde04733;
+  --work-bg: #1a2200; --rest-bg: #001a22;
+  --hm-1: #4d4d00; --hm-2: #999900; --hm-3: #cccc00; --hm-4: #ffff00;
+  --include: #888; --increase: #4ade80; --exclude: #fca5a5;
+  --switch-overlay: rgba(253, 224, 71, 0.95);
+}
+
+/* === LIGHT === */
+[data-theme="light"] {
+  --bg: #fafaf7; --surface: #fff; --surface2: #f0f0ed; --border: #d4d4d0;
+  --text: #18181b; --text-dim: #71717a;
+  --accent: #2563eb; --accent-glow: #2563eb22; --accent-soft: #2563eb14;
+  --green: #16a34a; --green-soft: #16a34a22;
+  --red: #dc2626; --red-soft: #dc262622;
+  --orange: #ea580c; --orange-soft: #ea580c22;
+  --yellow: #ca8a04; --yellow-soft: #ca8a0422;
+  --work-bg: #ecfdf5; --rest-bg: #eff6ff;
+  --hm-1: #d9f99d; --hm-2: #86efac; --hm-3: #4ade80; --hm-4: #16a34a;
+  --include: #a1a1aa; --increase: #16a34a; --exclude: #dc2626;
+  --switch-overlay: rgba(37, 99, 235, 0.92);
+}
+
+/* === Semantic primitives === */
+html, body { font-family: var(--font-sans); background: var(--bg); color: var(--text); }
+h1 { font-size: var(--fs-h2); font-weight: 700; letter-spacing: var(--tracking-tight); }
+h2 { font-size: var(--fs-h3); font-weight: 600; color: var(--text-dim); }
+.eyebrow {
+  font-size: var(--fs-small); font-weight: 600; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: var(--tracking-eyebrow);
+}
+.timer-num {
+  font-size: var(--fs-timer); font-weight: 200;
+  font-variant-numeric: tabular-nums; letter-spacing: var(--tracking-display);
+  line-height: 1;
+}
