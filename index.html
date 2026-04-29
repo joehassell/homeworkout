@@ -838,6 +838,41 @@ html.is-native .is-native-only { display: flex; }
   color: var(--text-dim); font-size: 0.95rem; text-align: center;
 }
 .font-preview strong { color: var(--text); font-weight: 700; }
+
+/* Exercise Library Browser */
+.exlib-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.exlib-back { width: 40px; height: 40px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-dim); display: flex; align-items: center; justify-content: center; cursor: pointer; touch-action: manipulation; flex-shrink: 0; font-size: 1.2rem; }
+.exlib-back:active { background: var(--border); }
+.exlib-search { flex: 1; padding: 10px 14px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-size: 0.9rem; font-family: inherit; }
+.exlib-search:focus { outline: none; border-color: var(--accent); }
+.exlib-search::placeholder { color: var(--text-dim); }
+.exlib-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.exlib-filter-pill { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-dim); font-size: 0.75rem; font-weight: 600; cursor: pointer; touch-action: manipulation; white-space: nowrap; }
+.exlib-filter-pill.selected { border-color: var(--accent); background: var(--accent-glow); color: var(--accent); }
+.exlib-filter-pill:active { transform: scale(0.95); }
+.exlib-stats { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 10px; }
+.exlib-stats strong { color: var(--accent); }
+.exlib-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.exlib-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+.exlib-item.excluded { opacity: 0.5; border-color: var(--red); }
+.exlib-item.excluded .exlib-item-name { text-decoration: line-through; color: var(--red); }
+.exlib-item.favourited { border-color: var(--green); }
+.exlib-item-top { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.exlib-item-name { flex: 1; font-weight: 600; font-size: 0.9rem; cursor: pointer; touch-action: manipulation; }
+.exlib-item-name:active { opacity: 0.6; }
+.exlib-cat-badge { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.exlib-diff { font-size: 0.7rem; color: var(--text-dim); letter-spacing: 1px; }
+.exlib-item-meta { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 6px; }
+.exlib-equip-chip { display: inline-block; font-size: 0.65rem; padding: 1px 6px; border-radius: 4px; background: var(--surface2); color: var(--text-dim); margin-right: 4px; }
+.exlib-item-actions { display: flex; gap: 6px; }
+.exlib-item-actions button { flex: 1; padding: 6px 0; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-dim); font-size: 0.75rem; font-weight: 600; cursor: pointer; touch-action: manipulation; }
+.exlib-item-actions button:active { transform: scale(0.96); }
+.exlib-item-actions .exlib-exclude { border-color: var(--red); color: var(--red); }
+.exlib-item-actions .exlib-exclude.active { background: var(--red-soft); }
+.exlib-item-actions .exlib-fav { border-color: var(--green); color: var(--green); }
+.exlib-item-actions .exlib-fav.active { background: var(--green-soft); }
+#exercise-library { display: none; flex-direction: column; min-height: 100vh; min-height: 100dvh; padding: 20px; padding-top: calc(20px + env(safe-area-inset-top, 0px)); padding-bottom: env(safe-area-inset-bottom, 20px); }
+#exercise-library.active { display: flex; }
 </style>
 </head>
 <body>
@@ -869,6 +904,29 @@ html.is-native .is-native-only { display: flex; }
       <div class="pill" data-value="yin" onclick="selectPill(this)">Yin<span class="pill-sub">Deep holds</span></div>
       <div class="pill" data-value="power" onclick="selectPill(this)">Power<span class="pill-sub">Athletic</span></div>
       <div class="pill" data-value="restorative" onclick="selectPill(this)">Restorative<span class="pill-sub">Gentle</span></div>
+    </div>
+  </div>
+
+  <div class="option-group" id="yoga-experience-group" style="display:none;">
+    <label>Yoga Experience</label>
+    <div class="option-pills" id="yoga-experience-pills">
+      <div class="pill" data-value="new" onclick="selectYogaExperience(this)">New<span class="pill-sub">First time</span></div>
+      <div class="pill" data-value="some" onclick="selectYogaExperience(this)">Some practice<span class="pill-sub">A few classes</span></div>
+      <div class="pill selected" data-value="confident" onclick="selectYogaExperience(this)">Confident<span class="pill-sub">Regular practice</span></div>
+      <div class="pill" data-value="experienced" onclick="selectYogaExperience(this)">Experienced<span class="pill-sub">Years of practice</span></div>
+    </div>
+  </div>
+
+  <div class="option-group" id="yoga-equipment-group" style="display:none;">
+    <label>Yoga Equipment</label>
+    <div class="option-pills option-pills-multi" id="yoga-equipment-pills">
+      <div class="pill selected" data-value="mat" onclick="toggleYogaEquipPill(this)">Mat</div>
+      <div class="pill" data-value="block" onclick="toggleYogaEquipPill(this)">Block</div>
+      <div class="pill" data-value="strap" onclick="toggleYogaEquipPill(this)">Strap</div>
+      <div class="pill" data-value="bolster" onclick="toggleYogaEquipPill(this)">Bolster</div>
+      <div class="pill" data-value="blanket" onclick="toggleYogaEquipPill(this)">Blanket</div>
+      <div class="pill selected" data-value="wall" onclick="toggleYogaEquipPill(this)">Wall</div>
+      <div class="pill" data-value="chair" onclick="toggleYogaEquipPill(this)">Chair</div>
     </div>
   </div>
 
@@ -1225,6 +1283,11 @@ html.is-native .is-native-only { display: flex; }
       Writes completed workouts to Apple Health so they appear in the Fitness app and count toward your Activity rings.
     </div>
   </div>
+  <div class="settings-row">
+    <label class="settings-label">Exercise Library</label>
+    <button type="button" class="settings-action" onclick="showExerciseLibrary()">Browse Exercises</button>
+  </div>
+  <div class="settings-hint">View, search, exclude, or favourite any exercise in the database.</div>
   <div class="settings-row settings-row-stack">
     <label class="settings-label">Backup</label>
     <div class="settings-actions">
@@ -1242,6 +1305,30 @@ html.is-native .is-native-only { display: flex; }
     <h1>Library</h1>
   </div>
   <div class="library-list" id="library-list"></div>
+</div>
+
+<!-- EXERCISE LIBRARY BROWSER -->
+<div id="exercise-library">
+  <div class="exlib-header">
+    <button class="exlib-back" onclick="closeExerciseLibrary()" aria-label="Back">&larr;</button>
+    <input type="text" class="exlib-search" id="exlib-search" placeholder="Search exercises..." oninput="renderExerciseLibrary()">
+  </div>
+  <div class="exlib-filters" id="exlib-body-filters">
+    <span class="exlib-filter-pill" data-filter="body" data-value="lower" onclick="toggleExlibFilter(this)">Lower</span>
+    <span class="exlib-filter-pill" data-filter="body" data-value="upper_push" onclick="toggleExlibFilter(this)">Upper Push</span>
+    <span class="exlib-filter-pill" data-filter="body" data-value="upper_pull" onclick="toggleExlibFilter(this)">Upper Pull</span>
+    <span class="exlib-filter-pill" data-filter="body" data-value="core" onclick="toggleExlibFilter(this)">Core</span>
+    <span class="exlib-filter-pill" data-filter="body" data-value="full_body" onclick="toggleExlibFilter(this)">Full Body</span>
+    <span class="exlib-filter-pill" data-filter="body" data-value="posterior" onclick="toggleExlibFilter(this)">Mobility</span>
+  </div>
+  <div class="exlib-filters" id="exlib-equip-filters"></div>
+  <div class="exlib-filters" id="exlib-diff-filters">
+    <span class="exlib-filter-pill" data-filter="diff" data-value="1" onclick="toggleExlibFilter(this)">Diff 1</span>
+    <span class="exlib-filter-pill" data-filter="diff" data-value="2" onclick="toggleExlibFilter(this)">Diff 2</span>
+    <span class="exlib-filter-pill" data-filter="diff" data-value="3" onclick="toggleExlibFilter(this)">Diff 3</span>
+  </div>
+  <div class="exlib-stats" id="exlib-stats"></div>
+  <div class="exlib-list" id="exlib-list"></div>
 </div>
 
 <!-- SWITCH SIDES OVERLAY -->
@@ -1673,7 +1760,8 @@ const DB = [
 // ═══════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════
-let config = { type:'hiit', duration:30, intensity:'moderate', sets:3, yogaStyle:'vinyasa' };
+let config = { type:'hiit', duration:30, intensity:'moderate', sets:3, yogaStyle:'vinyasa', yogaExperience:'confident' };
+let yogaEquipment = new Set(['mat', 'wall']);
 let userGoals = [];
 let lastCustomDuration = 40;
 const ALL_EQUIPMENT = ['bodyweight','mat','dumbbell','kettlebell','barbell','bench','chinup bar','medicine ball','skipping rope'];
@@ -2080,6 +2168,12 @@ function loadAppSettings() {
       if (Array.isArray(s.userGoals)) {
         userGoals = s.userGoals.slice(0, 3);
       }
+      if (typeof s.yogaExperience === 'string') {
+        config.yogaExperience = s.yogaExperience;
+      }
+      if (Array.isArray(s.yogaEquipment)) {
+        yogaEquipment = new Set(s.yogaEquipment);
+      }
     }
   } catch (e) {}
   // Restore last custom duration
@@ -2095,6 +2189,8 @@ function loadAppSettings() {
   if (wEl) wEl.value = userWeightKg;
   syncProfileUI();
   syncGoalUI();
+  syncYogaExperienceUI();
+  syncYogaEquipmentUI();
 }
 
 function exportBackup() {
@@ -2146,6 +2242,8 @@ function saveAppSettings() {
       userProfile: userProfile,
       exerciseSettings: exerciseSettings,
       userGoals: userGoals,
+      yogaExperience: config.yogaExperience,
+      yogaEquipment: [...yogaEquipment],
     }));
   } catch (e) {}
   updateProfileCount();
@@ -2321,6 +2419,8 @@ function selectPill(el) {
 
 function toggleYogaUI(isYoga) {
   document.getElementById('yoga-style-group').style.display = isYoga ? '' : 'none';
+  document.getElementById('yoga-experience-group').style.display = isYoga ? '' : 'none';
+  document.getElementById('yoga-equipment-group').style.display = isYoga ? '' : 'none';
   document.getElementById('intensity-group').style.display = isYoga ? 'none' : '';
   document.getElementById('sets-group').style.display = isYoga ? 'none' : '';
   document.getElementById('equipment-group').style.display = isYoga ? 'none' : '';
@@ -2408,6 +2508,189 @@ function syncGoalUI() {
   document.querySelectorAll('#goal-pills .pill').forEach(p => {
     p.classList.toggle('selected', userGoals.includes(p.dataset.value));
   });
+}
+
+// ── Yoga experience ──────────────────────────
+function selectYogaExperience(el) {
+  el.parentElement.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  config.yogaExperience = el.dataset.value;
+  saveAppSettings();
+}
+function syncYogaExperienceUI() {
+  const pills = document.getElementById('yoga-experience-pills');
+  if (!pills || !pills.querySelectorAll) return;
+  pills.querySelectorAll('.pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === config.yogaExperience);
+  });
+}
+
+// ── Yoga equipment ──────────────────────────
+function toggleYogaEquipPill(el) {
+  const val = el.dataset.value;
+  if (yogaEquipment.has(val)) {
+    yogaEquipment.delete(val);
+    el.classList.remove('selected');
+  } else {
+    yogaEquipment.add(val);
+    el.classList.add('selected');
+  }
+  saveAppSettings();
+}
+function syncYogaEquipmentUI() {
+  try {
+    document.querySelectorAll('#yoga-equipment-pills .pill').forEach(p => {
+      p.classList.toggle('selected', yogaEquipment.has(p.dataset.value));
+    });
+  } catch (e) {}
+}
+
+// ═══════════════════════════════════════════════════
+// EXERCISE LIBRARY BROWSER
+// ═══════════════════════════════════════════════════
+let exlibFilters = { body: null, equip: null, diff: null };
+
+function showExerciseLibrary() {
+  // Hide all screens and nav
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const nav = document.getElementById('bottom-nav');
+  if (nav) nav.classList.remove('visible');
+  // Build equipment filter pills from user's selected equipment
+  const equipContainer = document.getElementById('exlib-equip-filters');
+  if (equipContainer) {
+    equipContainer.innerHTML = '';
+    for (const eq of selectedEquipment) {
+      const pill = document.createElement('span');
+      pill.className = 'exlib-filter-pill';
+      pill.dataset.filter = 'equip';
+      pill.dataset.value = eq;
+      pill.textContent = eq.charAt(0).toUpperCase() + eq.slice(1);
+      pill.onclick = function() { toggleExlibFilter(this); };
+      equipContainer.appendChild(pill);
+    }
+  }
+  // Reset filters
+  exlibFilters = { body: null, equip: null, diff: null };
+  document.querySelectorAll('.exlib-filter-pill').forEach(p => p.classList.remove('selected'));
+  const searchEl = document.getElementById('exlib-search');
+  if (searchEl) searchEl.value = '';
+  // Show
+  document.getElementById('exercise-library').classList.add('active');
+  renderExerciseLibrary();
+}
+
+function closeExerciseLibrary() {
+  document.getElementById('exercise-library').classList.remove('active');
+  showScreen('settings');
+}
+
+function toggleExlibFilter(el) {
+  const filterType = el.dataset.filter;
+  const val = el.dataset.value;
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    exlibFilters[filterType] = null;
+  } else {
+    // Deselect siblings of same filter type
+    document.querySelectorAll('.exlib-filter-pill[data-filter="' + filterType + '"]').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+    exlibFilters[filterType] = val;
+  }
+  renderExerciseLibrary();
+}
+
+function renderExerciseLibrary() {
+  const searchVal = (document.getElementById('exlib-search')?.value || '').toLowerCase();
+  const blacklist = exerciseSettings.exercise_blacklist || [];
+  const whitelist = exerciseSettings.exercise_whitelist || [];
+
+  let filtered = DB.filter(ex => {
+    // Search
+    if (searchVal) {
+      const nameMatch = ex.name.toLowerCase().includes(searchVal);
+      const muscleMatch = ex.muscles.some(m => m.toLowerCase().includes(searchVal));
+      if (!nameMatch && !muscleMatch) return false;
+    }
+    // Body part filter
+    if (exlibFilters.body) {
+      const cats = REGIONS[exlibFilters.body] || [];
+      if (!cats.includes(ex.cat)) return false;
+    }
+    // Equipment filter
+    if (exlibFilters.equip) {
+      if (!ex.equip.includes(exlibFilters.equip)) return false;
+    }
+    // Difficulty filter
+    if (exlibFilters.diff) {
+      if (ex.diff !== parseInt(exlibFilters.diff)) return false;
+    }
+    return true;
+  });
+
+  // Stats
+  const excludedCount = blacklist.length;
+  const favCount = whitelist.length;
+  const statsEl = document.getElementById('exlib-stats');
+  if (statsEl) {
+    statsEl.innerHTML = 'Showing <strong>' + filtered.length + '</strong> of ' + DB.length +
+      ' &middot; ' + excludedCount + ' excluded, ' + favCount + ' favourited';
+  }
+
+  // Render list
+  const listEl = document.getElementById('exlib-list');
+  if (!listEl) return;
+  const diffPips = d => { let s = ''; for (let i = 0; i < d; i++) s += '\u25CF'; return s; };
+
+  listEl.innerHTML = filtered.map(ex => {
+    const isExcluded = blacklist.includes(ex.name);
+    const isFav = whitelist.includes(ex.name);
+    const cls = isExcluded ? ' excluded' : isFav ? ' favourited' : '';
+    return '<div class="exlib-item' + cls + '" data-name="' + ex.name.replace(/"/g, '&quot;') + '">' +
+      '<div class="exlib-item-top">' +
+        '<span class="exlib-item-name" onclick="showInfo(\'' + ex.name.replace(/'/g, "\\'") + '\')">' + ex.name + '</span>' +
+        '<span class="exlib-cat-badge">' + ex.cat + '</span>' +
+        '<span class="exlib-diff">' + diffPips(ex.diff) + '</span>' +
+      '</div>' +
+      '<div class="exlib-item-meta">' +
+        ex.equip.map(e => '<span class="exlib-equip-chip">' + e + '</span>').join('') +
+        ' ' + ex.muscles.join(', ') +
+      '</div>' +
+      '<div class="exlib-item-actions">' +
+        '<button class="exlib-exclude' + (isExcluded ? ' active' : '') + '" onclick="toggleExlibExclude(\'' + ex.name.replace(/'/g, "\\'") + '\')">' + (isExcluded ? 'Un-exclude' : 'Exclude') + '</button>' +
+        '<button class="exlib-fav' + (isFav ? ' active' : '') + '" onclick="toggleExlibFav(\'' + ex.name.replace(/'/g, "\\'") + '\')">' + (isFav ? 'Un-favourite' : 'Favourite') + '</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function toggleExlibExclude(name) {
+  if (!Array.isArray(exerciseSettings.exercise_blacklist)) exerciseSettings.exercise_blacklist = [];
+  const idx = exerciseSettings.exercise_blacklist.indexOf(name);
+  if (idx !== -1) {
+    exerciseSettings.exercise_blacklist.splice(idx, 1);
+  } else {
+    exerciseSettings.exercise_blacklist.push(name);
+    // Remove from whitelist if present
+    const wIdx = (exerciseSettings.exercise_whitelist || []).indexOf(name);
+    if (wIdx !== -1) exerciseSettings.exercise_whitelist.splice(wIdx, 1);
+  }
+  saveAppSettings();
+  renderExerciseLibrary();
+}
+
+function toggleExlibFav(name) {
+  if (!Array.isArray(exerciseSettings.exercise_whitelist)) exerciseSettings.exercise_whitelist = [];
+  const idx = exerciseSettings.exercise_whitelist.indexOf(name);
+  if (idx !== -1) {
+    exerciseSettings.exercise_whitelist.splice(idx, 1);
+  } else {
+    exerciseSettings.exercise_whitelist.push(name);
+    // Remove from blacklist if present
+    const bIdx = (exerciseSettings.exercise_blacklist || []).indexOf(name);
+    if (bIdx !== -1) exerciseSettings.exercise_blacklist.splice(bIdx, 1);
+  }
+  saveAppSettings();
+  renderExerciseLibrary();
 }
 
 // ── Custom duration ──────────────────────────
@@ -2722,7 +3005,7 @@ function generateWorkout() {
   clearGenError();
   // Yoga uses its own generator path
   if (config.type === 'yoga') {
-    window.yoga.generateYogaWorkout(config, focusState, workout);
+    window.yoga.generateYogaWorkout(config, focusState, workout, config.yogaExperience, yogaEquipment);
     if (workout.length === 0) {
       showGenError('Session too short for this yoga style. Try a longer duration.');
       return;
@@ -3851,6 +4134,7 @@ function finishWorkout() {
     date: new Date(timerState.startedAt).toISOString(),
     type: config.type,
     yogaStyle: config.type === 'yoga' ? config.yogaStyle : null,
+    yogaExperience: config.type === 'yoga' ? config.yogaExperience : null,
     intensity: config.intensity,
     sets: config.sets,
     plannedDurationMin: config.duration,

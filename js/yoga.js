@@ -342,10 +342,37 @@
     return arr;
   }
 
-  function generateYogaWorkout(config, focusState, workoutArr) {
+  // ═══════════════════════════════════════════════════
+  // EXPERIENCE LEVEL CAPS
+  // ═══════════════════════════════════════════════════
+
+  const EXPERIENCE_CAPS = {
+    'new':         { maxDiff: 1, noInversions: true, balanceMaxDiff: 1 },
+    'some':        { maxDiff: 2, noInversions: false, balanceMaxDiff: 3 },
+    'confident':   { maxDiff: 3, noInversions: false, balanceMaxDiff: 3 },
+    'experienced': { maxDiff: 999, noInversions: false, balanceMaxDiff: 999 },
+  };
+
+  function posePassesExperience(pose, experience) {
+    const cap = EXPERIENCE_CAPS[experience];
+    if (!cap) return true;
+    if (pose.diff > cap.maxDiff) return false;
+    if (cap.noInversions && pose.cat === 'yoga-inversion') return false;
+    if (pose.cat === 'yoga-balance' && pose.diff > cap.balanceMaxDiff) return false;
+    return true;
+  }
+
+  function posePassesEquipment(pose, yogaEquip) {
+    if (!pose.requires_props || pose.requires_props.length === 0) return true;
+    if (!yogaEquip) return true;
+    return pose.requires_props.every(prop => yogaEquip.has(prop));
+  }
+
+  function generateYogaWorkout(config, focusState, workoutArr, experience, yogaEquip) {
     const style = YOGA_STYLES[config.yogaStyle];
     if (!style) return;
 
+    const exp = experience || 'confident';
     const totalSec = config.duration * 60;
 
     // Reserve time for centering and savasana
@@ -413,7 +440,9 @@
         cats.includes(p.cat) &&
         p.styles.includes(config.yogaStyle) &&
         !usedNames.has(p.name) &&
-        yogaFocusWeight(p, focusState) > 0
+        yogaFocusWeight(p, focusState) > 0 &&
+        posePassesExperience(p, exp) &&
+        posePassesEquipment(p, yogaEquip)
       );
 
       // Fallback: if focus filtering empties the pool, try without focus
@@ -421,7 +450,9 @@
         pool = YOGA_DB.filter(p =>
           cats.includes(p.cat) &&
           p.styles.includes(config.yogaStyle) &&
-          !usedNames.has(p.name)
+          !usedNames.has(p.name) &&
+          posePassesExperience(p, exp) &&
+          posePassesEquipment(p, yogaEquip)
         );
       }
       // If still empty, skip this phase
