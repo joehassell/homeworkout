@@ -1,0 +1,29 @@
+Generated:     2026-04-29T11:55:12.329Z
+Total:         161
+By source:     strength=114, yoga=47
+Single-sided:  40
+Frame source:  override=56, rule=105
+
+By category:
+  animal               5
+  cardio               7
+  carry                5
+  core                 12
+  full-body            10
+  isometric            6
+  lower-hinge          10
+  lower-squat          13
+  mobility             15
+  plyo                 7
+  pull-h               5
+  pull-v               5
+  push-h               9
+  push-v               5
+  yoga-balance         7
+  yoga-core            2
+  yoga-floor           11
+  yoga-inversion       4
+  yoga-savasana        1
+  yoga-seated          6
+  yoga-standing        10
+  yoga-transition      6

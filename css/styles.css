@@ -718,6 +718,27 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 .equip-catalog-item.eq-never { border-left: 3px solid var(--red); opacity: 0.6; }
 .equip-catalog-item.eq-never .equip-pref-label { color: var(--red); }
 
+/* Equipment icons — SVG silhouettes that scale and tint with currentColor.
+   One source per icon, sized via CSS class. Use:
+     <img class="eq-icon eq-icon--md" src="...">
+   …or place inside any element whose color sets the tint.
+   Sizes are calibrated to common UI surfaces. */
+.eq-icon {
+  display: inline-block;
+  width: var(--eq-icon-size, 24px);
+  height: var(--eq-icon-size, 24px);
+  flex-shrink: 0;
+  vertical-align: middle;
+  /* SVGs use currentColor; falls back to text color of parent */
+}
+.eq-icon--xs { --eq-icon-size: 16px; } /* filter chip, inline list */
+.eq-icon--sm { --eq-icon-size: 20px; } /* compact list row */
+.eq-icon--md { --eq-icon-size: 24px; } /* default workout-card chip */
+.eq-icon--lg { --eq-icon-size: 48px; } /* equipment picker tile */
+.eq-icon--xl { --eq-icon-size: 96px; } /* onboarding hero */
+/* High-DPR Retina rendering hint: SVGs are vector so DPR is automatic.
+   No @1x/@2x/@3x raster ladder needed. */
+
 /* Locked equipment pill (always preference) */
 .pill.eq-locked { opacity: 0.7; cursor: default; }
 .pill.eq-locked::after { content: ' \u2713'; }

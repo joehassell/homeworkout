@@ -2826,6 +2826,66 @@ function exerciseImageUrl(exercise) {
   return 'img/exercises/' + (CATEGORY_PLACEHOLDER[cat] || 'placeholder-default.svg');
 }
 
+// ── Equipment icons ──────────────────────────────────────────
+// Maps every EQUIPMENT_CATALOG id to an SVG file in img/equipment/.
+// Specialty benches (flat/incline/decline/preacher/back-ext) reuse bench.svg.
+// Specialty bars (EZ curl, olympic platform) reuse barbell.svg.
+// Smith machine reuses power-rack.svg (same cage at icon size).
+// Stationary/recumbent/air bikes share bike.svg.
+// Cable column, crossover, lat pulldown, seated cable row → cable-machine.svg.
+// All plate-loaded selectorized machines → selectorized-machine.svg.
+// Anything missing falls back to equipment-default.svg.
+const EQUIPMENT_ICON = {
+  // Basic
+  'bodyweight':'bodyweight.svg', 'mat':'mat.svg', 'skipping rope':'skipping-rope.svg',
+  // Home
+  'dumbbell':'dumbbell.svg', 'kettlebell':'kettlebell.svg', 'bench':'bench.svg',
+  'chinup bar':'chinup-bar.svg', 'medicine ball':'medicine-ball.svg',
+  'resistance band':'resistance-band.svg', 'foam roller':'foam-roller.svg',
+  'ab wheel':'ab-wheel.svg', 'trx':'trx.svg', 'parallettes':'parallettes.svg',
+  // Commercial — bars (reuse barbell)
+  'barbell':'barbell.svg', 'ez curl bar':'barbell.svg', 'olympic platform':'barbell.svg',
+  // Commercial — racks (reuse power-rack for smith machine)
+  'power rack':'power-rack.svg', 'smith machine':'power-rack.svg',
+  // Commercial — benches (reuse bench)
+  'flat bench':'bench.svg', 'incline bench':'bench.svg', 'decline bench':'bench.svg',
+  'preacher curl bench':'bench.svg', 'back extension bench':'bench.svg',
+  // Commercial — cardio (dedicated icons; bikes share)
+  'treadmill':'treadmill.svg',
+  'stationary bike upright':'bike.svg', 'stationary bike recumbent':'bike.svg', 'air bike':'bike.svg',
+  'elliptical':'elliptical.svg', 'rowing machine':'rowing-machine.svg',
+  'stair climber':'stair-climber.svg', 'ski erg':'ski-erg.svg', 'sled':'sled.svg',
+  // Commercial — cable (category fallback)
+  'cable column':'cable-machine.svg', 'cable crossover':'cable-machine.svg',
+  'lat pulldown':'cable-machine.svg', 'seated cable row':'cable-machine.svg',
+  // Commercial — selectorized machines (category fallback)
+  'chest press machine':'selectorized-machine.svg',
+  'shoulder press machine':'selectorized-machine.svg',
+  'pec deck':'selectorized-machine.svg',
+  'rear delt fly':'selectorized-machine.svg',
+  'leg press':'selectorized-machine.svg',
+  'leg extension':'selectorized-machine.svg',
+  'seated leg curl':'selectorized-machine.svg',
+  'lying leg curl':'selectorized-machine.svg',
+  'hip abductor':'selectorized-machine.svg',
+  'hip adductor':'selectorized-machine.svg',
+  'calf raise machine':'selectorized-machine.svg',
+  'assisted pull-up/dip':'selectorized-machine.svg',
+  'hack squat':'selectorized-machine.svg',
+  'belt squat':'selectorized-machine.svg',
+  't-bar row':'selectorized-machine.svg',
+  'iso-lateral chest press':'selectorized-machine.svg',
+  'iso-lateral row':'selectorized-machine.svg',
+  'iso-lateral shoulder press':'selectorized-machine.svg',
+  'iso-lateral pulldown':'selectorized-machine.svg',
+  'glute-ham developer':'selectorized-machine.svg',
+  'reverse hyper':'selectorized-machine.svg',
+};
+
+function equipmentIconUrl(equipId) {
+  return 'img/equipment/' + (EQUIPMENT_ICON[equipId] || 'equipment-default.svg');
+}
+
 // ── Workout structure helpers ────────────────────────────────
 // All assume the layout: [warmup...][main set 0...][main set 1...]...[cooldown...]
 function getMainStructure() {
