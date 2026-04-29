@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Equipment icon preview</title>
+  <style>
+    body { font-family: -apple-system, system-ui, sans-serif; background:#0f172a; color:#e2e8f0; margin:0; padding:24px; }
+    h1 { margin: 0 0 4px; font-size:18px; }
+    .sub { color:#94a3b8; margin-bottom:24px; font-size:13px; }
+    h2 { margin:32px 0 12px; font-size:14px; color:#cbd5e1; text-transform:uppercase; letter-spacing:.05em; font-weight:600; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:16px; }
+    .card { background:#1e293b; border-radius:8px; padding:16px; text-align:center; }
+    .card .row { display:flex; justify-content:center; align-items:flex-end; gap:12px; height:64px; margin-bottom:12px; color:#cbd5e1; }
+    .name { font-size:11px; color:#94a3b8; word-break:break-word; }
+    img.x16 { width:16px; height:16px; }
+    img.x24 { width:24px; height:24px; }
+    img.x32 { width:32px; height:32px; }
+    img.x48 { width:48px; height:48px; }
+    .compare { background:#1e293b; padding:16px; border-radius:8px; margin-top:16px; }
+    .compare-row { display:flex; gap:24px; align-items:center; flex-wrap:wrap; }
+    .compare-row > div { display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11px; color:#94a3b8; }
+    .scale-row { display:flex; gap:8px; align-items:flex-end; padding:12px; background:#0f172a; border-radius:6px; color:#cbd5e1; }
+    .scale-row img { display:block; }
+    .accent-test { display:flex; gap:16px; padding:16px; background:#1e293b; border-radius:8px; margin-top:16px; align-items:center; flex-wrap:wrap; }
+    .accent-test .swatch { display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:6px; font-size:13px; }
+    .accent-blue   { background:#1e40af; color:#bfdbfe; }
+    .accent-green  { background:#166534; color:#bbf7d0; }
+    .accent-amber  { background:#92400e; color:#fde68a; }
+    .accent-rose   { background:#9f1239; color:#fecdd3; }
+    .accent-mute   { background:#334155; color:#94a3b8; }
+  </style>
+</head>
+<body>
+  <h1>Equipment icons — visual QA</h1>
+  <div class="sub">25 icons rendered at 16/24/32/48 px. All use <code>currentColor</code> so they tint with parent text color.</div>
+
+  <h2>Scale ladder demo</h2>
+  <div class="scale-row">
+    <img class="x16" src="kettlebell.svg"> <span style="font-size:10px;color:#64748b">16 (chip)</span>
+    <img class="x24" src="kettlebell.svg"> <span style="font-size:11px;color:#64748b">24 (list)</span>
+    <img class="x32" src="kettlebell.svg"> <span style="font-size:12px;color:#64748b">32 (card)</span>
+    <img class="x48" src="kettlebell.svg"> <span style="font-size:13px;color:#64748b">48 (picker)</span>
+  </div>
+
+  <h2>Color theming via currentColor</h2>
+  <div class="accent-test">
+    <div class="swatch accent-blue"><img class="x24" src="kettlebell.svg"> Kettlebell</div>
+    <div class="swatch accent-green"><img class="x24" src="dumbbell.svg"> Dumbbell</div>
+    <div class="swatch accent-amber"><img class="x24" src="barbell.svg"> Barbell</div>
+    <div class="swatch accent-rose"><img class="x24" src="medicine-ball.svg"> Med ball</div>
+    <div class="swatch accent-mute"><img class="x24" src="mat.svg"> Mat (muted/disabled)</div>
+  </div>
+
+  <h2>Tier A — 14 unique icons (basic + home)</h2>
+  <div class="grid" id="tier-a"></div>
+
+  <h2>Tier B — 8 commercial dedicated icons</h2>
+  <div class="grid" id="tier-b"></div>
+
+  <h2>Tier C — 3 category fallbacks (cover the long tail)</h2>
+  <div class="grid" id="tier-c"></div>
+
+  <script>
+    const tierA = ['bodyweight','mat','skipping-rope','dumbbell','kettlebell','barbell','bench','chinup-bar','medicine-ball','resistance-band','foam-roller','ab-wheel','trx','parallettes'];
+    const tierB = ['power-rack','treadmill','bike','elliptical','rowing-machine','stair-climber','ski-erg','sled'];
+    const tierC = ['cable-machine','selectorized-machine','equipment-default'];
+
+    function render(items, target) {
+      const el = document.getElementById(target);
+      el.innerHTML = items.map(slug => `
+        <div class="card">
+          <div class="row">
+            <img class="x16" src="${slug}.svg" alt="${slug}">
+            <img class="x24" src="${slug}.svg" alt="${slug}">
+            <img class="x32" src="${slug}.svg" alt="${slug}">
+            <img class="x48" src="${slug}.svg" alt="${slug}">
+          </div>
+          <div class="name">${slug}</div>
+        </div>
+      `).join('');
+    }
+    render(tierA, 'tier-a');
+    render(tierB, 'tier-b');
+    render(tierC, 'tier-c');
+  </script>
+</body>
+</html>
