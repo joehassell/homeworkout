@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Buttons</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; background: #0a0a0f; color: #e8e8f0; font-family: var(--font-sans); }
+  body { padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+  .row { display: flex; gap: 10px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 14px 28px; border-radius: 12px; border: none;
+    font-size: 1rem; font-weight: 600; font-family: inherit;
+  }
+  .btn-primary { background: #4f8cff; color: #fff; }
+  .btn-danger { background: #f87171; color: #fff; }
+  .btn-ghost { background: #1e1e2a; color: #e8e8f0; border: 1px solid #2a2a3a; }
+  .btn-full { width: 100%; }
+  .btn-strength-done { background: #34d399; color: #0a0a0f; font-weight: 800; font-size: 1.1rem; padding: 16px 36px; min-width: 200px; }
+  .btn-add-rest { background: #1e1e2a; color: #4f8cff; border: 2px solid #4f8cff; font-weight: 700; }
+  .btn-add-ex { padding: 12px; background: #16161f; border: 2px dashed #2a2a3a; border-radius: 10px; color: #8888a0; font-weight: 600; width: 100%; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <button class="btn btn-primary btn-full">Generate Workout</button>
+  </div>
+  <div class="row">
+    <button class="btn btn-ghost" style="flex:1">Back</button>
+    <button class="btn btn-primary" style="flex:1">Start</button>
+  </div>
+  <div class="row">
+    <button class="btn btn-strength-done">Set Done</button>
+    <button class="btn btn-add-rest">+ Add Rest</button>
+    <button class="btn btn-danger">End Workout</button>
+  </div>
+  <button class="btn-add-ex">+ Add exercise</button>
+</body>
+</html>

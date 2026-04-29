@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Type scale</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { height: 100%; margin: 0; background: #0a0a0f; color: #e8e8f0; font-family: var(--font-sans); }
+  body { padding: 18px 22px; display: flex; flex-direction: column; gap: 12px; }
+  .row { display: grid; grid-template-columns: 110px 1fr 90px; align-items: baseline; gap: 16px; padding-bottom: 8px; border-bottom: 1px solid #2a2a3a; }
+  .row:last-child { border: none; }
+  .meta { font-size: 11px; color: #8888a0; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  .px { font-size: 11px; color: #8888a0; font-family: ui-monospace, monospace; text-align: right; }
+  .timer { font-size: 4.5rem; font-weight: 200; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1; color: #4f8cff; text-shadow: 0 0 24px #4f8cff33; }
+  .h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; }
+  .h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; }
+  .h3 { font-size: 1.2rem; font-weight: 600; color: #8888a0; }
+  .body { font-size: 1rem; }
+  .small { font-size: 0.85rem; color: #8888a0; }
+  .eyebrow { font-size: 0.7rem; font-weight: 700; color: #8888a0; text-transform: uppercase; letter-spacing: 0.1em; }
+</style>
+</head>
+<body>
+  <div class="row"><div class="meta">Timer</div><div class="timer">00:42</div><div class="px">200 · 4.5r</div></div>
+  <div class="row"><div class="meta">Display</div><div class="h1">Workout Builder</div><div class="px">700 · 2r</div></div>
+  <div class="row"><div class="meta">H2</div><div class="h2">Session history</div><div class="px">700 · 1.6r</div></div>
+  <div class="row"><div class="meta">H3 / dim</div><div class="h3">This week</div><div class="px">600 · 1.2r</div></div>
+  <div class="row"><div class="meta">Body</div><div class="body">Build your session.</div><div class="px">400 · 1r</div></div>
+  <div class="row"><div class="meta">Small</div><div class="small">Heavy & slow</div><div class="px">400 · .85r</div></div>
+  <div class="row"><div class="meta">Eyebrow</div><div class="eyebrow">WORKOUT TYPE</div><div class="px">700 · .7r</div></div>
+</body>
+</html>

@@ -33,6 +33,7 @@ public class HealthKitPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "endWorkout", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "discardWorkout", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "getBodyWeight", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getDateOfBirth", returnType: CAPPluginReturnPromise),
     ]
 
     private let healthStore = HKHealthStore()
@@ -87,6 +88,7 @@ public class HealthKitPlugin: CAPPlugin, CAPBridgedPlugin {
             HKQuantityType(.heartRate),
             HKQuantityType(.activeEnergyBurned),
             HKQuantityType(.bodyMass),
+            HKCharacteristicType(.dateOfBirth),
         ]
 
         healthStore.requestAuthorization(toShare: writeTypes, read: readTypes) { success, error in
@@ -227,6 +229,22 @@ public class HealthKitPlugin: CAPPlugin, CAPBridgedPlugin {
         }
 
         healthStore.execute(query)
+    }
+
+    @objc func getDateOfBirth(_ call: CAPPluginCall) {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            call.resolve(["available": false])
+            return
+        }
+        do {
+            let dob = try healthStore.dateOfBirthComponents()
+            let year = dob.year ?? 0
+            let currentYear = Calendar.current.component(.year, from: Date())
+            let age = currentYear - year
+            call.resolve(["available": true, "age": age, "year": year])
+        } catch {
+            call.resolve(["available": false])
+        }
     }
 
     // MARK: - Live Activity (iOS 16.1+)

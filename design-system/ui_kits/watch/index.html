@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Apple Watch — SimpleWorkoutGen</title>
+<link rel="stylesheet" href="../../colors_and_type.css">
+<style>
+  body { background: #050507; min-height: 100vh; margin: 0; display: flex; align-items: center; justify-content: center; padding: 24px; gap: 28px; flex-wrap: wrap; font-family: var(--font-sans); color: var(--text); }
+  .watch-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .watch-label { font-size: 0.7rem; color: #8888a0; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+  .watch {
+    width: 200px; height: 244px; border-radius: 44px;
+    background: #1a1a22;
+    box-shadow: 0 0 0 4px #0d0d12, 0 0 0 6px #2a2a3a, 0 30px 60px rgba(0,0,0,0.6);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .watch .crown { position: absolute; right: -6px; top: 80px; width: 8px; height: 28px; background: #2a2a3a; border-radius: 2px; }
+  .watch .button { position: absolute; right: -4px; top: 130px; width: 6px; height: 36px; background: #2a2a3a; border-radius: 2px; }
+  .face { flex: 1; padding: 14px 14px 10px; display: flex; flex-direction: column; gap: 6px; background: var(--bg); }
+  /* WORK */
+  .face.work { background: var(--work-bg); }
+  .face.rest { background: var(--rest-bg); }
+  .phase { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; }
+  .phase.work { color: var(--green); }
+  .phase.rest { color: var(--accent); }
+  .ex { font-size: 0.78rem; font-weight: 700; line-height: 1.15; }
+  .num { font-size: 2.6rem; font-weight: 200; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; line-height: 1; margin-top: 4px; }
+  .hr-row { display: flex; align-items: baseline; gap: 4px; font-size: 0.7rem; }
+  .hr-row .heart { color: #ef4444; font-size: 0.85rem; }
+  .hr-row .bpm { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .hr-row .unit { font-size: 0.55rem; color: var(--text-dim); }
+  .controls { display: flex; gap: 4px; margin-top: auto; padding-top: 6px; }
+  .ctrl { flex: 1; padding: 6px 0; border-radius: 8px; background: rgba(255,255,255,0.08); color: var(--text); font-size: 0.62rem; font-weight: 600; text-align: center; }
+  .ctrl.primary { background: var(--accent); color: #fff; }
+  /* IDLE */
+  .face.idle { background: var(--bg); align-items: center; justify-content: center; text-align: center; }
+  .idle img { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 8px; }
+  .idle .h1 { font-size: 0.85rem; font-weight: 700; }
+  .idle .sub { font-size: 0.62rem; color: var(--text-dim); margin-top: 4px; line-height: 1.3; padding: 0 4px; }
+  /* COMPLICATION */
+  .complication-bg {
+    width: 200px; height: 244px; border-radius: 44px;
+    background: radial-gradient(circle at 50% 35%, #16161f 0%, #050507 75%);
+    position: relative; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 4px #0d0d12, 0 0 0 6px #2a2a3a, 0 30px 60px rgba(0,0,0,0.6);
+  }
+  .ring { width: 120px; height: 120px; border-radius: 50%; position: relative; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring-text .big { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .ring-text .small { font-size: 0.5rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-top: 1px; }
+  .corner-time { position: absolute; top: 16px; right: 18px; font-size: 0.7rem; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div class="watch-wrap">
+    <div class="watch-label">Idle</div>
+    <div class="watch">
+      <div class="crown"></div><div class="button"></div>
+      <div class="face idle">
+        <img src="../../assets/icon-1024.png" alt="">
+        <div class="h1">Ready</div>
+        <div class="sub">Start a workout on your iPhone</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="watch-wrap">
+    <div class="watch-label">Active — Work</div>
+    <div class="watch">
+      <div class="crown"></div><div class="button"></div>
+      <div class="face work">
+        <span class="phase work">Work · Set 2/3</span>
+        <div class="ex">Goblet Squat</div>
+        <div class="num">00:24</div>
+        <div class="hr-row"><span class="heart">♥</span><span class="bpm">152</span><span class="unit">BPM</span></div>
+        <div class="controls">
+          <div class="ctrl">⏸</div>
+          <div class="ctrl primary">⏭</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="watch-wrap">
+    <div class="watch-label">Active — Rest</div>
+    <div class="watch">
+      <div class="crown"></div><div class="button"></div>
+      <div class="face rest">
+        <span class="phase rest">Rest · 90s</span>
+        <div class="ex">Up next: Push-up</div>
+        <div class="num">00:42</div>
+        <div class="hr-row"><span class="heart">♥</span><span class="bpm">128</span><span class="unit">BPM</span></div>
+        <div class="controls">
+          <div class="ctrl">⏸</div>
+          <div class="ctrl primary">⏭</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="watch-wrap">
+    <div class="watch-label">Modular ring</div>
+    <div class="complication-bg">
+      <div class="corner-time">9:41</div>
+      <div class="ring">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" stroke="#2a2a3a" stroke-width="8" fill="none"/>
+          <circle cx="60" cy="60" r="52" stroke="#4f8cff" stroke-width="8" fill="none"
+                  stroke-dasharray="326.7" stroke-dashoffset="98" stroke-linecap="round"/>
+        </svg>
+        <div class="ring-text">
+          <div class="big">22</div>
+          <div class="small">min · HIIT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

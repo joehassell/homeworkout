@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Bottom nav</title>
+<style>
+  html, body { margin: 0; background: #0a0a0f; color: #e8e8f0; font-family: -apple-system, system-ui, sans-serif; height: 100%; }
+  body { display: flex; align-items: flex-end; padding: 0; }
+  .nav {
+    width: 100%; display: flex; background: #16161f; border-top: 1px solid #2a2a3a; padding: 8px 4px 12px;
+  }
+  .item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    color: #8888a0; font-size: 0.72rem; padding: 8px 4px;
+  }
+  .item.active { color: #4f8cff; }
+  svg { width: 22px; height: 22px; stroke-width: 1.6; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+  .label { font-weight: 600; }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="item active">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      <span class="label">Build</span>
+    </div>
+    <div class="item">
+      <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>
+      <span class="label">History</span>
+    </div>
+    <div class="item">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="label">Settings</span>
+    </div>
+  </nav>
+</body>
+</html>

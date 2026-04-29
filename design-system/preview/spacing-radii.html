@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spacing & radii</title>
+<style>
+  html, body { margin: 0; background: #0a0a0f; color: #e8e8f0; font-family: -apple-system, system-ui, sans-serif; }
+  body { padding: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .lbl { font-size: 0.7rem; color: #8888a0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .col { display: flex; flex-direction: column; gap: 10px; }
+  .row { display: flex; align-items: center; gap: 10px; font-size: 0.75rem; color: #8888a0; }
+  .bar { background: #4f8cff; height: 14px; border-radius: 3px; }
+  .rd { background: #16161f; border: 1px solid #2a2a3a; height: 44px; width: 80px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #8888a0; }
+  .rd.accent { background: #4f8cff; color: #fff; border-color: #4f8cff; font-weight: 700; }
+</style>
+</head>
+<body>
+  <div>
+    <div class="lbl">Spacing — 4-based scale</div>
+    <div class="col">
+      <div class="row"><div class="bar" style="width:4px"></div>4 · sp-1</div>
+      <div class="row"><div class="bar" style="width:8px"></div>8 · sp-3</div>
+      <div class="row"><div class="bar" style="width:12px"></div>12 · sp-5 · pill v-pad</div>
+      <div class="row"><div class="bar" style="width:16px"></div>16 · sp-7 · card pad</div>
+      <div class="row"><div class="bar" style="width:20px"></div>20 · sp-8 · gutter</div>
+      <div class="row"><div class="bar" style="width:28px"></div>28 · sp-10 · group</div>
+    </div>
+  </div>
+  <div>
+    <div class="lbl">Corner radii</div>
+    <div class="col">
+      <div class="row"><div class="rd" style="border-radius:6px">6</div>chip / sub</div>
+      <div class="row"><div class="rd" style="border-radius:10px">10</div>cards</div>
+      <div class="row"><div class="rd accent" style="border-radius:12px">12</div>buttons / inputs</div>
+      <div class="row"><div class="rd" style="border-radius:14px">14</div>plan card</div>
+      <div class="row"><div class="rd" style="border-radius:16px">16</div>modals</div>
+      <div class="row"><div class="rd" style="border-radius:999px">999</div>capsules / RPE</div>
+    </div>
+  </div>
+</body>
+</html>

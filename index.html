@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Workout">
 <title>Workout Builder</title>
+<link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -201,6 +202,7 @@
     </button>
   </div>
   <div class="timer-phase" id="t-phase">WORK</div>
+  <img class="timer-exercise-img entering" id="t-exercise-img" src="" alt="">
   <div class="timer-exercise-name" id="t-name">Air Squat</div>
   <div class="timer-exercise-detail" id="t-detail">Bodyweight - Quads, Glutes</div>
   <div class="rest-reason" id="t-rest-reason" style="display:none;"></div>
@@ -339,17 +341,21 @@
   <div class="screen-header">
     <h2>Settings</h2>
   </div>
-  <div class="settings-row settings-row-stack">
-    <div class="settings-profile-header">Profile</div>
-    <label class="settings-label">Age band</label>
-    <div class="option-pills" id="age-band-pills">
-      <div class="pill" data-value="under_18" onclick="selectProfilePill(this,'age_band')">Under 18</div>
-      <div class="pill" data-value="18-39" onclick="selectProfilePill(this,'age_band')">18-39</div>
-      <div class="pill selected" data-value="40-54" onclick="selectProfilePill(this,'age_band')">40-54</div>
-      <div class="pill" data-value="55-69" onclick="selectProfilePill(this,'age_band')">55-69</div>
-      <div class="pill" data-value="70+" onclick="selectProfilePill(this,'age_band')">70+</div>
+  <div class="settings-group">
+    <div class="settings-group-label">Profile</div>
+    <div class="settings-row settings-row-stack">
+      <div id="age-band-group">
+        <label class="settings-label">Age band</label>
+        <div class="option-pills" id="age-band-pills">
+          <div class="pill" data-value="under_18" onclick="selectProfilePill(this,'age_band')">Under 18</div>
+          <div class="pill" data-value="18-39" onclick="selectProfilePill(this,'age_band')">18-39</div>
+          <div class="pill selected" data-value="40-54" onclick="selectProfilePill(this,'age_band')">40-54</div>
+          <div class="pill" data-value="55-69" onclick="selectProfilePill(this,'age_band')">55-69</div>
+          <div class="pill" data-value="70+" onclick="selectProfilePill(this,'age_band')">70+</div>
+        </div>
+      </div>
+      <div id="age-hk-display" class="settings-row is-native-only" style="display:none;"></div>
     </div>
-  </div>
   <div class="settings-row settings-row-stack">
     <label class="settings-label">Fitness level</label>
     <div class="option-pills" id="fitness-pills">
@@ -398,9 +404,40 @@
     </div>
   </div>
   <div class="profile-count" id="profile-count"></div>
+  </div>
 
-  <div class="settings-row">
-    <label class="settings-label" for="set-sound">Sound</label>
+  <div class="settings-group">
+    <div class="settings-group-label">Body &amp; Health</div>
+    <div class="settings-row is-native-only" id="settings-weight-row">
+      <label class="settings-label" for="set-weight">Body Weight</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="number" id="set-weight" class="settings-input" value="70" min="30" max="300" step="0.5"
+          onchange="saveWeightSetting()" style="width:70px;padding:8px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:0.9rem;text-align:center;">
+        <span class="settings-label" style="margin:0;opacity:0.6;">kg</span>
+      </div>
+    </div>
+    <div class="settings-row settings-row-stack is-native-only" id="settings-health-row">
+      <div class="settings-health-head">
+        <span class="settings-health-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </span>
+        <div class="settings-health-title">
+          <div class="settings-label">Apple Health</div>
+          <span id="health-status" class="settings-health-status">--</span>
+        </div>
+        <button type="button" id="set-health-action" class="settings-action settings-health-action" onclick="reconnectHealthKit()" style="display:none;">Connect</button>
+      </div>
+      <div class="settings-hint">
+        Reads body weight (for calorie estimates) and live heart rate from your Apple Watch during workouts.
+        Writes completed workouts to Apple Health so they appear in the Fitness app and count toward your Activity rings.
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-group-label">Audio</div>
+    <div class="settings-row">
+      <label class="settings-label" for="set-sound">Sound</label>
     <button type="button" id="set-sound" class="settings-toggle" onclick="toggleSoundFromSettings()">On</button>
   </div>
   <div class="settings-row">
@@ -411,6 +448,10 @@
     <label class="settings-label">Music Controls</label>
     <button type="button" id="set-music" class="settings-toggle on" onclick="toggleMusicSetting()">On</button>
   </div>
+  </div>
+
+  <div class="settings-group">
+    <div class="settings-group-label">Appearance</div>
   <div class="settings-row settings-row-stack">
     <label class="settings-label">Theme</label>
     <div class="theme-row" id="theme-row">
@@ -445,31 +486,19 @@
       <span class="settings-label units-label-weight" style="margin:0;opacity:0.6;">kg</span>
     </div>
   </div>
-  <div class="settings-row settings-row-stack is-native-only" id="settings-health-row">
-    <div class="settings-health-head">
-      <span class="settings-health-icon" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      </span>
-      <div class="settings-health-title">
-        <div class="settings-label">Apple Health</div>
-        <span id="health-status" class="settings-health-status">--</span>
+
+  <div class="settings-group">
+    <div class="settings-group-label">Data</div>
+    <div class="settings-row settings-row-stack">
+      <label class="settings-label">Backup</label>
+      <div class="settings-actions">
+        <button type="button" class="settings-action" onclick="exportBackup()">Export</button>
+        <label class="settings-action" for="import-file">Import</label>
+        <input type="file" id="import-file" accept="application/json,.json" onchange="if(this.files[0]) importBackup(this.files[0]); this.value='';" hidden>
       </div>
-      <button type="button" id="set-health-action" class="settings-action settings-health-action" onclick="reconnectHealthKit()" style="display:none;">Connect</button>
     </div>
-    <div class="settings-hint">
-      Reads body weight (for calorie estimates) and live heart rate from your Apple Watch during workouts.
-      Writes completed workouts to Apple Health so they appear in the Fitness app and count toward your Activity rings.
-    </div>
+    <div class="settings-hint">Export downloads a JSON file with your sessions, equipment, and toggles. Import replaces all three.</div>
   </div>
-  <div class="settings-row settings-row-stack">
-    <label class="settings-label">Backup</label>
-    <div class="settings-actions">
-      <button type="button" class="settings-action" onclick="exportBackup()">Export</button>
-      <label class="settings-action" for="import-file">Import</label>
-      <input type="file" id="import-file" accept="application/json,.json" onchange="if(this.files[0]) importBackup(this.files[0]); this.value='';" hidden>
-    </div>
-  </div>
-  <div class="settings-hint">Export downloads a JSON file with your sessions, equipment, and toggles. Import replaces all three.</div>
 </div>
 
 <!-- LIBRARY -->
@@ -709,6 +738,7 @@ function cacheTimerEls() {
     sound: document.getElementById('t-sound'),
     voice: document.getElementById('t-voice'),
     hrZone: document.getElementById('t-hr-zone'),
+    exerciseImg: document.getElementById('t-exercise-img'),
   };
 }
 const YOGA_PHASE_LABELS = { centering:'CENTERING', 'sun-sal':'SUN SALUTATION', standing:'STANDING', balance:'BALANCE', floor:'FLOOR', seated:'SEATED', 'core-flow':'CORE FLOW', supported:'SUPPORTED', savasana:'SAVASANA' };
@@ -893,6 +923,23 @@ async function initHealthKit() {
         if (wEl) wEl.value = userWeightKg;
         saveAppSettings();
       }
+      // Auto-detect age from HealthKit
+      try {
+        const dob = await hk.getDateOfBirth();
+        if (dob.available && dob.age > 0) {
+          const age = dob.age;
+          if (age < 18) userProfile.age_band = 'under-18';
+          else if (age <= 39) userProfile.age_band = '18-39';
+          else if (age <= 54) userProfile.age_band = '40-54';
+          else if (age <= 69) userProfile.age_band = '55-69';
+          else userProfile.age_band = '70+';
+          const ageBandGroup = document.getElementById('age-band-group');
+          const ageHkDisplay = document.getElementById('age-hk-display');
+          if (ageBandGroup) ageBandGroup.style.display = 'none';
+          if (ageHkDisplay) { ageHkDisplay.style.display = ''; ageHkDisplay.textContent = 'Age: ' + age + ' (from Apple Health)'; }
+          saveAppSettings();
+        }
+      } catch (e) {}
     }
   } catch (e) {
     if (statusEl) { statusEl.textContent = 'Not available'; statusEl.classList.add('disconnected'); }
@@ -1610,7 +1657,7 @@ function showInfo(exerciseName) {
       '</div>' + ormHtml;
     }
   }
-  document.getElementById('modal-body').innerHTML = '<p>' + ex.info + '</p>' + ormHtml;
+  document.getElementById('modal-body').innerHTML = '<img class="info-exercise-img" src="' + exerciseImageUrl(ex) + '" alt="">' + '<p>' + ex.info + '</p>' + ormHtml;
   document.getElementById('info-modal').classList.add('active');
 }
 
@@ -1878,6 +1925,19 @@ function getAllExercises() {
 }
 
 function renderExerciseLibrary() {
+  // Build equipment filter pills from user's selected equipment
+  const equipContainer = document.getElementById('exlib-equip-filters');
+  if (equipContainer && equipContainer.children.length === 0) {
+    for (const eq of selectedEquipment) {
+      const pill = document.createElement('span');
+      pill.className = 'exlib-filter-pill';
+      pill.dataset.filter = 'equip';
+      pill.dataset.value = eq;
+      pill.textContent = eq.charAt(0).toUpperCase() + eq.slice(1);
+      pill.onclick = function() { toggleExlibFilter(this); };
+      equipContainer.appendChild(pill);
+    }
+  }
   const searchVal = (document.getElementById('exlib-search')?.value || '').toLowerCase();
   const blacklist = exerciseSettings.exercise_blacklist || [];
   const whitelist = exerciseSettings.exercise_whitelist || [];
@@ -2761,6 +2821,26 @@ function escapeHtml(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
+const CATEGORY_PLACEHOLDER = {
+  'lower-squat': 'placeholder-squat.svg', 'lower-hinge': 'placeholder-squat.svg',
+  'push-h': 'placeholder-push.svg', 'push-v': 'placeholder-push.svg',
+  'pull-h': 'placeholder-pull.svg', 'pull-v': 'placeholder-pull.svg',
+  'core': 'placeholder-core.svg', 'isometric': 'placeholder-core.svg',
+  'plyo': 'placeholder-cardio.svg', 'cardio': 'placeholder-cardio.svg',
+  'full-body': 'placeholder-default.svg', 'carry': 'placeholder-default.svg',
+  'animal': 'placeholder-default.svg', 'mobility': 'placeholder-yoga.svg',
+  'yoga-standing': 'placeholder-yoga.svg', 'yoga-floor': 'placeholder-yoga.svg',
+  'yoga-seated': 'placeholder-yoga.svg', 'yoga-balance': 'placeholder-yoga.svg',
+  'yoga-inversion': 'placeholder-yoga.svg', 'yoga-transition': 'placeholder-yoga.svg',
+  'yoga-core': 'placeholder-core.svg', 'yoga-savasana': 'placeholder-yoga.svg',
+};
+
+function exerciseImageUrl(exercise) {
+  if (exercise.image) return 'img/exercises/' + exercise.image;
+  const cat = exercise.cat || 'full-body';
+  return 'img/exercises/' + (CATEGORY_PLACEHOLDER[cat] || 'placeholder-default.svg');
+}
+
 // ── Workout structure helpers ────────────────────────────────
 // All assume the layout: [warmup...][main set 0...][main set 1...]...[cooldown...]
 function getMainStructure() {
@@ -2931,6 +3011,7 @@ function renderPreview() {
 
     return header +
       '<div class="exercise-item'+(canonical?'':' non-canonical')+'" data-idx="'+i+'">'+
+        '<img class="exercise-img" src="' + exerciseImageUrl(w.exercise) + '" alt="" loading="lazy">'+
         '<span class="ex-num">'+(i+1)+'</span>'+
         '<div class="ex-info">'+
           nameHtml +
@@ -3514,6 +3595,19 @@ function updateTimerUI() {
   timerEls.detail.textContent = timerState.phase === 'work'
     ? (isYoga ? (w.exercise.muscles || []).join(', ') : w.exercise.equip.join(', ') + ' - ' + w.exercise.muscles.join(', '))
     : 'Next: ' + (timerState.idx + 1 < workout.length ? workout[timerState.idx + 1].exercise.name : 'Done!');
+
+  // Update exercise image
+  const imgEl = timerEls.exerciseImg || document.getElementById('t-exercise-img');
+  if (imgEl) {
+    const imgUrl = exerciseImageUrl(w.exercise);
+    if (imgEl.src !== imgUrl) {
+      imgEl.classList.remove('visible');
+      imgEl.classList.add('entering');
+      imgEl.src = imgUrl;
+      setTimeout(() => { imgEl.classList.remove('entering'); imgEl.classList.add('visible'); }, 50);
+    }
+    imgEl.classList.toggle('rest', timerState.phase === 'rest');
+  }
 
   // Hide inappropriate controls for yoga
   timerEls.addRest.style.display = isYoga ? 'none' : '';

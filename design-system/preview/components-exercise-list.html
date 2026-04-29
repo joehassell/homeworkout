@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Exercise list item</title>
+<style>
+  html, body { margin: 0; background: #0a0a0f; color: #e8e8f0; font-family: -apple-system, system-ui, sans-serif; }
+  body { padding: 18px 22px; display: flex; flex-direction: column; gap: 6px; }
+  .set-header { font-size: 0.75rem; font-weight: 700; color: #8888a0; text-transform: uppercase; letter-spacing: 0.1em; padding: 4px 4px; }
+  .set-header .rest { color: #8888a0; opacity: 0.7; font-weight: 400; margin-left: 8px; }
+  .ex {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px; border-radius: 10px;
+    background: #16161f; border: 1px solid #2a2a3a;
+  }
+  .num { font-size: 0.75rem; color: #8888a0; min-width: 22px; text-align: center; }
+  .info { flex: 1; }
+  .name { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
+  .detail { font-size: 0.75rem; color: #8888a0; margin-top: 2px; }
+  .reps { color: #4f8cff; font-weight: 600; }
+  .badge { display: inline-block; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.08em; }
+  .badge.warm { background: #fbbf2422; color: #fbbf24; }
+  .badge.main { background: #4f8cff22; color: #4f8cff; }
+  .info-btn { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #4f8cff; background: transparent; color: #4f8cff; font-size: 0.7rem; font-weight: 700; font-style: italic; font-family: Georgia, serif; display: inline-flex; align-items: center; justify-content: center; }
+  .arrows { display: flex; flex-direction: column; gap: 2px; }
+  .arrow { width: 26px; height: 20px; background: #1e1e2a; color: #8888a0; border: 1px solid #2a2a3a; border-radius: 6px; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; }
+</style>
+</head>
+<body>
+  <div class="set-header">Warm-up <span class="rest">~ 4 min</span></div>
+  <div class="ex">
+    <div class="num">1</div>
+    <div class="info">
+      <div class="name">Arm circles <span class="badge warm">Warm-up</span></div>
+      <div class="detail">30s · <span class="reps">bodyweight</span></div>
+    </div>
+    <div class="info-btn">i</div>
+  </div>
+  <div class="set-header">Set 1 <span class="rest">90s rest after</span></div>
+  <div class="ex">
+    <div class="num">2</div>
+    <div class="info">
+      <div class="name">Goblet squat <span class="badge main">Main</span></div>
+      <div class="detail">8 reps · <span class="reps">dumbbell</span></div>
+    </div>
+    <div class="arrows"><div class="arrow">▲</div><div class="arrow">▼</div></div>
+    <div class="info-btn">i</div>
+  </div>
+</body>
+</html>
