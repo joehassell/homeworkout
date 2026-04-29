@@ -2492,8 +2492,8 @@ function renderPreview() {
   let warmupHeaderShown = false;
   let cooldownHeaderShown = false;
   list.innerHTML = workout.map((w, i) => {
-    const equipStr = w.exercise.equip.join(', ');
-    const muscleStr = w.exercise.muscles.join(', ');
+    const equipStr = (w.exercise.equip || []).join(', ');
+    const muscleStr = (w.exercise.muscles || []).join(', ');
     let header = '';
     if (w.section === 'warmup' && !warmupHeaderShown) {
       warmupHeaderShown = true;
