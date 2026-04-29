@@ -88,8 +88,13 @@
     }
     if (founders) {
       var remaining = (_foundersStatus && _foundersStatus.remaining) || '?';
-      var foundersTag = 'FOUNDERS — Only ' + remaining + ' of 1,000 left';
+      var foundersTag = isStreakDiscountActive()
+        ? 'STREAK REWARD — Founders price, 72 hours only'
+        : 'FOUNDERS — Only ' + remaining + ' of 1,000 left';
       html += _cardHtml(founders, 'lifetime', false, foundersTag);
+    } else if (isStreakDiscountActive() && founders) {
+      // Streak discount shows founders price even after cap
+      html += _cardHtml(founders, 'lifetime', false, 'STREAK REWARD — Founders price, 72 hours only');
     } else if (lifetime) {
       html += _cardHtml(lifetime, 'lifetime', false, 'Pay once, own forever');
     }
@@ -260,12 +265,19 @@
   var COMPLETION_PAYWALL_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // weekly cap
 
   function maybeShowCompletionPaywall() {
-    if (window.Entitlement && window.Entitlement.isPro()) return;
-
+    // Increment workout count (used by milestone trial)
     var count = 0;
     try { count = parseInt(localStorage.getItem('swg.workout_count') || '0'); } catch (e) {}
     count++;
     try { localStorage.setItem('swg.workout_count', String(count)); } catch (e) {}
+
+    // Check milestone trial (fires at workout 30)
+    checkMilestoneTrial();
+
+    // Check streak discount (fires at 30-day streak)
+    checkStreakDiscount();
+
+    if (window.Entitlement && window.Entitlement.isPro()) return;
 
     if (count % COMPLETION_PAYWALL_INTERVAL !== 0) return;
 
@@ -276,6 +288,126 @@
 
     // Delay slightly so done screen renders first
     setTimeout(function () { open('completion'); }, 1500);
+  }
+
+  // ── Tasting mechanics (feature-flagged) ─────────────────
+  // Enable these post-launch via localStorage flags:
+  //   localStorage.setItem('swg.flag.pro_mondays', '1')
+  //   localStorage.setItem('swg.flag.milestone_trial', '1')
+  //   localStorage.setItem('swg.flag.streak_discount', '1')
+
+  function _flagEnabled(name) {
+    try { return localStorage.getItem('swg.flag.' + name) === '1'; } catch (e) { return false; }
+  }
+
+  // ── Pro Mondays: weekly Pro sample on Mondays ──────────
+  function checkProMonday() {
+    if (!_flagEnabled('pro_mondays')) return;
+
+    var now = new Date();
+    if (now.getDay() !== 1) {
+      // Not Monday — revoke promo if it was active
+      _revokePromo('promo_monday');
+      return;
+    }
+
+    // Already Pro via real purchase? Don't grant promo.
+    if (window.Entitlement && window.Entitlement.isPro()) return;
+
+    // Already granted this week?
+    var lastGranted = 0;
+    try { lastGranted = parseInt(localStorage.getItem('swg.promo.pro_monday.last') || '0'); } catch (e) {}
+    var daysSince = (Date.now() - lastGranted) / 86400000;
+    if (daysSince < 1) return; // already active today
+
+    // Grant Pro for this session
+    try { localStorage.setItem('swg.promo.pro_monday.last', String(Date.now())); } catch (e) {}
+    window.Entitlement.set({
+      tier: 'pro',
+      source: 'promo_monday',
+      expiresAt: _endOfDay(now).toISOString(),
+      isFounder: false,
+    });
+    _showToast('It\u2019s Pro Monday! Full Pro access today.');
+  }
+
+  function _endOfDay(date) {
+    var d = new Date(date);
+    d.setHours(23, 59, 59, 999);
+    return d;
+  }
+
+  function _revokePromo(promoSource) {
+    if (!window.Entitlement) return;
+    var ent = window.Entitlement.get();
+    if (ent.tier === 'pro' && ent.source === promoSource) {
+      window.Entitlement.set({ tier: 'free', source: null, expiresAt: null, isFounder: false });
+    }
+  }
+
+  // ── Milestone trial: 7-day Pro after 30th workout ──────
+  function checkMilestoneTrial() {
+    if (!_flagEnabled('milestone_trial')) return;
+    if (window.Entitlement && window.Entitlement.isPro()) return;
+
+    // Already granted?
+    try {
+      if (localStorage.getItem('swg.promo.milestone_granted') === '1') return;
+    } catch (e) {}
+
+    var count = 0;
+    try { count = parseInt(localStorage.getItem('swg.workout_count') || '0'); } catch (e) {}
+    if (count < 30) return;
+
+    // Grant 7-day Pro
+    var expires = new Date();
+    expires.setDate(expires.getDate() + 7);
+    window.Entitlement.set({
+      tier: 'pro',
+      source: 'milestone_trial',
+      expiresAt: expires.toISOString(),
+      isFounder: false,
+    });
+    try { localStorage.setItem('swg.promo.milestone_granted', '1'); } catch (e) {}
+    _showToast('You\u2019ve earned 7 days of Pro! We\u2019ll remind you before it ends.');
+  }
+
+  // ── Streak discount: founders price at 30-day streak ───
+  var STREAK_DISCOUNT_EXPIRY_MS = 72 * 60 * 60 * 1000; // 72 hours
+
+  function checkStreakDiscount() {
+    if (!_flagEnabled('streak_discount')) return;
+    if (window.Entitlement && window.Entitlement.isPro()) return;
+
+    // Already offered and expired?
+    try {
+      var offered = parseInt(localStorage.getItem('swg.promo.streak_discount.at') || '0');
+      if (offered > 0 && Date.now() - offered > STREAK_DISCOUNT_EXPIRY_MS) return; // expired, don't re-show
+      if (offered > 0) return; // still active, don't re-trigger (paywall will show the discount)
+    } catch (e) {}
+
+    // Check streak
+    if (!window.history_view || !window.storage) return;
+    var sessions = window.storage.loadSessions();
+    var stats = window.history_view.computeStats(sessions);
+    if (stats.streak < 30) return;
+
+    // Mark as offered
+    try { localStorage.setItem('swg.promo.streak_discount.at', String(Date.now())); } catch (e) {}
+    _showToast('30-day streak! You\u2019ve unlocked founders pricing \u2014 72 hours only.');
+  }
+
+  function isStreakDiscountActive() {
+    try {
+      var offered = parseInt(localStorage.getItem('swg.promo.streak_discount.at') || '0');
+      return offered > 0 && (Date.now() - offered) < STREAK_DISCOUNT_EXPIRY_MS;
+    } catch (e) { return false; }
+  }
+
+  // ── Run tasting checks on app load ─────────────────────
+  function runTastingChecks() {
+    checkProMonday();
+    // Milestone and streak checks run after workout completion (see maybeShowCompletionPaywall)
   }
 
   // ── Helpers ────────────────────────────────────────────
@@ -331,5 +463,7 @@
     purchaseSelected: purchaseSelected,
     restorePurchases: restorePurchases,
     maybeShowCompletionPaywall: maybeShowCompletionPaywall,
+    runTastingChecks: runTastingChecks,
+    isStreakDiscountActive: isStreakDiscountActive,
   };
 })();

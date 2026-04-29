@@ -4782,6 +4782,8 @@ setTimeout(() => {
 }, 0);
 // Render weekly plan card
 renderPlanCard();
+// Run tasting mechanic checks (Pro Mondays, etc.) — feature-flagged off by default
+if (window.Paywall) Paywall.runTastingChecks();
 // Make the bottom nav visible immediately on the initial active (setup) screen.
 document.getElementById('bottom-nav').classList.toggle('visible',
   document.querySelector('.screen.active')?.classList.contains('has-nav'));
