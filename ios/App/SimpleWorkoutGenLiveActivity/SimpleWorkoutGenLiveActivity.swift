@@ -2,6 +2,22 @@ import ActivityKit
 import SwiftUI
 import WidgetKit
 
+// MARK: - Activity Attributes (must match App target definition in HealthKitPlugin.swift)
+
+struct WorkoutActivityAttributes: ActivityAttributes {
+    public struct ContentState: Codable, Hashable {
+        var exerciseName: String
+        var phase: String
+        var remaining: Int
+        var elapsed: Int
+        var exerciseIndex: Int
+        var exerciseCount: Int
+        var countdownDate: Date
+    }
+
+    var workoutType: String
+}
+
 // MARK: - Lock Screen / Dynamic Island Widget
 
 struct SimpleWorkoutGenLiveActivity: Widget {

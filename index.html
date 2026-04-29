@@ -569,8 +569,14 @@ html.is-native .is-native-only { display: flex; }
 }
 .timer-hr .hr-icon { color: #ef4444; font-size: 1.2rem; }
 .timer-hr .hr-unit { font-size: 0.75rem; color: var(--text-dim); }
+.timer-hr .hr-zone { font-size: 0.8rem; font-weight: 600; margin-left: 2px; }
 .timer-hr.waiting { opacity: 0.55; }
 .timer-hr.waiting .hr-icon { animation: hr-pulse 1.6s ease-in-out infinite; }
+.hr-recover-banner {
+  background: #ef4444; color: #fff; font-weight: 700; font-size: 0.9rem;
+  padding: 6px 16px; border-radius: 8px; margin-bottom: 10px;
+  animation: hr-pulse 1.6s ease-in-out infinite;
+}
 @keyframes hr-pulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 1; transform: scale(1.12); } }
 .timer-progress {
   width: 100%; max-width: 400px; height: 6px; border-radius: 3px;
@@ -1270,7 +1276,9 @@ html.is-native .is-native-only { display: flex; }
     <span class="hr-icon">&#x2665;</span>
     <span id="t-hr-val">--</span>
     <span class="hr-unit">BPM</span>
+    <span id="t-hr-zone" class="hr-zone" style="display:none;"></span>
   </div>
+  <div id="t-hr-recover" class="hr-recover-banner" style="display:none;">&#x26A0; Heart rate high — ease off and recover</div>
   <div class="timer-progress"><div class="timer-progress-bar" id="t-bar"></div></div>
   <div class="timer-ex-progress" id="t-ex-progress">Exercise 1 of 12</div>
   <div class="timer-set-progress" id="t-set-progress"></div>
@@ -2176,6 +2184,116 @@ function hkUpdateLiveActivity() {
   // so it doesn't need per-second JS updates. Placeholder for future use.
 }
 
+// ── HR Zone Coaching ──────────────────────────────────
+const HR_ZONES = [
+  { zone: 1, name: 'Recovery', min: 0.50, max: 0.60, color: '#94a3b8' },
+  { zone: 2, name: 'Fat Burn', min: 0.60, max: 0.70, color: '#22c55e' },
+  { zone: 3, name: 'Cardio', min: 0.70, max: 0.80, color: '#eab308' },
+  { zone: 4, name: 'Hard', min: 0.80, max: 0.90, color: '#f97316' },
+  { zone: 5, name: 'Max', min: 0.90, max: 1.00, color: '#ef4444' },
+];
+
+const WORKOUT_TARGET_ZONE = {
+  strength: 2, hiit: 4, conditioning: 3, functional: 3, yoga: 1,
+};
+
+function getHRMax() {
+  const ageBand = userProfile.age_band;
+  const ageMap = { 'under_18': 16, '18-39': 30, '40-54': 47, '55-69': 62, '70+': 75 };
+  return Math.round(208 - 0.7 * (ageMap[ageBand] || 30));
+}
+
+function getCurrentZone(bpm) {
+  const max = getHRMax();
+  const pct = bpm / max;
+  for (let i = HR_ZONES.length - 1; i >= 0; i--) {
+    if (pct >= HR_ZONES[i].min) return HR_ZONES[i];
+  }
+  return HR_ZONES[0];
+}
+
+let hrZoneCoachState = {
+  lastCueTime: 0,           // timestamp of last coaching cue
+  outOfZoneSince: 0,         // timestamp when went out of target zone
+  outOfZoneDirection: null,  // 'above' or 'below'
+  highHRSince: 0,            // timestamp when HR > 90% HRmax started
+  recoverActive: false,      // safety override active
+};
+
+function resetHRZoneCoachState() {
+  hrZoneCoachState = {
+    lastCueTime: 0, outOfZoneSince: 0, outOfZoneDirection: null,
+    highHRSince: 0, recoverActive: false,
+  };
+  const banner = document.getElementById('t-hr-recover');
+  if (banner) banner.style.display = 'none';
+}
+
+function updateHRZoneDisplay(bpm) {
+  const zoneEl = document.getElementById('t-hr-zone');
+  if (!zoneEl || bpm <= 0) return;
+  const zone = getCurrentZone(bpm);
+  zoneEl.style.display = '';
+  zoneEl.style.color = zone.color;
+  zoneEl.textContent = '\u00B7 Z' + zone.zone + ' ' + zone.name;
+}
+
+function checkHRZoneCoaching(bpm) {
+  if (!timerState.running || timerState.paused || bpm <= 0) return;
+  if (timerState.phase !== 'work') return;
+
+  const now = Date.now();
+  const hrMax = getHRMax();
+  const pct = bpm / hrMax;
+  const banner = document.getElementById('t-hr-recover');
+
+  // Safety override: HR > 90% HRmax for 10+ seconds
+  if (pct > 0.90) {
+    if (!hrZoneCoachState.highHRSince) hrZoneCoachState.highHRSince = now;
+    if (now - hrZoneCoachState.highHRSince >= 10000) {
+      if (!hrZoneCoachState.recoverActive) {
+        hrZoneCoachState.recoverActive = true;
+        if (banner) banner.style.display = '';
+      }
+      return; // suppress coaching while in safety override
+    }
+  } else {
+    hrZoneCoachState.highHRSince = 0;
+    if (hrZoneCoachState.recoverActive) {
+      hrZoneCoachState.recoverActive = false;
+      if (banner) banner.style.display = 'none';
+    }
+  }
+
+  // Zone coaching cue (throttled to 1 per 60s)
+  const targetZoneNum = WORKOUT_TARGET_ZONE[config.type] || 3;
+  const currentZone = getCurrentZone(bpm);
+  const direction = currentZone.zone < targetZoneNum ? 'below'
+                  : currentZone.zone > targetZoneNum ? 'above' : null;
+
+  if (!direction) {
+    // In target zone — reset tracking
+    hrZoneCoachState.outOfZoneSince = 0;
+    hrZoneCoachState.outOfZoneDirection = null;
+    return;
+  }
+
+  if (hrZoneCoachState.outOfZoneDirection !== direction) {
+    hrZoneCoachState.outOfZoneSince = now;
+    hrZoneCoachState.outOfZoneDirection = direction;
+  }
+
+  if (now - hrZoneCoachState.outOfZoneSince >= 20000 &&
+      now - hrZoneCoachState.lastCueTime >= 60000) {
+    hrZoneCoachState.lastCueTime = now;
+    if (direction === 'below') {
+      speak('Push a little harder to stay in zone ' + targetZoneNum);
+    } else {
+      speak('Ease off slightly to stay in zone ' + targetZoneNum);
+    }
+  }
+}
+
 // ── Watch Connectivity bridge ─────────────────────────
 let watchConnected = false;
 let currentHeartRate = 0;
@@ -2194,6 +2312,8 @@ function initWatchConnectivity() {
         hrEl.style.display = '';
         hrEl.classList.remove('waiting');
         hrVal.textContent = currentHeartRate;
+        updateHRZoneDisplay(currentHeartRate);
+        checkHRZoneCoaching(currentHeartRate);
       }
     });
 
@@ -2269,6 +2389,47 @@ function nativeHaptic(style) {
     else if (style === 'heavy') H.impact({ style: 'HEAVY' });
     else if (style === 'medium') H.impact({ style: 'MEDIUM' });
     else H.impact({ style: 'LIGHT' });
+  } catch (e) {}
+}
+
+// ── iCloud sync bridge ──────────────────────────────
+const SYNC_KEYS = ['wk_sessions','wk_settings','wk_equipment','wk_focus',
+                   'wk_saved_workouts','wk_exercise_prs','wk_weekly_plan'];
+
+async function initCloudSync() {
+  if (!isNative()) return;
+  try {
+    const cs = window.Capacitor.Plugins.iCloudSyncPlugin;
+
+    // Load cloud data on startup (cloud fills empty local keys)
+    const { pairs } = await cs.loadAllFromCloud({ keys: SYNC_KEYS });
+    for (const { key, value } of pairs) {
+      if (value && !localStorage.getItem(key)) {
+        localStorage.setItem(key, value);
+      }
+    }
+
+    // Listen for remote changes from other devices
+    cs.addListener('cloudSync', (data) => {
+      if (data.key && data.value) {
+        localStorage.setItem(data.key, data.value);
+        // Reload relevant state into memory
+        if (data.key === 'wk_settings') loadAppSettings();
+        if (data.key === 'wk_equipment') loadEquipmentSelection();
+        if (data.key === 'wk_focus') loadFocus();
+      }
+    });
+  } catch (e) { /* degrade silently */ }
+}
+
+// Push a single key to iCloud whenever localStorage changes
+function cloudPush(key) {
+  if (!isNative()) return;
+  try {
+    const value = localStorage.getItem(key);
+    if (value) {
+      window.Capacitor.Plugins.iCloudSyncPlugin.syncToCloud({ key, value });
+    }
   } catch (e) {}
 }
 
@@ -2495,6 +2656,7 @@ function saveAppSettings() {
       yogaExperience: config.yogaExperience,
       yogaEquipment: [...yogaEquipment],
     }));
+    cloudPush('wk_settings');
   } catch (e) {}
   updateProfileCount();
 }
@@ -2719,6 +2881,7 @@ function loadEquipmentSelection() {
 function saveEquipmentSelection() {
   try {
     localStorage.setItem('wk_equipment', JSON.stringify([...selectedEquipment]));
+    cloudPush('wk_equipment');
   } catch (e) {}
 }
 
@@ -3021,7 +3184,7 @@ function syncFocusUI() {
 }
 
 function saveFocus() {
-  try { localStorage.setItem('wk_focus', JSON.stringify(focusState)); } catch (e) {}
+  try { localStorage.setItem('wk_focus', JSON.stringify(focusState)); cloudPush('wk_focus'); } catch (e) {}
 }
 
 // ═══════════════════════════════════════════════════
@@ -3799,7 +3962,7 @@ function loadPRs() {
   try { const r = localStorage.getItem(PR_KEY); return r ? JSON.parse(r) : {}; } catch(e) { return {}; }
 }
 function savePRs(prs) {
-  try { localStorage.setItem(PR_KEY, JSON.stringify(prs)); } catch(e) {}
+  try { localStorage.setItem(PR_KEY, JSON.stringify(prs)); cloudPush(PR_KEY); } catch(e) {}
 }
 function epley1RM(weight, reps) {
   if (reps <= 0 || weight <= 0) return 0;
@@ -3962,8 +4125,10 @@ function startWorkout() {
   watchSendState();
   // Reset HR display — show waiting state if HealthKit connected
   currentHeartRate = 0;
+  resetHRZoneCoachState();
   const hrEl = document.getElementById('t-hr');
   const hrVal = document.getElementById('t-hr-val');
+  const hrZone = document.getElementById('t-hr-zone');
   if (hrEl && hrVal) {
     if (healthKitReady && isNative()) {
       hrEl.style.display = '';
@@ -3973,6 +4138,7 @@ function startWorkout() {
       hrEl.style.display = 'none';
     }
   }
+  if (hrZone) hrZone.style.display = 'none';
 }
 
 async function requestWakeLock() {
@@ -4738,7 +4904,7 @@ function saveWorkoutToLibrary() {
 }
 
 function persistSavedWorkouts() {
-  try { localStorage.setItem('wk_saved_workouts', JSON.stringify(savedWorkouts)); } catch(e) {}
+  try { localStorage.setItem('wk_saved_workouts', JSON.stringify(savedWorkouts)); cloudPush('wk_saved_workouts'); } catch(e) {}
 }
 
 function deleteSavedWorkout(id) {
@@ -5132,6 +5298,7 @@ function loadOrGeneratePlan() {
           const completedDates = new Set(sessions.map(s => s.date ? s.date.slice(0, 10) : null).filter(Boolean));
           saved.plan.forEach(d => { d.completed = completedDates.has(d.date); });
           localStorage.setItem('wk_weekly_plan', JSON.stringify(saved));
+          cloudPush('wk_weekly_plan');
           return saved.plan;
         }
       }
@@ -5141,6 +5308,7 @@ function loadOrGeneratePlan() {
   const plan = generateWeeklyPlan();
   const payload = { weekStart: todayString(), plan: plan };
   localStorage.setItem('wk_weekly_plan', JSON.stringify(payload));
+  cloudPush('wk_weekly_plan');
   return plan;
 }
 
@@ -5149,6 +5317,7 @@ function refreshPlan() {
   const plan = generateWeeklyPlan();
   const payload = { weekStart: todayString(), plan: plan };
   localStorage.setItem('wk_weekly_plan', JSON.stringify(payload));
+  cloudPush('wk_weekly_plan');
   renderPlanCard(plan);
 }
 
@@ -5272,6 +5441,7 @@ loadAppSettings();
 loadFocus();
 initHealthKit();
 initWatchConnectivity();
+initCloudSync();
 // Render weekly plan card
 renderPlanCard();
 // Make the bottom nav visible immediately on the initial active (setup) screen.
