@@ -140,7 +140,7 @@
   // ── Foreground re-validation ───────────────────────────
   // Re-check entitlement every time the app comes to foreground
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible') {
+    if (document.visibilityState === 'visible' && _native()) {
       refreshEntitlement();
     }
   });

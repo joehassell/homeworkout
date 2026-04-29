@@ -47,7 +47,7 @@ public class IAPPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    // ── getProducts ────────────���─────────────────────────
+    // ── getProducts ─────────────────────────────────────
 
     @objc func getProducts(_ call: CAPPluginCall) {
         Task {
@@ -80,7 +80,7 @@ public class IAPPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    // ���─ purchase ──────────────────────���──────────────────
+    // ── purchase ─────────────────────────────────────────
 
     @objc func purchase(_ call: CAPPluginCall) {
         guard let productId = call.getString("productId") else {
@@ -156,7 +156,7 @@ public class IAPPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    // ���─ getEntitlement ───────────────────────────────────
+    // ── getEntitlement ────────────────────────────────────
 
     @objc func getEntitlement(_ call: CAPPluginCall) {
         Task {

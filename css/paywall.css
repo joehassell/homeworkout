@@ -123,6 +123,7 @@
 }
 .paywall-card.selected {
   border-color: var(--accent);
+  background: var(--surface2);
   background: color-mix(in srgb, var(--accent) 8%, var(--surface2));
 }
 
@@ -209,6 +210,7 @@
   font-size: 0.65rem;
   font-weight: 600;
   color: var(--accent);
+  background: rgba(79, 140, 255, 0.12);
   background: color-mix(in srgb, var(--accent) 12%, transparent);
   padding: 1px 7px;
   border-radius: 20px;
@@ -259,6 +261,7 @@
 .hist-pro-banner {
   text-align: center;
   padding: 16px;
+  background: var(--surface2);
   background: color-mix(in srgb, var(--accent) 8%, var(--surface2));
   border-radius: 12px;
   margin: 12px 0;

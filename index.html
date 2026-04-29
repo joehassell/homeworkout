@@ -1454,6 +1454,10 @@ function exportBackup() {
 }
 
 function importBackup(file) {
+  if (!Entitlement.canUseBackup()) {
+    Paywall.open('settings');
+    return;
+  }
   const reader = new FileReader();
   reader.onload = e => {
     let data;
@@ -1837,9 +1841,7 @@ const EQUIP_PRESETS = {
 function applyEquipPreset(preset) {
   const items = EQUIP_PRESETS[preset];
   if (!items) return;
-  // For free users, filter preset to only allowed equipment
-  const filtered = Entitlement.isPro() ? items : items.filter(e => Entitlement.canUseEquipment(e));
-  if (filtered.length < items.length && !Entitlement.isPro()) {
+  if (!Entitlement.isPro() && items.some(e => !Entitlement.canUseEquipment(e))) {
     Paywall.open('equipment');
     return;
   }
@@ -4654,7 +4656,10 @@ rebuildBuildEquipment();
 // Entitlement: sync UI on tier changes
 function syncTierUI() {
   syncEquipmentPillUI();
-  applyTheme(currentTheme);
+  // Re-sync theme lock badges without a full applyTheme re-render
+  document.querySelectorAll('#theme-row .theme-swatch').forEach(sw => {
+    sw.classList.toggle('pro-lock', !Entitlement.canUseTheme(sw.dataset.theme));
+  });
   if (window.history_view) window.history_view.refresh();
   var ent = Entitlement.get();
   var upgradeRow = document.getElementById('settings-upgrade-row');
