@@ -148,17 +148,21 @@ public class WatchConnectivityPlugin: CAPPlugin, CAPBridgedPlugin, WCSessionDele
             notifyListeners("watchSessionOwnership", data: [
                 "watchOwns": true,
             ])
-            // Also set it directly if we can find the HealthKit plugin
-            if let hkPlugin = bridge?.plugin(withName: "HealthKitPlugin") as? HealthKitPlugin {
-                hkPlugin.watchOwnsSession = true
+            // Set on main thread to avoid data race with plugin calls
+            DispatchQueue.main.async {
+                if let hkPlugin = self.bridge?.plugin(withName: "HealthKitPlugin") as? HealthKitPlugin {
+                    hkPlugin.watchOwnsSession = true
+                }
             }
 
         case "workoutSessionEnded":
             notifyListeners("watchSessionOwnership", data: [
                 "watchOwns": false,
             ])
-            if let hkPlugin = bridge?.plugin(withName: "HealthKitPlugin") as? HealthKitPlugin {
-                hkPlugin.watchOwnsSession = false
+            DispatchQueue.main.async {
+                if let hkPlugin = self.bridge?.plugin(withName: "HealthKitPlugin") as? HealthKitPlugin {
+                    hkPlugin.watchOwnsSession = false
+                }
             }
 
         default:
