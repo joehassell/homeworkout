@@ -628,6 +628,36 @@ html.is-native .is-native-only { display: flex; }
 .done-note:focus { border-color: var(--accent); }
 .done-note::placeholder { color: var(--text-dim); }
 
+/* Save-workout toggle on Done screen */
+.done-save-row { display: flex; align-items: center; justify-content: space-between; margin-top: 18px; padding: 12px 14px; background: var(--surface); border-radius: 10px; border: 1px solid var(--border); }
+.done-save-label { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+.done-star-row { display: flex; gap: 4px; margin-top: 10px; justify-content: center; }
+.done-star { background: none; border: none; cursor: pointer; padding: 4px; font-size: 1.6rem; color: var(--border); transition: color 0.15s; touch-action: manipulation; }
+.done-star.filled { color: var(--yellow); }
+
+/* Library screen */
+.library-list { display: flex; flex-direction: column; gap: 10px; }
+.library-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+.library-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.library-card-name { flex: 1; font-weight: 600; font-size: 0.95rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.library-card-date { font-size: 0.72rem; color: var(--text-dim); white-space: nowrap; }
+.library-card-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+.library-card-stars { font-size: 0.85rem; color: var(--yellow); letter-spacing: 1px; }
+.library-card-actions { display: flex; gap: 8px; }
+.library-card-actions .btn { flex: 1; font-size: 0.8rem; padding: 8px 0; }
+.library-empty { text-align: center; color: var(--text-dim); padding: 40px 20px; font-size: 0.9rem; line-height: 1.6; }
+.library-export-menu { position: absolute; right: 0; bottom: calc(100% + 4px); background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; z-index: 10; display: flex; flex-direction: column; min-width: 120px; }
+.library-export-menu button { background: none; border: none; color: var(--text); padding: 10px 14px; text-align: left; font-size: 0.85rem; border-radius: 8px; cursor: pointer; }
+.library-export-menu button:active { background: var(--surface2); }
+.library-export-wrap { position: relative; flex: 1; }
+
+/* Add exercise button on preview */
+.btn-add-exercise { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 12px; margin-top: 8px; background: var(--surface); border: 2px dashed var(--border); border-radius: 10px; color: var(--text-dim); font-size: 0.9rem; font-weight: 600; cursor: pointer; touch-action: manipulation; transition: border-color 0.15s, color 0.15s; }
+.btn-add-exercise:active { border-color: var(--accent); color: var(--accent); }
+.add-search { width: 100%; padding: 10px 14px; border-radius: 10px; background: var(--surface2); color: var(--text); border: 1px solid var(--border); font-size: 0.9rem; margin-bottom: 10px; }
+.add-search:focus { outline: none; border-color: var(--accent); }
+.add-search::placeholder { color: var(--text-dim); }
+
 .done-skip {
   display: block; margin: 12px auto 0; background: none; border: none;
   color: var(--text-dim); font-size: 0.9rem; padding: 10px 16px;
@@ -957,6 +987,7 @@ html.is-native .is-native-only { display: flex; }
   </div>
   <div class="preview-meta" id="preview-meta"></div>
   <div class="exercise-list" id="exercise-list"></div>
+  <button type="button" class="btn-add-exercise" onclick="showAddExerciseModal()">+ Add Exercise</button>
   <div class="preview-actions">
     <button class="btn btn-ghost" onclick="generateWorkout()">Regenerate</button>
     <button class="btn btn-primary" onclick="startWorkout()" style="flex:2;">Start Workout</button>
@@ -1057,6 +1088,18 @@ html.is-native .is-native-only { display: flex; }
 
     <label class="done-label" for="d-note">Any notes?</label>
     <input type="text" id="d-note" class="done-note" maxlength="200" placeholder="e.g. left shoulder tight">
+
+    <div class="done-save-row">
+      <span class="done-save-label">Save this workout</span>
+      <button type="button" id="save-workout-toggle" class="settings-toggle" onclick="toggleSaveWorkout()">Off</button>
+    </div>
+    <div id="save-star-row" class="done-star-row" style="display:none;">
+      <button type="button" class="done-star" data-star="1" onclick="selectSaveStar(1)">&#9733;</button>
+      <button type="button" class="done-star" data-star="2" onclick="selectSaveStar(2)">&#9733;</button>
+      <button type="button" class="done-star" data-star="3" onclick="selectSaveStar(3)">&#9733;</button>
+      <button type="button" class="done-star" data-star="4" onclick="selectSaveStar(4)">&#9733;</button>
+      <button type="button" class="done-star" data-star="5" onclick="selectSaveStar(5)">&#9733;</button>
+    </div>
   </div>
 
   <button class="btn btn-primary btn-full" onclick="saveAndFinish()" style="margin-top:20px;">Save &amp; Finish</button>
@@ -1193,6 +1236,14 @@ html.is-native .is-native-only { display: flex; }
   <div class="settings-hint">Export downloads a JSON file with your sessions, equipment, and toggles. Import replaces all three.</div>
 </div>
 
+<!-- LIBRARY -->
+<div id="library" class="screen has-nav">
+  <div class="screen-header">
+    <h1>Library</h1>
+  </div>
+  <div class="library-list" id="library-list"></div>
+</div>
+
 <!-- SWITCH SIDES OVERLAY -->
 <div class="switch-overlay" id="switch-overlay"><span>Switch sides</span></div>
 
@@ -1230,6 +1281,10 @@ html.is-native .is-native-only { display: flex; }
   <button class="nav-item" data-screen="history" onclick="navTo('history')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
     <span>History</span>
+  </button>
+  <button class="nav-item" data-screen="library" onclick="navTo('library')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+    <span>Library</span>
   </button>
   <button class="nav-item" data-screen="settings" onclick="navTo('settings')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -1626,6 +1681,9 @@ let selectedEquipment = new Set(ALL_EQUIPMENT);
 let workout = [];
 let pendingSessionId = null;
 let pendingRpe = null;
+let savedWorkouts = JSON.parse(localStorage.getItem('wk_saved_workouts') || '[]');
+let pendingSaveWorkout = false;
+let pendingSaveRating = 3;
 let timerState = { running:false, paused:false, idx:0, phase:'work', remaining:0, intervalId:null, startedAt:null };
 let wasPausedBeforeInfo = false;
 let soundEnabled = true;
@@ -2242,6 +2300,7 @@ function showScreen(id) {
 
 function navTo(screen) {
   if (screen === 'history' && window.history_view) window.history_view.refresh();
+  if (screen === 'library') renderLibrary();
   showScreen(screen);
 }
 function selectPill(el) {
@@ -3144,6 +3203,8 @@ function openSwapPicker(idx) {
 
 function closeSwap() {
   pendingSwapIdx = null;
+  const searchEl = document.getElementById('add-exercise-search');
+  if (searchEl) searchEl.remove();
   document.getElementById('swap-modal').classList.remove('active');
 }
 
@@ -3844,9 +3905,15 @@ function finishWorkout() {
 
 function resetDoneCapture() {
   pendingRpe = null;
+  pendingSaveWorkout = false;
+  pendingSaveRating = 3;
   document.querySelectorAll('#rpe-row .rpe-pill').forEach(p => p.classList.remove('selected'));
   const note = document.getElementById('d-note');
   if (note) note.value = '';
+  const saveToggle = document.getElementById('save-workout-toggle');
+  if (saveToggle) { saveToggle.textContent = 'Off'; saveToggle.classList.remove('on'); }
+  const starRow = document.getElementById('save-star-row');
+  if (starRow) starRow.style.display = 'none';
 }
 
 function selectRpe(el) {
@@ -3861,6 +3928,9 @@ function saveAndFinish() {
   if (pendingSessionId && (pendingRpe !== null || note !== null)) {
     try { window.storage.updateSession(pendingSessionId, { rpe: pendingRpe, note }); } catch (e) {}
   }
+  if (pendingSaveWorkout) {
+    saveWorkoutToLibrary();
+  }
   pendingSessionId = null;
   showScreen('setup');
 }
@@ -3868,6 +3938,246 @@ function saveAndFinish() {
 function skipFinish() {
   pendingSessionId = null;
   showScreen('setup');
+}
+
+// ═══════════════════════════════════════════════════
+// SAVED WORKOUTS (Library)
+// ═══════════════════════════════════════════════════
+
+function toggleSaveWorkout() {
+  pendingSaveWorkout = !pendingSaveWorkout;
+  const btn = document.getElementById('save-workout-toggle');
+  if (btn) { btn.textContent = pendingSaveWorkout ? 'On' : 'Off'; btn.classList.toggle('on', pendingSaveWorkout); }
+  const starRow = document.getElementById('save-star-row');
+  if (starRow) {
+    starRow.style.display = pendingSaveWorkout ? 'flex' : 'none';
+    if (pendingSaveWorkout) renderSaveStars(pendingSaveRating);
+  }
+}
+
+function selectSaveStar(n) {
+  pendingSaveRating = n;
+  renderSaveStars(n);
+}
+
+function renderSaveStars(n) {
+  document.querySelectorAll('#save-star-row .done-star').forEach(s => {
+    s.classList.toggle('filled', parseInt(s.dataset.star) <= n);
+  });
+}
+
+function saveWorkoutToLibrary() {
+  if (!workout.length) return;
+  const entry = {
+    id: crypto.randomUUID(),
+    name: config.type.charAt(0).toUpperCase() + config.type.slice(1) + ' ' + config.duration + 'min',
+    rating: pendingSaveRating,
+    created: new Date().toISOString(),
+    config: { ...config },
+    workout: workout.map(w => ({ exercise: { name: w.exercise.name, cat: w.exercise.cat }, workSec: w.workSec, restSec: w.restSec, section: w.section })),
+  };
+  savedWorkouts.unshift(entry);
+  if (savedWorkouts.length > 50) savedWorkouts = savedWorkouts.slice(0, 50);
+  persistSavedWorkouts();
+}
+
+function persistSavedWorkouts() {
+  try { localStorage.setItem('wk_saved_workouts', JSON.stringify(savedWorkouts)); } catch(e) {}
+}
+
+function deleteSavedWorkout(id) {
+  savedWorkouts = savedWorkouts.filter(w => w.id !== id);
+  persistSavedWorkouts();
+  renderLibrary();
+}
+
+function replaySavedWorkout(id) {
+  const saved = savedWorkouts.find(w => w.id === id);
+  if (!saved) return;
+  // Restore config
+  Object.assign(config, saved.config);
+  // Rebuild workout array with full exercise objects from DB where possible
+  workout.length = 0;
+  saved.workout.forEach(sw => {
+    const dbEx = DB.find(e => e.name === sw.exercise.name);
+    const ex = dbEx || { name: sw.exercise.name, cat: sw.exercise.cat, equip: [], muscles: [], types: [], diff: 1, info: '' };
+    workout.push({ exercise: ex, workSec: sw.workSec, restSec: sw.restSec, section: sw.section });
+  });
+  showScreen('preview');
+  renderPreview();
+}
+
+function exportSavedWorkout(id, format) {
+  const saved = savedWorkouts.find(w => w.id === id);
+  if (!saved) return;
+  closeAllExportMenus();
+  let blob, filename;
+  if (format === 'json') {
+    blob = new Blob([JSON.stringify(saved, null, 2)], { type: 'application/json' });
+    filename = saved.name.replace(/\s+/g, '_') + '.json';
+  } else if (format === 'csv') {
+    const rows = ['Name,Duration (s),Rest (s),Section'];
+    saved.workout.forEach(w => {
+      rows.push([w.exercise.name, w.workSec, w.restSec, w.section].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','));
+    });
+    blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+    filename = saved.name.replace(/\s+/g, '_') + '.csv';
+  } else {
+    // markdown
+    let md = '# ' + saved.name + '\n\n';
+    md += '**Type:** ' + saved.config.type + '  \n';
+    md += '**Duration:** ' + saved.config.duration + ' min  \n';
+    md += '**Rating:** ' + '\u2605'.repeat(saved.rating) + '\u2606'.repeat(5 - saved.rating) + '  \n';
+    md += '**Created:** ' + new Date(saved.created).toLocaleDateString() + '\n\n';
+    let lastSection = '';
+    saved.workout.forEach(w => {
+      if (w.section !== lastSection) { md += '\n## ' + w.section.charAt(0).toUpperCase() + w.section.slice(1) + '\n\n'; lastSection = w.section; }
+      md += '- **' + w.exercise.name + '** — ' + w.workSec + 's work' + (w.restSec ? ' / ' + w.restSec + 's rest' : '') + '\n';
+    });
+    blob = new Blob([md], { type: 'text/markdown' });
+    filename = saved.name.replace(/\s+/g, '_') + '.md';
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function toggleExportMenu(id) {
+  const menu = document.getElementById('export-menu-' + id);
+  if (!menu) return;
+  const isOpen = menu.style.display === 'flex';
+  closeAllExportMenus();
+  if (!isOpen) menu.style.display = 'flex';
+}
+
+function closeAllExportMenus() {
+  document.querySelectorAll('.library-export-menu').forEach(m => m.style.display = 'none');
+}
+
+function renderLibrary() {
+  const list = document.getElementById('library-list');
+  if (!list) return;
+  if (savedWorkouts.length === 0) {
+    list.innerHTML = '<div class="library-empty">No saved workouts yet.<br>Complete a workout and save it.</div>';
+    return;
+  }
+  list.innerHTML = savedWorkouts.map(w => {
+    const stars = '\u2605'.repeat(w.rating) + '\u2606'.repeat(5 - w.rating);
+    const dateStr = new Date(w.created).toLocaleDateString();
+    const safeId = w.id;
+    return '<div class="library-card">' +
+      '<div class="library-card-top">' +
+        '<div class="library-card-name">' + escapeHtml(w.name) + '</div>' +
+        '<div class="library-card-date">' + dateStr + '</div>' +
+      '</div>' +
+      '<div class="library-card-meta">' +
+        '<span class="meta-tag">' + escapeHtml(w.config.type).toUpperCase() + '</span>' +
+        '<span class="meta-tag">' + w.config.duration + ' min</span>' +
+        '<span class="library-card-stars">' + stars + '</span>' +
+      '</div>' +
+      '<div class="library-card-actions">' +
+        '<button class="btn btn-primary" onclick="replaySavedWorkout(\'' + safeId + '\')">Start</button>' +
+        '<div class="library-export-wrap">' +
+          '<button class="btn btn-ghost" onclick="toggleExportMenu(\'' + safeId + '\')">Export</button>' +
+          '<div class="library-export-menu" id="export-menu-' + safeId + '" style="display:none;">' +
+            '<button onclick="exportSavedWorkout(\'' + safeId + '\',\'json\')">JSON</button>' +
+            '<button onclick="exportSavedWorkout(\'' + safeId + '\',\'markdown\')">Markdown</button>' +
+            '<button onclick="exportSavedWorkout(\'' + safeId + '\',\'csv\')">CSV</button>' +
+          '</div>' +
+        '</div>' +
+        '<button class="btn btn-ghost" onclick="deleteSavedWorkout(\'' + safeId + '\')" style="color:var(--red);">Delete</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// ADD EXERCISE (Preview)
+// ═══════════════════════════════════════════════════
+
+function showAddExerciseModal() {
+  const pool = DB.filter(e => exerciseAvailable(e) && e.types.includes(config.type));
+  const usedNames = new Set(workout.map(w => w.exercise.name));
+  const available = pool.filter(e => !usedNames.has(e.name));
+  document.getElementById('swap-title').textContent = 'Add exercise';
+  const list = document.getElementById('swap-list');
+  const renderAddList = (exercises) => {
+    if (exercises.length === 0) {
+      list.innerHTML = '<div class="swap-empty">No matching exercises found.</div>';
+      return;
+    }
+    list.innerHTML = exercises.map(e => {
+      const safeName = e.name.replace(/'/g, "\\'");
+      return '<button class="swap-item" onclick="addExercise(\'' + safeName + '\')">' +
+        '<div class="swap-item-name">' + escapeHtml(e.name) + '</div>' +
+        '<div class="swap-item-meta">' + escapeHtml(e.equip.join(', ')) + ' &middot; ' + escapeHtml(e.muscles.join(', ')) + '</div>' +
+      '</button>';
+    }).join('');
+  };
+  // Build with search
+  let searchHtml = '<input type="text" class="add-search" id="add-exercise-search" placeholder="Search exercises..." oninput="filterAddExercises()">';
+  list.innerHTML = '';
+  // Store available list for filtering
+  window._addExPool = available;
+  const wrapper = document.getElementById('swap-modal');
+  // Insert search before list
+  const existingSearch = document.getElementById('add-exercise-search');
+  if (existingSearch) existingSearch.remove();
+  list.insertAdjacentHTML('beforebegin', searchHtml);
+  renderAddList(available);
+  wrapper.classList.add('active');
+}
+
+function filterAddExercises() {
+  const q = (document.getElementById('add-exercise-search')?.value || '').toLowerCase();
+  const pool = window._addExPool || [];
+  const filtered = q ? pool.filter(e => e.name.toLowerCase().includes(q) || e.muscles.some(m => m.toLowerCase().includes(q))) : pool;
+  const list = document.getElementById('swap-list');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="swap-empty">No matching exercises.</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(e => {
+    const safeName = e.name.replace(/'/g, "\\'");
+    return '<button class="swap-item" onclick="addExercise(\'' + safeName + '\')">' +
+      '<div class="swap-item-name">' + escapeHtml(e.name) + '</div>' +
+      '<div class="swap-item-meta">' + escapeHtml(e.equip.join(', ')) + ' &middot; ' + escapeHtml(e.muscles.join(', ')) + '</div>' +
+    '</button>';
+  }).join('');
+}
+
+function addExercise(name) {
+  const ex = DB.find(e => e.name === name);
+  if (!ex) return;
+  // Clean up the search input
+  const searchEl = document.getElementById('add-exercise-search');
+  if (searchEl) searchEl.remove();
+  closeSwap();
+  // Build a main entry with appropriate timing for each set.
+  // Insert at the end of each set's main block (before cooldown / next set).
+  const sets = config.sets || 1;
+  // Work backwards through sets so splice indices stay valid.
+  for (let s = sets - 1; s >= 0; s--) {
+    const entry = buildMainEntry(ex, config.type, config.intensity, s);
+    // Find the last main exercise of this set
+    let insertAt = workout.length; // default: end
+    // Find the first cooldown or end
+    const cooldownStart = workout.findIndex(w => w.section === 'cooldown');
+    if (cooldownStart >= 0) insertAt = cooldownStart;
+    // For multi-set, find end of this specific set
+    if (sets > 1) {
+      let lastOfSet = -1;
+      for (let i = 0; i < workout.length; i++) {
+        if (workout[i].section === 'main' && (workout[i].setIdx ?? 0) === s) lastOfSet = i;
+      }
+      if (lastOfSet >= 0) insertAt = lastOfSet + 1;
+    }
+    workout.splice(insertAt, 0, entry);
+  }
+  applyInterSetRest();
+  renderPreview();
 }
 
 function releaseWakeLock() {
@@ -3890,6 +4200,10 @@ initWatchConnectivity();
 // Make the bottom nav visible immediately on the initial active (setup) screen.
 document.getElementById('bottom-nav').classList.toggle('visible',
   document.querySelector('.screen.active')?.classList.contains('has-nav'));
+// Close export menus on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.library-export-wrap')) closeAllExportMenus();
+});
 </script>
 </body>
 </html>
