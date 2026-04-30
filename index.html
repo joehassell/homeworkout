@@ -1732,7 +1732,7 @@ function showScreen(id) {
 function navTo(screen) {
   if (screen === 'history' && window.history_view) window.history_view.refresh();
   if (screen === 'library') { renderLibrary(); renderExerciseLibraryInline(); }
-  if (screen === 'setup') { loadFocus(); }
+  if (screen === 'setup') { resetFocus(); }
   showScreen(screen);
 }
 

@@ -44,7 +44,8 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .option-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: var(--tracking-eyebrow); margin-bottom: 10px; }
 .option-pills { display: flex; gap: 8px; flex-wrap: wrap; }
 .pill {
-  flex: 1; min-width: 70px; padding: 12px 8px; border-radius: 10px;
+  flex: 1; min-width: 0; padding: 12px 8px; border-radius: 10px;
+  word-break: break-word; overflow-wrap: break-word;
   background: var(--surface); border: 2px solid var(--border);
   text-align: center; cursor: pointer; transition: all var(--t-quick);
   font-size: 0.95rem; font-weight: 500; touch-action: manipulation;
