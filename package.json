@@ -4,7 +4,7 @@
   "private": true,
   "description": "SimpleWorkoutGen — home workout builder, web + iOS native shell via Capacitor",
   "scripts": {
-    "build:web": "rm -rf www && mkdir -p www && cp index.html www/ && cp -r js www/ && cp -r css www/ && cp -r img www/",
+    "build:web": "rm -rf www && mkdir -p www && cp index.html www/ && cp -r js www/ && cp -r css www/ && cp -r img www/ && [ -d audio ] && cp -r audio www/ || true",
     "build": "npm run build:web",
     "sync:ios": "npm run build && npx cap sync ios",
     "open:ios": "npx cap open ios",

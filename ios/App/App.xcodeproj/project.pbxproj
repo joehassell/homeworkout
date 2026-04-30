@@ -16,6 +16,8 @@
 		IC10000020000000000000002 /* iCloudSyncPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = IC10000010000000000000002 /* iCloudSyncPlugin.m */; };
 		MP10000020000000000000001 /* MusicPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = MP10000010000000000000001 /* MusicPlugin.swift */; };
 		MP10000020000000000000002 /* MusicPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = MP10000010000000000000002 /* MusicPlugin.m */; };
+		SP10000020000000000000001 /* SpeechPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = SP10000010000000000000001 /* SpeechPlugin.swift */; };
+		SP10000020000000000000002 /* SpeechPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = SP10000010000000000000002 /* SpeechPlugin.m */; };
 		MP10000020000000000000003 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = MP10000010000000000000003 /* MediaPlayer.framework */; };
 		0EA13C48A6AC508A99E0EAE1 /* HealthKitPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 36971A38436F34FBC8632F1C /* HealthKitPlugin.m */; };
 		1D78BB2E4F4F0F816A069684 /* HealthKitPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = C14F334DAACB8180314B203D /* HealthKitPlugin.swift */; };
@@ -60,6 +62,8 @@
 		IC10000010000000000000002 /* iCloudSyncPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = iCloudSyncPlugin.m; sourceTree = "<group>"; };
 		MP10000010000000000000001 /* MusicPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicPlugin.swift; sourceTree = "<group>"; };
 		MP10000010000000000000002 /* MusicPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MusicPlugin.m; sourceTree = "<group>"; };
+		SP10000010000000000000001 /* SpeechPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechPlugin.swift; sourceTree = "<group>"; };
+		SP10000010000000000000002 /* SpeechPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SpeechPlugin.m; sourceTree = "<group>"; };
 		MP10000010000000000000003 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -229,6 +233,8 @@
 				MP10000010000000000000002 /* MusicPlugin.m */,
 				IAP0000010000000000000001 /* IAPPlugin.swift */,
 				IAP0000010000000000000002 /* IAPPlugin.m */,
+				SP10000010000000000000001 /* SpeechPlugin.swift */,
+				SP10000010000000000000002 /* SpeechPlugin.m */,
 			);
 			path = Plugins;
 			sourceTree = "<group>";
@@ -443,6 +449,8 @@
 				MP10000020000000000000002 /* MusicPlugin.m in Sources */,
 				IAP0000020000000000000001 /* IAPPlugin.swift in Sources */,
 				IAP0000020000000000000002 /* IAPPlugin.m in Sources */,
+				SP10000020000000000000001 /* SpeechPlugin.swift in Sources */,
+				SP10000020000000000000002 /* SpeechPlugin.m in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
