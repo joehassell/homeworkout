@@ -61,6 +61,11 @@ struct ActiveWorkoutView: View {
 
             Spacer(minLength: 0)
 
+            // Music mini-player (only when music is playing)
+            if !manager.musicTitle.isEmpty {
+                WatchMusicView()
+            }
+
             // Controls
             WorkoutControlsView()
         }

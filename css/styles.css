@@ -167,20 +167,57 @@ html.is-native .is-native-only { display: flex; }
 /* Music mini-player bar */
 .music-bar {
   position: fixed; bottom: calc(62px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0;
-  display: none; align-items: center; gap: 8px;
+  display: none; align-items: center; gap: 10px;
   background: var(--surface); border-top: 1px solid var(--border);
-  padding: 8px 16px;
+  padding: 8px 16px; cursor: pointer;
   z-index: 45;
 }
 html.is-native .music-bar.visible { display: flex; }
+.music-bar-art { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--surface2); }
 .music-info { flex: 1; min-width: 0; }
 .music-title { font-size: 0.85rem; font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .music-artist { font-size: 0.7rem; color: var(--text-dim); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.music-controls { display: flex; gap: 4px; }
-.music-btn { background: none; border: none; color: var(--text); font-size: 1.1rem; padding: 8px; cursor: pointer; touch-action: manipulation; }
+.music-bar-progress { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--border); }
+.music-bar-progress-fill { height: 100%; background: var(--accent); transition: width 1s linear; }
+.music-controls { display: flex; gap: 4px; flex-shrink: 0; }
+.music-btn { background: none; border: none; color: var(--text); font-size: 1.1rem; padding: 8px; cursor: pointer; touch-action: manipulation; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
 .music-btn:active { opacity: 0.6; }
 .music-play { font-size: 1.3rem; }
 html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-area-inset-bottom, 0px)); }
+
+/* Music full player */
+.music-player-overlay {
+  position: fixed; inset: 0; z-index: 9998;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  display: none; align-items: flex-end; justify-content: center;
+}
+.music-player-overlay.visible { display: flex; }
+.music-player {
+  position: relative; width: 100%; max-width: 440px;
+  background: var(--surface); border-radius: 20px 20px 0 0;
+  padding: 24px 24px calc(env(safe-area-inset-bottom, 0px) + 24px);
+  text-align: center;
+}
+.music-player-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text-dim); font-size: 1.6rem; cursor: pointer; padding: 4px 8px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+.music-player-art { width: 200px; height: 200px; border-radius: 16px; object-fit: cover; margin: 0 auto 16px; background: var(--surface2); display: block; }
+.music-player-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.music-player-artist { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.music-player-seek { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.music-player-time { font-size: 0.7rem; color: var(--text-dim); min-width: 32px; font-variant-numeric: tabular-nums; }
+.music-player-slider { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: var(--border); outline: none; }
+.music-player-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); cursor: pointer; }
+.music-player-controls { display: flex; align-items: center; justify-content: center; gap: 32px; margin-bottom: 20px; }
+.music-player-btn { background: none; border: none; color: var(--text); font-size: 1.4rem; cursor: pointer; padding: 12px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+.music-player-btn:active { opacity: 0.6; }
+.music-player-play { font-size: 2rem; }
+.music-player-volume { display: flex; align-items: center; gap: 10px; }
+.music-vol-icon { font-size: 0.9rem; }
+
+/* iPad: wider layout for mini-player */
+@media (min-width: 768px) {
+  .music-bar { max-width: 600px; left: 50%; transform: translateX(-50%); border-radius: 12px 12px 0 0; }
+  .music-player-art { width: 280px; height: 280px; }
+}
 .sanskrit-name { font-style: italic; color: var(--text-dim); font-size: 0.85em; }
 .ios-fs-hint {
   position: fixed; bottom: 88px; left: 16px; right: 16px;

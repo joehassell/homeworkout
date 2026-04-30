@@ -1,6 +1,7 @@
 import Foundation
 import Capacitor
 import WatchConnectivity
+import MediaPlayer
 
 @objc(WatchConnectivityPlugin)
 public class WatchConnectivityPlugin: CAPPlugin, CAPBridgedPlugin, WCSessionDelegate {
@@ -154,6 +155,18 @@ public class WatchConnectivityPlugin: CAPPlugin, CAPBridgedPlugin, WCSessionDele
                     hkPlugin.watchOwnsSession = true
                 }
             }
+
+        case "musicControl":
+            let action = message["action"] as? String ?? ""
+            let player = MPMusicPlayerController.systemMusicPlayer
+            switch action {
+            case "play": player.play()
+            case "pause": player.pause()
+            case "next": player.skipToNextItem()
+            case "previous": player.skipToPreviousItem()
+            default: break
+            }
+            notifyListeners("watchMusicControl", data: ["action": action])
 
         case "workoutSessionEnded":
             notifyListeners("watchSessionOwnership", data: [

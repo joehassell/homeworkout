@@ -22,6 +22,11 @@ class WorkoutSessionManager: NSObject, ObservableObject {
     @Published var isPhoneReachable = false
     @Published var workoutType = ""
 
+    // Music state (forwarded from phone)
+    @Published var musicTitle = ""
+    @Published var musicArtist = ""
+    @Published var musicIsPlaying = false
+
     // MARK: - Internal
 
     private let healthStore = HKHealthStore()
@@ -133,6 +138,13 @@ class WorkoutSessionManager: NSObject, ObservableObject {
         }
     }
 
+    func sendMusicControl(_ action: String) {
+        sendToPhone(["type": "musicControl", "action": action])
+        // Optimistic UI
+        if action == "pause" { musicIsPlaying = false }
+        if action == "play" { musicIsPlaying = true }
+    }
+
     func sendControl(_ action: String) {
         sendToPhone(["type": "control", "action": action])
 
@@ -192,6 +204,11 @@ class WorkoutSessionManager: NSObject, ObservableObject {
         if let v = state["totalRemaining"] as? Int { totalRemaining = v }
         if let v = state["isPaused"] as? Bool { isPaused = v }
         if let v = state["workoutType"] as? String { workoutType = v }
+
+        // Music state (if included)
+        if let v = state["musicTitle"] as? String { musicTitle = v }
+        if let v = state["musicArtist"] as? String { musicArtist = v }
+        if let v = state["musicIsPlaying"] as? Bool { musicIsPlaying = v }
 
         lastSyncTimestamp = Date()
 
@@ -266,6 +283,11 @@ extension WorkoutSessionManager: WCSessionDelegate {
             case "hapticCue":
                 let style = message["style"] as? String ?? "click"
                 self.fireHaptic(for: style)
+
+            case "musicUpdate":
+                if let t = message["title"] as? String { self.musicTitle = t }
+                if let a = message["artist"] as? String { self.musicArtist = a }
+                if let p = message["isPlaying"] as? Bool { self.musicIsPlaying = p }
 
             default:
                 break

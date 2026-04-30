@@ -623,15 +623,42 @@
 </div>
 
 <!-- MUSIC MINI-PLAYER -->
-<div class="music-bar is-native-only" id="music-bar" style="display:none;">
+<div class="music-bar is-native-only" id="music-bar" style="display:none;" onclick="openMusicPlayer(event)">
+  <img class="music-bar-art" id="music-bar-art" src="" alt="">
   <div class="music-info">
     <span class="music-title" id="music-title">Not Playing</span>
     <span class="music-artist" id="music-artist"></span>
   </div>
-  <div class="music-controls">
+  <div class="music-bar-progress"><div class="music-bar-progress-fill" id="music-bar-progress"></div></div>
+  <div class="music-controls" onclick="event.stopPropagation()">
     <button class="music-btn" onclick="musicPrev()" aria-label="Previous">&#x23EE;</button>
     <button class="music-btn music-play" id="music-play-btn" onclick="musicToggle()" aria-label="Play/Pause">&#x25B6;</button>
     <button class="music-btn" onclick="musicNext()" aria-label="Next">&#x23ED;</button>
+  </div>
+</div>
+
+<!-- MUSIC FULL PLAYER -->
+<div class="music-player-overlay is-native-only" id="music-player" onclick="if(event.target===this)closeMusicPlayer()">
+  <div class="music-player">
+    <button class="music-player-close" onclick="closeMusicPlayer()" aria-label="Close">&times;</button>
+    <img class="music-player-art" id="music-player-art" src="" alt="">
+    <div class="music-player-title" id="music-player-title"></div>
+    <div class="music-player-artist" id="music-player-artist"></div>
+    <div class="music-player-seek">
+      <span class="music-player-time" id="music-player-elapsed">0:00</span>
+      <input type="range" class="music-player-slider" id="music-player-seek" min="0" max="100" value="0" oninput="seekMusic(this.value)">
+      <span class="music-player-time" id="music-player-duration">0:00</span>
+    </div>
+    <div class="music-player-controls">
+      <button class="music-player-btn" onclick="musicPrev()" aria-label="Previous">&#x23EE;</button>
+      <button class="music-player-btn music-player-play" id="music-player-play" onclick="musicToggle()" aria-label="Play/Pause">&#x25B6;</button>
+      <button class="music-player-btn" onclick="musicNext()" aria-label="Next">&#x23ED;</button>
+    </div>
+    <div class="music-player-volume">
+      <span class="music-vol-icon">&#x1F509;</span>
+      <input type="range" class="music-player-slider" id="music-player-vol" min="0" max="100" value="50" oninput="setMusicVolume(this.value)">
+      <span class="music-vol-icon">&#x1F50A;</span>
+    </div>
   </div>
 </div>
 
@@ -825,6 +852,7 @@ function isNative() {
 // ── Apple Music bridge ──────────────────────────────────
 let musicAvailable = false;
 let musicEnabled = true;
+let musicState = {}; // cached now-playing state
 
 async function initMusic() {
   if (!isNative()) return;
@@ -835,12 +863,26 @@ async function initMusic() {
     if (!available) return;
 
     mp.addListener('musicStateChanged', (data) => {
+      musicState = data;
       updateMusicBar(data);
+      updateMusicPlayer(data);
+      // Forward to Watch
+      watchSendMusicState(data);
     });
 
     const state = await mp.getNowPlaying();
+    musicState = state;
     updateMusicBar(state);
   } catch (e) {}
+}
+
+function watchSendMusicState(data) {
+  if (!isNative()) return;
+  watchSendCommand('musicUpdate', {
+    title: data.title || '',
+    artist: data.artist || '',
+    isPlaying: !!data.isPlaying,
+  });
 }
 
 function updateMusicBar(data) {
@@ -848,6 +890,8 @@ function updateMusicBar(data) {
   const title = document.getElementById('music-title');
   const artist = document.getElementById('music-artist');
   const playBtn = document.getElementById('music-play-btn');
+  const art = document.getElementById('music-bar-art');
+  const progress = document.getElementById('music-bar-progress');
   if (!bar) return;
 
   if (!musicEnabled) {
@@ -862,10 +906,78 @@ function updateMusicBar(data) {
     title.textContent = data.title;
     artist.textContent = data.artist || '';
     playBtn.innerHTML = data.isPlaying ? '&#x23F8;' : '&#x25B6;';
+    // Album art
+    if (art) {
+      if (data.artworkBase64) { art.src = data.artworkBase64; art.style.display = ''; }
+      else { art.style.display = 'none'; }
+    }
+    // Progress bar
+    if (progress && data.duration > 0) {
+      const pct = Math.min(100, (data.playbackTime / data.duration) * 100);
+      progress.style.width = pct + '%';
+    }
   } else {
     bar.classList.remove('visible');
     document.documentElement.classList.remove('music-bar-visible');
   }
+}
+
+function updateMusicPlayer(data) {
+  const playerEl = document.getElementById('music-player');
+  if (!playerEl || !playerEl.classList.contains('visible')) return;
+  const titleEl = document.getElementById('music-player-title');
+  const artistEl = document.getElementById('music-player-artist');
+  const artEl = document.getElementById('music-player-art');
+  const playBtn = document.getElementById('music-player-play');
+  const seekEl = document.getElementById('music-player-seek');
+  const elapsedEl = document.getElementById('music-player-elapsed');
+  const durationEl = document.getElementById('music-player-duration');
+  if (titleEl) titleEl.textContent = data.title || '';
+  if (artistEl) artistEl.textContent = [data.artist, data.album].filter(Boolean).join(' — ');
+  if (artEl && data.artworkBase64) artEl.src = data.artworkBase64;
+  if (playBtn) playBtn.innerHTML = data.isPlaying ? '&#x23F8;' : '&#x25B6;';
+  if (seekEl && data.duration > 0) {
+    seekEl.max = Math.floor(data.duration);
+    seekEl.value = Math.floor(data.playbackTime || 0);
+  }
+  if (elapsedEl) elapsedEl.textContent = formatMusicTime(data.playbackTime || 0);
+  if (durationEl) durationEl.textContent = formatMusicTime(data.duration || 0);
+}
+
+function formatMusicTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function openMusicPlayer(event) {
+  const player = document.getElementById('music-player');
+  if (!player) return;
+  // Populate with cached state
+  updateMusicPlayer(musicState);
+  // Get volume
+  if (musicAvailable) {
+    window.Capacitor.Plugins.MusicPlugin.getVolume().then(v => {
+      const volEl = document.getElementById('music-player-vol');
+      if (volEl) volEl.value = Math.round((v.volume || 0.5) * 100);
+    });
+  }
+  player.classList.add('visible');
+}
+
+function closeMusicPlayer() {
+  const player = document.getElementById('music-player');
+  if (player) player.classList.remove('visible');
+}
+
+function seekMusic(val) {
+  if (!musicAvailable) return;
+  window.Capacitor.Plugins.MusicPlugin.seek({ time: parseFloat(val) });
+}
+
+function setMusicVolume(val) {
+  // System volume can't be set programmatically on iOS (security restriction).
+  // The slider acts as visual feedback; actual volume is controlled via hardware buttons.
 }
 
 function musicToggle() {
@@ -1165,6 +1277,12 @@ function initWatchConnectivity() {
           if (timerState.running) skipExercise();
           break;
       }
+    });
+
+    // Listen for music control from watch
+    wc.addListener('watchMusicControl', (data) => {
+      // Music controls are handled natively by WatchConnectivityPlugin
+      // via MPMusicPlayerController. JS listener is for future use.
     });
 
     // Listen for watch reachability changes
@@ -2962,6 +3080,7 @@ const EQUIPMENT_ICON = {
   'chinup bar':'chinup-bar.svg', 'medicine ball':'medicine-ball.svg',
   'resistance band':'resistance-band.svg', 'foam roller':'foam-roller.svg',
   'ab wheel':'ab-wheel.svg', 'trx':'trx.svg', 'parallettes':'parallettes.svg',
+  'bosu ball':'medicine-ball.svg', 'aerobic step':'bench.svg',
   // Commercial — bars (reuse barbell)
   'barbell':'barbell.svg', 'ez curl bar':'barbell.svg', 'olympic platform':'barbell.svg',
   // Commercial — racks (reuse power-rack for smith machine)
