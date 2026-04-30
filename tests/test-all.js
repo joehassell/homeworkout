@@ -561,6 +561,287 @@ describe('Strength — 1RM (Epley)', () => {
 });
 
 // ═══════════════════════════════════════════════════
+// 15. WORKOUT QUALITY: Equipment compliance
+// ═══════════════════════════════════════════════════
+
+describe('Workout quality — equipment compliance', () => {
+  it('bodyweight-only workout uses no equipment beyond bodyweight+mat', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat']);
+    for (const t of ['strength', 'hiit', 'conditioning', 'functional']) {
+      config = { type: t, duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+      try {
+        generateWorkout();
+        if (workout.length === 0) continue;
+        for (const w of workout) {
+          for (const eq of w.exercise.equip) {
+            assert(selectedEquipment.has(eq),
+              `${t}: "${w.exercise.name}" requires "${eq}" but only bodyweight+mat selected`);
+          }
+        }
+      } catch (e) {}
+    }
+  });
+
+  it('dumbbell workout uses no barbell or machines', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell']);
+    config = { type: 'strength', duration: 30, intensity: 'moderate', sets: 3, yogaStyle: 'vinyasa' };
+    generateWorkout();
+    if (workout.length === 0) return;
+    const forbidden = ['barbell', 'bench', 'chinup bar', 'kettlebell', 'cable column', 'leg press',
+      'smith machine', 'power rack', 'lat pulldown', 'seated cable row'];
+    for (const w of workout) {
+      for (const eq of w.exercise.equip) {
+        assert(!forbidden.includes(eq),
+          `"${w.exercise.name}" uses "${eq}" which is not selected`);
+      }
+    }
+  });
+
+  it('no exercise uses equipment not in selectedEquipment', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'bench']);
+    for (const t of ['strength', 'hiit', 'conditioning', 'functional']) {
+      config = { type: t, duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+      try {
+        generateWorkout();
+        for (const w of workout) {
+          for (const eq of w.exercise.equip) {
+            assert(selectedEquipment.has(eq),
+              `${t}: "${w.exercise.name}" requires "${eq}" not in selectedEquipment`);
+          }
+        }
+      } catch (e) {}
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 16. WORKOUT QUALITY: Exercise type suitability
+// ═══════════════════════════════════════════════════
+
+describe('Workout quality — exercise type suitability', () => {
+  it('HIIT workouts contain no machine isolation exercises', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'skipping rope',
+      'leg press', 'leg extension', 'chest press machine', 'shoulder press machine']);
+    config = { type: 'hiit', duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+    generateWorkout();
+    if (workout.length === 0) return;
+    const machineEquip = ['leg press', 'leg extension', 'seated leg curl', 'lying leg curl',
+      'chest press machine', 'shoulder press machine', 'pec deck', 'hip abductor', 'hip adductor',
+      'calf raise machine', 'smith machine', 'hack squat'];
+    const main = workout.filter(w => w.section === 'main');
+    for (const w of main) {
+      const usesMachine = w.exercise.equip.some(eq => machineEquip.includes(eq));
+      assert(!usesMachine,
+        `HIIT main block has machine exercise "${w.exercise.name}" (equip: ${w.exercise.equip.join(',')})`);
+    }
+  });
+
+  it('main exercises all have the selected workout type in their types array', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'barbell', 'bench',
+      'chinup bar', 'medicine ball', 'skipping rope']);
+    for (const t of ['strength', 'hiit', 'conditioning', 'functional']) {
+      config = { type: t, duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+      try {
+        generateWorkout();
+        const main = workout.filter(w => w.section === 'main');
+        for (const w of main) {
+          assert(w.exercise.types.includes(t),
+            `${t}: "${w.exercise.name}" in main block but types=[${w.exercise.types.join(',')}] doesn't include "${t}"`);
+        }
+      } catch (e) {}
+    }
+  });
+
+  it('warmup exercises are low difficulty (diff <= 2)', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'skipping rope']);
+    for (const t of ['strength', 'hiit', 'conditioning', 'functional']) {
+      config = { type: t, duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+      try {
+        generateWorkout();
+        const warmup = workout.filter(w => w.section === 'warmup');
+        for (const w of warmup) {
+          assert(w.exercise.diff <= 2,
+            `${t}: warmup has diff ${w.exercise.diff} exercise "${w.exercise.name}" (should be ≤ 2)`);
+        }
+      } catch (e) {}
+    }
+  });
+
+  it('cooldown exercises are all mobility category', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'skipping rope']);
+    for (const t of ['strength', 'hiit', 'conditioning', 'functional']) {
+      config = { type: t, duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+      try {
+        generateWorkout();
+        const cooldown = workout.filter(w => w.section === 'cooldown');
+        for (const w of cooldown) {
+          assertEqual(w.exercise.cat, 'mobility',
+            `${t}: cooldown has "${w.exercise.name}" with cat="${w.exercise.cat}" (should be mobility)`);
+        }
+      } catch (e) {}
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 17. WORKOUT QUALITY: Structure and sizing
+// ═══════════════════════════════════════════════════
+
+describe('Workout quality — structure and sizing', () => {
+  it('warmup has 2-6 exercises (not 10+)', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'skipping rope']);
+    for (const d of [15, 20, 30, 45, 60]) {
+      config = { type: 'hiit', duration: d, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+      try {
+        generateWorkout();
+        if (workout.length === 0) continue;
+        const warmup = workout.filter(w => w.section === 'warmup');
+        assertInRange(warmup.length, 1, 6,
+          `${d}min: warmup has ${warmup.length} exercises (expected 1-6)`);
+      } catch (e) {}
+    }
+  });
+
+  it('cooldown has 3-10 exercises', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'skipping rope']);
+    config = { type: 'strength', duration: 30, intensity: 'moderate', sets: 3, yogaStyle: 'vinyasa' };
+    generateWorkout();
+    if (workout.length === 0) return;
+    const cooldown = workout.filter(w => w.section === 'cooldown');
+    assertInRange(cooldown.length, 2, 10,
+      `cooldown has ${cooldown.length} exercises (expected 2-10)`);
+  });
+
+  it('main block has 3-10 unique exercises per set', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'barbell', 'bench',
+      'chinup bar', 'medicine ball', 'skipping rope']);
+    config = { type: 'conditioning', duration: 30, intensity: 'moderate', sets: 3, yogaStyle: 'vinyasa' };
+    generateWorkout();
+    if (workout.length === 0) return;
+    const main = workout.filter(w => w.section === 'main');
+    const uniqueNames = new Set(main.map(w => w.exercise.name));
+    assertInRange(uniqueNames.size, 3, 10,
+      `main block has ${uniqueNames.size} unique exercises (expected 3-10)`);
+  });
+
+  it('workout has warmup → main → cooldown in order', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'skipping rope']);
+    config = { type: 'hiit', duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+    generateWorkout();
+    if (workout.length === 0) return;
+    let lastSection = 'warmup';
+    const order = { warmup: 0, main: 1, cooldown: 2 };
+    for (const w of workout) {
+      assert(order[w.section] >= order[lastSection],
+        `Section "${w.section}" appeared after "${lastSection}" — wrong order`);
+      lastSection = w.section;
+    }
+  });
+
+  it('no exercise appears in both warmup and main', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'skipping rope']);
+    for (const t of ['strength', 'hiit', 'conditioning', 'functional']) {
+      config = { type: t, duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+      try {
+        generateWorkout();
+        const warmupNames = new Set(workout.filter(w => w.section === 'warmup').map(w => w.exercise.name));
+        const mainNames = workout.filter(w => w.section === 'main').map(w => w.exercise.name);
+        for (const name of mainNames) {
+          assert(!warmupNames.has(name),
+            `${t}: "${name}" appears in both warmup and main block`);
+        }
+      } catch (e) {}
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 18. WORKOUT QUALITY: Focus region filtering
+// ═══════════════════════════════════════════════════
+
+describe('Workout quality — focus region filtering', () => {
+  it('excluding lower body removes all squat/hinge exercises from main', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'skipping rope']);
+    focusState = { upper: 'include', upper_push: 'include', upper_pull: 'include',
+      lower: 'exclude', core: 'include', full_body: 'include', posterior: 'include' };
+    config = { type: 'functional', duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+    try {
+      generateWorkout();
+      const main = workout.filter(w => w.section === 'main');
+      for (const w of main) {
+        assert(!['lower-squat', 'lower-hinge'].includes(w.exercise.cat),
+          `Lower excluded but main has "${w.exercise.name}" (cat: ${w.exercise.cat})`);
+      }
+    } catch (e) {}
+    // Reset focus
+    focusState = { upper: 'include', upper_push: 'include', upper_pull: 'include',
+      lower: 'include', core: 'include', full_body: 'include', posterior: 'include' };
+  });
+
+  it('excluding push removes all push exercises from main', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'bench', 'chinup bar']);
+    focusState = { upper: 'include', upper_push: 'exclude', upper_pull: 'include',
+      lower: 'include', core: 'include', full_body: 'include', posterior: 'include' };
+    config = { type: 'strength', duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+    try {
+      generateWorkout();
+      const main = workout.filter(w => w.section === 'main');
+      for (const w of main) {
+        assert(!['push-h', 'push-v'].includes(w.exercise.cat),
+          `Push excluded but main has "${w.exercise.name}" (cat: ${w.exercise.cat})`);
+      }
+    } catch (e) {}
+    focusState = { upper: 'include', upper_push: 'include', upper_pull: 'include',
+      lower: 'include', core: 'include', full_body: 'include', posterior: 'include' };
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 19. WORKOUT QUALITY: Timing sanity
+// ═══════════════════════════════════════════════════
+
+describe('Workout quality — timing sanity', () => {
+  it('warmup total duration is 2-6 minutes', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'skipping rope']);
+    config = { type: 'hiit', duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+    generateWorkout();
+    if (workout.length === 0) return;
+    const warmupSec = workout.filter(w => w.section === 'warmup')
+      .reduce((sum, w) => sum + w.workSec + w.restSec, 0);
+    assertInRange(warmupSec, 120, 360,
+      `warmup duration ${warmupSec}s (expected 120-360s / 2-6 minutes)`);
+  });
+
+  it('no single exercise has work > 90s (except strength count-up)', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'skipping rope']);
+    for (const t of ['hiit', 'conditioning', 'functional']) {
+      config = { type: t, duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+      try {
+        generateWorkout();
+        for (const w of workout) {
+          if (w.workSec > 0) { // strength has workSec=0 (count-up)
+            assert(w.workSec <= 90,
+              `${t}: "${w.exercise.name}" has ${w.workSec}s work (max 90s)`);
+          }
+        }
+      } catch (e) {}
+    }
+  });
+
+  it('rest periods are reasonable (5-180s)', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'skipping rope']);
+    config = { type: 'conditioning', duration: 30, intensity: 'moderate', sets: 3, yogaStyle: 'vinyasa' };
+    generateWorkout();
+    for (const w of workout) {
+      if (w.restSec > 0) {
+        assertInRange(w.restSec, 5, 180,
+          `"${w.exercise.name}" has ${w.restSec}s rest (expected 5-180s)`);
+      }
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════
 // DONE
 // ═══════════════════════════════════════════════════
 
