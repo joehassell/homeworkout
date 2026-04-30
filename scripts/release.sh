@@ -597,6 +597,10 @@ cmd_release() {
 
   apply_versions "$new_marketing" "$new_build"
 
+  # Commit the version bump so the tree stays clean for the rest of the pipeline
+  git add "$PBXPROJ"
+  git commit -m "chore: bump to $new_marketing (build $new_build) [release]" --quiet
+
   if [[ $FLAG_SKIP_BUILD -eq 0 ]]; then
     build_web
   else
