@@ -38,47 +38,12 @@ platform :ios do
     UI.success("API key OK — issuer #{key[:issuer_id]}, key #{key[:key_id]}")
   end
 
-  desc "Archive App scheme and export an App Store IPA"
+  desc "Archive App scheme and export an App Store IPA (called from release.sh)"
   lane :archive do
-    asc_api_key
-
-    # Use xcodebuild directly — Fastlane 2.230's gym doesn't support Xcode 26's
-    # export options format (rejects 'method: app-store' in the plist).
-    archive_path = File.join(BUILD_DIR, "App.xcarchive")
-    export_path  = File.join(BUILD_DIR, "export")
-    export_plist = File.join(REPO_ROOT, "fastlane", "ExportOptions.plist")
-    ipa_dest     = File.join(BUILD_DIR, IPA_NAME)
-
-    FileUtils.mkdir_p(BUILD_DIR)
-    FileUtils.rm_rf(archive_path)
-    FileUtils.rm_rf(export_path)
-
-    # Archive
-    sh(
-      "xcodebuild", "-project", XCODE_PROJECT,
-      "-scheme", SCHEME, "-configuration", "Release",
-      "-archivePath", archive_path,
-      "-allowProvisioningUpdates",
-      "archive"
-    )
-
-    # Export
-    sh(
-      "xcodebuild", "-exportArchive",
-      "-archivePath", archive_path,
-      "-exportPath", export_path,
-      "-exportOptionsPlist", export_plist,
-      "-allowProvisioningUpdates"
-    )
-
-    # Move IPA to expected location
-    exported_ipa = Dir.glob(File.join(export_path, "*.ipa")).first
-    if exported_ipa
-      FileUtils.cp(exported_ipa, ipa_dest)
-      UI.success("IPA exported to #{ipa_dest}")
-    else
-      UI.user_error!("No IPA found in #{export_path}")
-    end
+    # Archive + export is done by release.sh directly via xcodebuild
+    # to avoid Fastlane/gym Xcode 26 compatibility issues.
+    # This lane is a no-op — the IPA is already at BUILD_DIR/IPA_NAME.
+    UI.success("Archive handled by release.sh — IPA at #{IPA_PATH}")
   end
 
   desc "Upload IPA + metadata + screenshots to App Store Connect and (optionally) submit"

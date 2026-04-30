@@ -623,11 +623,47 @@ EOF
     return 0
   fi
 
-  step "Run fastlane"
+  # Archive + export IPA via xcodebuild directly (bypasses Fastlane gym
+  # which is incompatible with Xcode 26's export options format)
+  if [[ $FLAG_SKIP_BUILD -eq 0 ]]; then
+    step "Archive and export IPA"
+    local archive_path="$BUILD_DIR/App.xcarchive"
+    local export_path="$BUILD_DIR/export"
+    local export_plist="$REPO_ROOT/fastlane/ExportOptions.plist"
+
+    rm -rf "$archive_path" "$export_path"
+    mkdir -p "$BUILD_DIR"
+
+    info "Archiving..."
+    xcodebuild -project "$XCODE_PROJ" \
+      -scheme App -configuration Release \
+      -archivePath "$archive_path" \
+      -allowProvisioningUpdates \
+      archive 2>&1 | tail -3
+
+    info "Exporting IPA..."
+    xcodebuild -exportArchive \
+      -archivePath "$archive_path" \
+      -exportPath "$export_path" \
+      -exportOptionsPlist "$export_plist" \
+      -allowProvisioningUpdates 2>&1 | tail -3
+
+    # Move IPA to expected location
+    local exported_ipa
+    exported_ipa=$(find "$export_path" -name "*.ipa" -print -quit 2>/dev/null)
+    if [[ -n "$exported_ipa" ]]; then
+      cp "$exported_ipa" "$BUILD_DIR/$IPA_NAME"
+      ok "IPA exported: $BUILD_DIR/$IPA_NAME"
+    else
+      die "No IPA found in $export_path — check archive logs"
+    fi
+  fi
+
+  step "Upload to App Store Connect"
   cd "$REPO_ROOT"
 
   local fl_args=()
-  fl_args+=("skip_build:$([[ $FLAG_SKIP_BUILD -eq 1 ]] && echo true || echo false)")
+  fl_args+=("skip_build:true")  # build already done above
   fl_args+=("skip_upload:$([[ $FLAG_SKIP_UPLOAD -eq 1 ]] && echo true || echo false)")
   fl_args+=("skip_submit:$([[ $FLAG_SKIP_SUBMIT -eq 1 ]] && echo true || echo false)")
   fl_args+=("auto_release:$([[ $FLAG_AUTO_RELEASE -eq 1 ]] && echo true || echo false)")
