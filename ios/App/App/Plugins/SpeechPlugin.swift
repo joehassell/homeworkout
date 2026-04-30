@@ -70,22 +70,20 @@ public class SpeechPlugin: CAPPlugin, CAPBridgedPlugin {
     // MARK: - Helpers
 
     private func bestAvailableVoice() -> AVSpeechSynthesisVoice? {
-        let lang = Locale.current.language.languageCode?.identifier ?? "en"
-        let region = Locale.current.region?.identifier ?? "US"
-        let langTag = "\(lang)-\(region)"
+        let langTag = Locale.current.identifier.replacingOccurrences(of: "_", with: "-")
 
         // Try premium first, then enhanced, then default
         let allVoices = AVSpeechSynthesisVoice.speechVoices()
-            .filter { $0.language == langTag || $0.language.hasPrefix(lang) }
+            .filter { $0.language == langTag || $0.language.hasPrefix("en") }
             .sorted { v1, v2 in v1.quality.rawValue > v2.quality.rawValue }
 
         return allVoices.first ?? AVSpeechSynthesisVoice(language: "en-US")
     }
 
-    private func qualityLabel(_ quality: AVSpeechSynthesisVoice.Quality) -> String {
-        switch quality {
-        case .premium: return "premium"
-        case .enhanced: return "enhanced"
+    private func qualityLabel(_ quality: AVSpeechSynthesisVoiceQuality) -> String {
+        switch quality.rawValue {
+        case 3: return "premium"
+        case 2: return "enhanced"
         default: return "default"
         }
     }
