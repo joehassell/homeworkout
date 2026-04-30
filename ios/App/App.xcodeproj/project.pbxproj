@@ -39,6 +39,7 @@
 		W10A00002000000000000005 /* WorkoutControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W10A00001000000000000005 /* WorkoutControlsView.swift */; };
 		W10A00002000000000000006 /* IdleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W10A00001000000000000006 /* IdleView.swift */; };
 		W10A00002000000000000007 /* HeartRateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W10A00001000000000000007 /* HeartRateView.swift */; };
+		W10A00002000000000000008 /* WatchMusicView.swift in Sources */ = {isa = PBXBuildFile; fileRef = W10A00001000000000000008 /* WatchMusicView.swift */; };
 		W10A00002000000000000008 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = W10A00001000000000000008 /* Assets.xcassets */; };
 		W10A00002000000000000009 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = W10A0000100000000000000B /* HealthKit.framework */; };
 		W10A0000200000000000000A /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = W10A0000100000000000000C /* WatchConnectivity.framework */; };
@@ -82,6 +83,7 @@
 		W10A00001000000000000005 /* WorkoutControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutControlsView.swift; sourceTree = "<group>"; };
 		W10A00001000000000000006 /* IdleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdleView.swift; sourceTree = "<group>"; };
 		W10A00001000000000000007 /* HeartRateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartRateView.swift; sourceTree = "<group>"; };
+		W10A00001000000000000008 /* WatchMusicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchMusicView.swift; sourceTree = "<group>"; };
 		W10A00001000000000000008 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		W10A00001000000000000009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		W10A0000100000000000000A /* HomeWorkoutWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HomeWorkoutWatch.entitlements; sourceTree = "<group>"; };
@@ -273,6 +275,7 @@
 				W10A00001000000000000005 /* WorkoutControlsView.swift */,
 				W10A00001000000000000006 /* IdleView.swift */,
 				W10A00001000000000000007 /* HeartRateView.swift */,
+				W10A00001000000000000008 /* WatchMusicView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -455,6 +458,7 @@
 				W10A00002000000000000005 /* WorkoutControlsView.swift in Sources */,
 				W10A00002000000000000006 /* IdleView.swift in Sources */,
 				W10A00002000000000000007 /* HeartRateView.swift in Sources */,
+				W10A00002000000000000008 /* WatchMusicView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
