@@ -225,7 +225,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  fastlane (~> 2.226)
+  fastlane (~> 2.230)
   xcodeproj (~> 1.27)
 
 BUNDLED WITH
