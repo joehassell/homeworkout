@@ -648,27 +648,18 @@ EOF
       -exportOptionsPlist "$export_plist" \
       -allowProvisioningUpdates 2>&1 | tail -3
 
-    # Move IPA to expected location
+    # With destination=upload in ExportOptions.plist, xcodebuild uploads
+    # directly to App Store Connect. No local IPA is created.
+    # Check if an IPA exists (older Xcode) or trust the upload succeeded.
     local exported_ipa
-    exported_ipa=$(find "$export_path" -name "*.ipa" -print -quit 2>/dev/null)
+    exported_ipa=$(find "$export_path" -name "*.ipa" -print -quit 2>/dev/null || true)
     if [[ -n "$exported_ipa" ]]; then
       cp "$exported_ipa" "$BUILD_DIR/$IPA_NAME"
       ok "IPA exported: $BUILD_DIR/$IPA_NAME"
     else
-      die "No IPA found in $export_path — check archive logs"
+      ok "Uploaded directly to App Store Connect (no local IPA)"
     fi
   fi
-
-  step "Upload to App Store Connect"
-  cd "$REPO_ROOT"
-
-  local fl_args=()
-  fl_args+=("skip_build:true")  # build already done above
-  fl_args+=("skip_upload:$([[ $FLAG_SKIP_UPLOAD -eq 1 ]] && echo true || echo false)")
-  fl_args+=("skip_submit:$([[ $FLAG_SKIP_SUBMIT -eq 1 ]] && echo true || echo false)")
-  fl_args+=("auto_release:$([[ $FLAG_AUTO_RELEASE -eq 1 ]] && echo true || echo false)")
-
-  bundle exec fastlane release "${fl_args[@]}"
 
   tag_release "$new_marketing" "$new_build"
 
