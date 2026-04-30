@@ -2578,6 +2578,12 @@ function rebuildBuildEquipment() {
     });
   }
 
+  // Remove equipment that isn't relevant to this workout type
+  // so the generator can't use invisible equipment
+  for (const eq of [...selectedEquipment]) {
+    if (!relevant.includes(eq)) selectedEquipment.delete(eq);
+  }
+
   buildPills(EQUIPMENT_CATALOG.basic, basicEl);
   buildPills(EQUIPMENT_CATALOG.home, homeEl);
   buildPills(EQUIPMENT_CATALOG.commercial, commEl);
@@ -2710,7 +2716,7 @@ function cooldownDuration(sessionMin, goals) {
   return base;
 }
 const COOLDOWN_PER_MOVE = 60;      // 5 holds at 60s = 300s
-const WARMUP_PER_MOVE = 30;        // baseline; first movement (pulse raiser) = 60
+const WARMUP_PER_MOVE = 60;        // 60s per warmup movement (3-5 movements typical)
 const PULSE_RAISER_DUR = 60;
 const LOADED_EQUIP = ['dumbbell', 'kettlebell', 'barbell'];
 
