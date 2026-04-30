@@ -34,6 +34,7 @@
 #   ./scripts/release.sh dry-run                      # rehearse with no upload
 
 set -euo pipefail
+trap 'rc=$?; if [[ $rc -ne 0 ]]; then err "Script failed at line $LINENO (exit $rc)"; fi' EXIT
 
 # ============================================================================
 # Constants
@@ -182,7 +183,7 @@ preflight() {
 
   # 5. Xcode + signing
   local xcode_ver
-  xcode_ver=$(xcodebuild -version | head -1)
+  xcode_ver=$(xcodebuild -version 2>/dev/null | head -1 || true)
   ok "$xcode_ver"
 
   if security find-identity -v -p codesigning 2>/dev/null | grep -q "Apple Distribution"; then
