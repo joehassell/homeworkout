@@ -76,8 +76,8 @@
       <button type="button" class="pill" data-value="45" onclick="selectPill(this)">45<span class="pill-sub">min</span></button>
       <button type="button" class="pill" data-value="60" onclick="selectPill(this)">60<span class="pill-sub">min</span></button>
       <button type="button" class="pill pill-custom-dur" data-value="custom" onclick="selectCustomDuration(this)">
-        <input type="number" inputmode="numeric" pattern="[0-9]*" id="custom-dur-input" min="15" max="180" step="5" value="" placeholder=" " onfocus="selectCustomDuration(this.parentElement)" oninput="updateCustomDuration(this)">
-        <span class="pill-sub">custom mins</span>
+        <input type="text" inputmode="numeric" pattern="[0-9]*" id="custom-dur-input" value="" placeholder=" " onfocus="selectCustomDuration(this.parentElement)" oninput="updateCustomDuration(this)">
+        <span class="pill-sub">custom min</span>
       </button>
     </div>
   </div>
@@ -2325,8 +2325,10 @@ function selectCustomDuration(el) {
 }
 
 function updateCustomDuration(inp) {
+  // Strip non-numeric characters (input is type=text for iPad numeric keyboard compat)
+  inp.value = inp.value.replace(/[^0-9]/g, '');
   let v = parseInt(inp.value);
-  if (v < 15) v = 15;
+  if (isNaN(v)) return;
   if (v > 180) v = 180;
   lastCustomDuration = v;
   config.duration = v;
