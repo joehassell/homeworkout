@@ -75,11 +75,10 @@
       <button type="button" class="pill selected" data-value="30" onclick="selectPill(this)">30<span class="pill-sub">min</span></button>
       <button type="button" class="pill" data-value="45" onclick="selectPill(this)">45<span class="pill-sub">min</span></button>
       <button type="button" class="pill" data-value="60" onclick="selectPill(this)">60<span class="pill-sub">min</span></button>
-      <button type="button" class="pill" data-value="custom" onclick="selectCustomDuration(this)">Custom<span class="pill-sub">pick</span></button>
-    </div>
-    <div class="custom-dur-wrap" id="custom-dur-wrap">
-      <input type="number" id="custom-dur-input" min="15" max="180" step="5" value="40" oninput="updateCustomDuration(this)">
-      <span>min</span>
+      <button type="button" class="pill pill-custom-dur" data-value="custom" onclick="selectCustomDuration(this)">
+        <input type="number" inputmode="numeric" pattern="[0-9]*" id="custom-dur-input" min="15" max="180" step="5" value="" placeholder=" " onfocus="selectCustomDuration(this.parentElement)" oninput="updateCustomDuration(this)">
+        <span class="pill-sub">custom mins</span>
+      </button>
     </div>
   </div>
 
@@ -106,11 +105,11 @@
     <label>Focus<span class="focus-hint" id="focus-hint">tap to cycle: include → boost → exclude</span></label>
     <div class="focus-pills" id="focus-pills">
       <button type="button" class="pill focus-pill fs-include" data-region="upper" onclick="cycleFocus(this)">Upper</button>
-      <button type="button" class="pill focus-pill fs-include" data-region="upper_push" onclick="cycleFocus(this)">Push</button>
-      <button type="button" class="pill focus-pill fs-include" data-region="upper_pull" onclick="cycleFocus(this)">Pull</button>
       <button type="button" class="pill focus-pill fs-include" data-region="lower" onclick="cycleFocus(this)">Lower</button>
       <button type="button" class="pill focus-pill fs-include" data-region="core" onclick="cycleFocus(this)">Core</button>
       <button type="button" class="pill focus-pill fs-include" data-region="full_body" onclick="cycleFocus(this)">Full body</button>
+      <button type="button" class="pill focus-pill fs-include" data-region="upper_push" onclick="cycleFocus(this)">Push</button>
+      <button type="button" class="pill focus-pill fs-include" data-region="upper_pull" onclick="cycleFocus(this)">Pull</button>
       <button type="button" class="pill focus-pill fs-include" data-region="posterior" onclick="cycleFocus(this)">Mobility</button>
     </div>
   </div>
@@ -2116,11 +2115,16 @@ const EQUIPMENT_CATALOG = {
     { id: 'parallettes', name: 'Parallettes' },
     { id: 'bosu ball', name: 'BOSU Ball' },
     { id: 'aerobic step', name: 'Aerobic Step' },
-  ],
-  commercial: [
     { id: 'barbell', name: 'Barbell' },
     { id: 'ez curl bar', name: 'EZ Curl Bar' },
-    { id: 'power rack', name: 'Power Rack' },
+    { id: 'power rack', name: 'Power Rack / Squat Rack' },
+    { id: 'flat bench', name: 'Flat Bench' },
+    { id: 'incline bench', name: 'Incline Bench' },
+    { id: 'rowing machine', name: 'Rowing Machine' },
+    { id: 'stationary bike upright', name: 'Stationary Bike' },
+    { id: 'air bike', name: 'Air Bike' },
+  ],
+  commercial: [
     { id: 'smith machine', name: 'Smith Machine' },
     { id: 'flat bench', name: 'Flat Bench' },
     { id: 'incline bench', name: 'Incline Bench' },
@@ -2309,14 +2313,14 @@ function rebuildBuildEquipment() {
 // ── Custom duration ──────────────────────────
 function selectCustomDuration(el) {
   // Deselect other duration pills, select this one
-  el.parentElement.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
+  const pills = el.closest('.option-pills');
+  if (pills) pills.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'));
   el.classList.add('selected');
-  const wrap = document.getElementById('custom-dur-wrap');
-  if (wrap) wrap.classList.add('visible');
   const inp = document.getElementById('custom-dur-input');
   if (inp) {
-    inp.value = lastCustomDuration;
-    config.duration = lastCustomDuration;
+    if (!inp.value) inp.value = lastCustomDuration;
+    config.duration = parseInt(inp.value) || lastCustomDuration;
+    inp.focus();
   }
 }
 
@@ -4687,8 +4691,6 @@ function applyPlanSuggestion() {
   document.querySelectorAll('#duration-pills .pill').forEach(p => {
     p.classList.toggle('selected', p.dataset.value === String(config.duration));
   });
-  const wrap = document.getElementById('custom-dur-wrap');
-  if (wrap) wrap.classList.remove('visible');
 }
 
 function applySuggestionAndGenerate() {
@@ -4711,24 +4713,20 @@ function leastDoneType() {
 
 function surpriseMe() {
   clearGenError();
-  const plan = loadOrGeneratePlan();
-  const today = todayString();
-  const todayPlan = plan.find(d => d.date === today);
-
-  if (todayPlan && !todayPlan.rest) {
-    config.type = todayPlan.type;
-    config.duration = todayPlan.duration;
-  } else {
-    config.type = leastDoneType();
-    config.duration = 30;
-  }
-  config.intensity = 'moderate';
+  // Pick a random type and duration
+  const types = ['strength', 'hiit', 'conditioning', 'functional', 'yoga'];
+  config.type = types[Math.floor(Math.random() * types.length)];
+  const durations = [15, 20, 30, 45, 60];
+  config.duration = durations[Math.floor(Math.random() * durations.length)];
+  const intensities = ['light', 'moderate', 'high'];
+  config.intensity = intensities[Math.floor(Math.random() * intensities.length)];
 
   // Update UI pills to reflect the selection
   document.querySelectorAll('#type-pills .pill').forEach(p => {
     p.classList.toggle('selected', p.dataset.value === config.type);
   });
   toggleYogaUI(config.type === 'yoga');
+  rebuildBuildEquipment();
   document.querySelectorAll('#duration-pills .pill').forEach(p => {
     p.classList.toggle('selected', p.dataset.value === String(config.duration));
   });
