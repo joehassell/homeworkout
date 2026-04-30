@@ -1,0 +1,2322 @@
+[
+  {
+    "pose": "Centering Breath",
+    "slug": "centering",
+    "type": "transition",
+    "index": null,
+    "filename": "centering_transition.m4a",
+    "text": "Come to a comfortable seat, close your eyes, and begin to breathe..."
+  },
+  {
+    "pose": "Centering Breath",
+    "slug": "centering",
+    "type": "narration",
+    "index": 0,
+    "filename": "centering_01.m4a",
+    "text": "Find a comfortable seated position, close your eyes..."
+  },
+  {
+    "pose": "Centering Breath",
+    "slug": "centering",
+    "type": "narration",
+    "index": 1,
+    "filename": "centering_02.m4a",
+    "text": "Take a deep breath in through your nose... and slowly exhale through your mouth..."
+  },
+  {
+    "pose": "Centering Breath",
+    "slug": "centering",
+    "type": "narration",
+    "index": 2,
+    "filename": "centering_03.m4a",
+    "text": "Begin to let your breath find its own natural rhythm..."
+  },
+  {
+    "pose": "Centering Breath",
+    "slug": "centering",
+    "type": "narration",
+    "index": 3,
+    "filename": "centering_04.m4a",
+    "text": "With each inhale, feel your body expanding... with each exhale, feel yourself settling..."
+  },
+  {
+    "pose": "Centering Breath",
+    "slug": "centering",
+    "type": "narration",
+    "index": 4,
+    "filename": "centering_05.m4a",
+    "text": "Set an intention for your practice today... something simple and honest..."
+  },
+  {
+    "pose": "Centering Breath",
+    "slug": "centering",
+    "type": "narration",
+    "index": 5,
+    "filename": "centering_06.m4a",
+    "text": "Let that intention rest gently in your heart as we begin..."
+  },
+  {
+    "pose": "Warrior I",
+    "slug": "warrior-i",
+    "type": "transition",
+    "index": null,
+    "filename": "warrior-i_transition.m4a",
+    "text": "From Downward Dog, step your right foot forward between your hands..."
+  },
+  {
+    "pose": "Warrior I",
+    "slug": "warrior-i",
+    "type": "narration",
+    "index": 0,
+    "filename": "warrior-i_01.m4a",
+    "text": "Step your right foot forward between your hands, back foot angled at forty-five degrees..."
+  },
+  {
+    "pose": "Warrior I",
+    "slug": "warrior-i",
+    "type": "narration",
+    "index": 1,
+    "filename": "warrior-i_02.m4a",
+    "text": "Rise up, sweep your arms overhead, palms facing each other..."
+  },
+  {
+    "pose": "Warrior I",
+    "slug": "warrior-i",
+    "type": "narration",
+    "index": 2,
+    "filename": "warrior-i_03.m4a",
+    "text": "Sink your front knee over your ankle, feel the stretch through your back hip..."
+  },
+  {
+    "pose": "Warrior I",
+    "slug": "warrior-i",
+    "type": "narration",
+    "index": 3,
+    "filename": "warrior-i_04.m4a",
+    "text": "Breathe deeply... inhale, lengthen your spine... exhale, ground through your back foot..."
+  },
+  {
+    "pose": "Warrior I",
+    "slug": "warrior-i",
+    "type": "narration",
+    "index": 4,
+    "filename": "warrior-i_05.m4a",
+    "text": "With each exhale, let your hips settle a little lower... feel strong and rooted..."
+  },
+  {
+    "pose": "Warrior II",
+    "slug": "warrior-ii",
+    "type": "transition",
+    "index": null,
+    "filename": "warrior-ii_transition.m4a",
+    "text": "Open your hips and arms wide to the side..."
+  },
+  {
+    "pose": "Warrior II",
+    "slug": "warrior-ii",
+    "type": "narration",
+    "index": 0,
+    "filename": "warrior-ii_01.m4a",
+    "text": "Open your hips to the side, extend your arms wide, parallel to the earth..."
+  },
+  {
+    "pose": "Warrior II",
+    "slug": "warrior-ii",
+    "type": "narration",
+    "index": 1,
+    "filename": "warrior-ii_02.m4a",
+    "text": "Bend your front knee directly over your ankle, gaze past your front fingertips..."
+  },
+  {
+    "pose": "Warrior II",
+    "slug": "warrior-ii",
+    "type": "narration",
+    "index": 2,
+    "filename": "warrior-ii_03.m4a",
+    "text": "Feel the strength in your legs, the openness across your chest..."
+  },
+  {
+    "pose": "Warrior II",
+    "slug": "warrior-ii",
+    "type": "narration",
+    "index": 3,
+    "filename": "warrior-ii_04.m4a",
+    "text": "Breathe here... let your shoulders soften away from your ears..."
+  },
+  {
+    "pose": "Warrior II",
+    "slug": "warrior-ii",
+    "type": "narration",
+    "index": 4,
+    "filename": "warrior-ii_05.m4a",
+    "text": "Inhale, grow taller through the crown of your head... exhale, sink deeper into the pose..."
+  },
+  {
+    "pose": "Warrior III",
+    "slug": "warrior-iii",
+    "type": "transition",
+    "index": null,
+    "filename": "warrior-iii_transition.m4a",
+    "text": "From standing, shift your weight forward and begin to lift your back leg..."
+  },
+  {
+    "pose": "Warrior III",
+    "slug": "warrior-iii",
+    "type": "narration",
+    "index": 0,
+    "filename": "warrior-iii_01.m4a",
+    "text": "Shift your weight onto your front foot, begin to tip forward from your hips..."
+  },
+  {
+    "pose": "Warrior III",
+    "slug": "warrior-iii",
+    "type": "narration",
+    "index": 1,
+    "filename": "warrior-iii_02.m4a",
+    "text": "Extend your back leg behind you, reaching through your heel..."
+  },
+  {
+    "pose": "Warrior III",
+    "slug": "warrior-iii",
+    "type": "narration",
+    "index": 2,
+    "filename": "warrior-iii_03.m4a",
+    "text": "Your body forms one long line from fingertips to back foot..."
+  },
+  {
+    "pose": "Warrior III",
+    "slug": "warrior-iii",
+    "type": "narration",
+    "index": 3,
+    "filename": "warrior-iii_04.m4a",
+    "text": "Find a steady point to gaze at, breathe slowly and evenly..."
+  },
+  {
+    "pose": "Warrior III",
+    "slug": "warrior-iii",
+    "type": "narration",
+    "index": 4,
+    "filename": "warrior-iii_05.m4a",
+    "text": "With each breath, feel yourself getting longer, lighter, more balanced..."
+  },
+  {
+    "pose": "Triangle",
+    "slug": "triangle",
+    "type": "transition",
+    "index": null,
+    "filename": "triangle_transition.m4a",
+    "text": "Straighten your front leg and reach forward over your front foot..."
+  },
+  {
+    "pose": "Triangle",
+    "slug": "triangle",
+    "type": "narration",
+    "index": 0,
+    "filename": "triangle_01.m4a",
+    "text": "Straighten your front leg, reach forward and then down, placing your hand on your shin or the floor..."
+  },
+  {
+    "pose": "Triangle",
+    "slug": "triangle",
+    "type": "narration",
+    "index": 1,
+    "filename": "triangle_02.m4a",
+    "text": "Extend your top arm straight up, opening your chest toward the ceiling..."
+  },
+  {
+    "pose": "Triangle",
+    "slug": "triangle",
+    "type": "narration",
+    "index": 2,
+    "filename": "triangle_03.m4a",
+    "text": "Lengthen through both sides of your waist equally..."
+  },
+  {
+    "pose": "Triangle",
+    "slug": "triangle",
+    "type": "narration",
+    "index": 3,
+    "filename": "triangle_04.m4a",
+    "text": "Breathe into the side body... feel the stretch from your back heel to your top fingertips..."
+  },
+  {
+    "pose": "Triangle",
+    "slug": "triangle",
+    "type": "narration",
+    "index": 4,
+    "filename": "triangle_05.m4a",
+    "text": "Gaze up toward your top hand if your neck allows, or look straight ahead..."
+  },
+  {
+    "pose": "Extended Side Angle",
+    "slug": "extended-side-angle",
+    "type": "transition",
+    "index": null,
+    "filename": "extended-side-angle_transition.m4a",
+    "text": "From Warrior II, bring your front forearm to your thigh..."
+  },
+  {
+    "pose": "Extended Side Angle",
+    "slug": "extended-side-angle",
+    "type": "narration",
+    "index": 0,
+    "filename": "extended-side-angle_01.m4a",
+    "text": "Bend your front knee and bring your forearm to your thigh, or hand to the floor..."
+  },
+  {
+    "pose": "Extended Side Angle",
+    "slug": "extended-side-angle",
+    "type": "narration",
+    "index": 1,
+    "filename": "extended-side-angle_02.m4a",
+    "text": "Reach your top arm overhead, creating one long line from back foot to fingertips..."
+  },
+  {
+    "pose": "Extended Side Angle",
+    "slug": "extended-side-angle",
+    "type": "narration",
+    "index": 2,
+    "filename": "extended-side-angle_03.m4a",
+    "text": "Feel the stretch along your entire side body..."
+  },
+  {
+    "pose": "Extended Side Angle",
+    "slug": "extended-side-angle",
+    "type": "narration",
+    "index": 3,
+    "filename": "extended-side-angle_04.m4a",
+    "text": "Breathe deeply into your ribcage... let each exhale deepen the stretch..."
+  },
+  {
+    "pose": "Extended Side Angle",
+    "slug": "extended-side-angle",
+    "type": "narration",
+    "index": 4,
+    "filename": "extended-side-angle_05.m4a",
+    "text": "Root down through your back foot, reach long through your top hand..."
+  },
+  {
+    "pose": "Chair Pose",
+    "slug": "chair-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "chair-pose_transition.m4a",
+    "text": "From Mountain Pose, bend your knees and reach your arms up..."
+  },
+  {
+    "pose": "Chair Pose",
+    "slug": "chair-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "chair-pose_01.m4a",
+    "text": "Bend your knees deeply, as if sitting back into an invisible chair..."
+  },
+  {
+    "pose": "Chair Pose",
+    "slug": "chair-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "chair-pose_02.m4a",
+    "text": "Sweep your arms overhead, palms facing each other..."
+  },
+  {
+    "pose": "Chair Pose",
+    "slug": "chair-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "chair-pose_03.m4a",
+    "text": "Shift your weight into your heels, keep your chest lifted..."
+  },
+  {
+    "pose": "Chair Pose",
+    "slug": "chair-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "chair-pose_04.m4a",
+    "text": "Breathe steadily... the burn in your thighs is building strength and endurance..."
+  },
+  {
+    "pose": "Chair Pose",
+    "slug": "chair-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "chair-pose_05.m4a",
+    "text": "Inhale, lengthen your spine... exhale, sit a little deeper..."
+  },
+  {
+    "pose": "Crescent Lunge",
+    "slug": "crescent-lunge",
+    "type": "transition",
+    "index": null,
+    "filename": "crescent-lunge_transition.m4a",
+    "text": "Step your right foot forward between your hands, stay on the ball of your back foot..."
+  },
+  {
+    "pose": "Crescent Lunge",
+    "slug": "crescent-lunge",
+    "type": "narration",
+    "index": 0,
+    "filename": "crescent-lunge_01.m4a",
+    "text": "Step one foot forward into a deep lunge, back knee lifted, heel high..."
+  },
+  {
+    "pose": "Crescent Lunge",
+    "slug": "crescent-lunge",
+    "type": "narration",
+    "index": 1,
+    "filename": "crescent-lunge_02.m4a",
+    "text": "Sweep your arms overhead, palms together or shoulder-width..."
+  },
+  {
+    "pose": "Crescent Lunge",
+    "slug": "crescent-lunge",
+    "type": "narration",
+    "index": 2,
+    "filename": "crescent-lunge_03.m4a",
+    "text": "Sink your hips low, feeling the stretch through your back hip flexor..."
+  },
+  {
+    "pose": "Crescent Lunge",
+    "slug": "crescent-lunge",
+    "type": "narration",
+    "index": 3,
+    "filename": "crescent-lunge_04.m4a",
+    "text": "Breathe deeply... with each inhale, lift taller... with each exhale, sink lower..."
+  },
+  {
+    "pose": "Crescent Lunge",
+    "slug": "crescent-lunge",
+    "type": "narration",
+    "index": 4,
+    "filename": "crescent-lunge_05.m4a",
+    "text": "Let your back leg be strong and straight, pressing back through the heel..."
+  },
+  {
+    "pose": "Pyramid Pose",
+    "slug": "pyramid-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "pyramid-pose_transition.m4a",
+    "text": "Step your back foot in and square your hips toward your front foot..."
+  },
+  {
+    "pose": "Pyramid Pose",
+    "slug": "pyramid-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "pyramid-pose_01.m4a",
+    "text": "Step your back foot in slightly, square your hips forward..."
+  },
+  {
+    "pose": "Pyramid Pose",
+    "slug": "pyramid-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "pyramid-pose_02.m4a",
+    "text": "Hinge at your hips, folding over your front leg with a long spine..."
+  },
+  {
+    "pose": "Pyramid Pose",
+    "slug": "pyramid-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "pyramid-pose_03.m4a",
+    "text": "Keep both legs straight, or micro-bend the front knee to protect it..."
+  },
+  {
+    "pose": "Pyramid Pose",
+    "slug": "pyramid-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "pyramid-pose_04.m4a",
+    "text": "Breathe into the back of your front leg... let the stretch deepen with each exhale..."
+  },
+  {
+    "pose": "Pyramid Pose",
+    "slug": "pyramid-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "pyramid-pose_05.m4a",
+    "text": "Relax your neck and let your head hang heavy..."
+  },
+  {
+    "pose": "Wide-Legged Forward Fold",
+    "slug": "wide-legged-forward-fold",
+    "type": "transition",
+    "index": null,
+    "filename": "wide-legged-forward-fold_transition.m4a",
+    "text": "Turn to face the long edge of your mat and step your feet wide..."
+  },
+  {
+    "pose": "Wide-Legged Forward Fold",
+    "slug": "wide-legged-forward-fold",
+    "type": "narration",
+    "index": 0,
+    "filename": "wide-legged-forward-fold_01.m4a",
+    "text": "Step your feet wide apart, toes pointing slightly inward..."
+  },
+  {
+    "pose": "Wide-Legged Forward Fold",
+    "slug": "wide-legged-forward-fold",
+    "type": "narration",
+    "index": 1,
+    "filename": "wide-legged-forward-fold_02.m4a",
+    "text": "Hinge at the hips and fold forward, placing your hands on the floor..."
+  },
+  {
+    "pose": "Wide-Legged Forward Fold",
+    "slug": "wide-legged-forward-fold",
+    "type": "narration",
+    "index": 2,
+    "filename": "wide-legged-forward-fold_03.m4a",
+    "text": "Let the crown of your head release toward the earth..."
+  },
+  {
+    "pose": "Wide-Legged Forward Fold",
+    "slug": "wide-legged-forward-fold",
+    "type": "narration",
+    "index": 3,
+    "filename": "wide-legged-forward-fold_04.m4a",
+    "text": "Breathe here... feel the stretch through your inner thighs and hamstrings..."
+  },
+  {
+    "pose": "Wide-Legged Forward Fold",
+    "slug": "wide-legged-forward-fold",
+    "type": "narration",
+    "index": 4,
+    "filename": "wide-legged-forward-fold_05.m4a",
+    "text": "With each exhale, surrender a little more into the fold..."
+  },
+  {
+    "pose": "Goddess Pose",
+    "slug": "goddess-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "goddess-pose_transition.m4a",
+    "text": "Turn your toes out wide and bend your knees deeply..."
+  },
+  {
+    "pose": "Goddess Pose",
+    "slug": "goddess-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "goddess-pose_01.m4a",
+    "text": "Turn your toes out wide, bend your knees over your ankles..."
+  },
+  {
+    "pose": "Goddess Pose",
+    "slug": "goddess-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "goddess-pose_02.m4a",
+    "text": "Bring your arms to cactus position, elbows bent at ninety degrees..."
+  },
+  {
+    "pose": "Goddess Pose",
+    "slug": "goddess-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "goddess-pose_03.m4a",
+    "text": "Sink your hips low, engage your core, feel the power in your legs..."
+  },
+  {
+    "pose": "Goddess Pose",
+    "slug": "goddess-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "goddess-pose_04.m4a",
+    "text": "Breathe deeply... you are fierce and strong in this pose..."
+  },
+  {
+    "pose": "Goddess Pose",
+    "slug": "goddess-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "goddess-pose_05.m4a",
+    "text": "With each exhale, ground down through your feet..."
+  },
+  {
+    "pose": "Revolved Triangle",
+    "slug": "revolved-triangle",
+    "type": "transition",
+    "index": null,
+    "filename": "revolved-triangle_transition.m4a",
+    "text": "Square your hips and begin to twist, reaching the opposite hand down..."
+  },
+  {
+    "pose": "Revolved Triangle",
+    "slug": "revolved-triangle",
+    "type": "narration",
+    "index": 0,
+    "filename": "revolved-triangle_01.m4a",
+    "text": "Square your hips forward, place your opposite hand down beside your front foot..."
+  },
+  {
+    "pose": "Revolved Triangle",
+    "slug": "revolved-triangle",
+    "type": "narration",
+    "index": 1,
+    "filename": "revolved-triangle_02.m4a",
+    "text": "Twist your torso open, reaching your top arm toward the sky..."
+  },
+  {
+    "pose": "Revolved Triangle",
+    "slug": "revolved-triangle",
+    "type": "narration",
+    "index": 2,
+    "filename": "revolved-triangle_03.m4a",
+    "text": "Keep both legs strong and straight..."
+  },
+  {
+    "pose": "Revolved Triangle",
+    "slug": "revolved-triangle",
+    "type": "narration",
+    "index": 3,
+    "filename": "revolved-triangle_04.m4a",
+    "text": "Breathe into the twist... each inhale creates length, each exhale deepens the rotation..."
+  },
+  {
+    "pose": "Revolved Triangle",
+    "slug": "revolved-triangle",
+    "type": "narration",
+    "index": 4,
+    "filename": "revolved-triangle_05.m4a",
+    "text": "Gaze up if it feels comfortable on your neck..."
+  },
+  {
+    "pose": "Half Moon",
+    "slug": "half-moon",
+    "type": "transition",
+    "index": null,
+    "filename": "half-moon_transition.m4a",
+    "text": "From Triangle, bend your front knee and shift forward..."
+  },
+  {
+    "pose": "Half Moon",
+    "slug": "half-moon",
+    "type": "narration",
+    "index": 0,
+    "filename": "half-moon_01.m4a",
+    "text": "Shift your weight into your front foot, place your hand on the floor ahead of you..."
+  },
+  {
+    "pose": "Half Moon",
+    "slug": "half-moon",
+    "type": "narration",
+    "index": 1,
+    "filename": "half-moon_02.m4a",
+    "text": "Float your back leg up, stacking your hips open to the side..."
+  },
+  {
+    "pose": "Half Moon",
+    "slug": "half-moon",
+    "type": "narration",
+    "index": 2,
+    "filename": "half-moon_03.m4a",
+    "text": "Extend your top arm up, opening your chest like Triangle in the air..."
+  },
+  {
+    "pose": "Half Moon",
+    "slug": "half-moon",
+    "type": "narration",
+    "index": 3,
+    "filename": "half-moon_04.m4a",
+    "text": "Find your balance... breathe slowly and steadily..."
+  },
+  {
+    "pose": "Half Moon",
+    "slug": "half-moon",
+    "type": "narration",
+    "index": 4,
+    "filename": "half-moon_05.m4a",
+    "text": "Feel the lightness, the expansion, the openness in this pose..."
+  },
+  {
+    "pose": "Tree Pose",
+    "slug": "tree-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "tree-pose_transition.m4a",
+    "text": "Shift your weight onto your left foot and find your balance..."
+  },
+  {
+    "pose": "Tree Pose",
+    "slug": "tree-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "tree-pose_01.m4a",
+    "text": "Shift your weight onto one foot, grounding all four corners into the earth..."
+  },
+  {
+    "pose": "Tree Pose",
+    "slug": "tree-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "tree-pose_02.m4a",
+    "text": "Place the sole of your other foot on your inner thigh or calf, never on your knee..."
+  },
+  {
+    "pose": "Tree Pose",
+    "slug": "tree-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "tree-pose_03.m4a",
+    "text": "Bring your hands to heart centre, or reach them overhead like branches..."
+  },
+  {
+    "pose": "Tree Pose",
+    "slug": "tree-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "tree-pose_04.m4a",
+    "text": "Find a steady focal point and breathe... let your body sway gently like a tree in a breeze..."
+  },
+  {
+    "pose": "Tree Pose",
+    "slug": "tree-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "tree-pose_05.m4a",
+    "text": "Each wobble is finding balance... it's okay to be imperfect..."
+  },
+  {
+    "pose": "Eagle Pose",
+    "slug": "eagle-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "eagle-pose_transition.m4a",
+    "text": "Bend your knees and begin to wrap one leg over the other..."
+  },
+  {
+    "pose": "Eagle Pose",
+    "slug": "eagle-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "eagle-pose_01.m4a",
+    "text": "Bend your knees slightly, cross one thigh over the other, wrapping if you can..."
+  },
+  {
+    "pose": "Eagle Pose",
+    "slug": "eagle-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "eagle-pose_02.m4a",
+    "text": "Cross your arms, bringing the opposite elbow on top, wrap your forearms, press palms together..."
+  },
+  {
+    "pose": "Eagle Pose",
+    "slug": "eagle-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "eagle-pose_03.m4a",
+    "text": "Sink your hips low, squeeze everything tight to the centre line..."
+  },
+  {
+    "pose": "Eagle Pose",
+    "slug": "eagle-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "eagle-pose_04.m4a",
+    "text": "Breathe deeply into the space between your shoulder blades..."
+  },
+  {
+    "pose": "Eagle Pose",
+    "slug": "eagle-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "eagle-pose_05.m4a",
+    "text": "Find stillness in the compression... feel the stretch and the strength simultaneously..."
+  },
+  {
+    "pose": "Dancer's Pose",
+    "slug": "dancers-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "dancers-pose_transition.m4a",
+    "text": "Stand tall, bend one knee and catch the inside of your ankle behind you..."
+  },
+  {
+    "pose": "Dancer's Pose",
+    "slug": "dancers-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "dancers-pose_01.m4a",
+    "text": "Stand on one leg, bend the other knee and catch your ankle behind you..."
+  },
+  {
+    "pose": "Dancer's Pose",
+    "slug": "dancers-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "dancers-pose_02.m4a",
+    "text": "Reach your free arm forward, begin to press your foot into your hand..."
+  },
+  {
+    "pose": "Dancer's Pose",
+    "slug": "dancers-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "dancers-pose_03.m4a",
+    "text": "Lean forward as your leg lifts higher behind you, like a graceful bow..."
+  },
+  {
+    "pose": "Dancer's Pose",
+    "slug": "dancers-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "dancers-pose_04.m4a",
+    "text": "Find a steady gaze point... breathe slowly and gently..."
+  },
+  {
+    "pose": "Dancer's Pose",
+    "slug": "dancers-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "dancers-pose_05.m4a",
+    "text": "Feel the beautiful backbend opening through your chest and shoulders..."
+  },
+  {
+    "pose": "Standing Hand-to-Toe",
+    "slug": "standing-hand-to-toe",
+    "type": "transition",
+    "index": null,
+    "filename": "standing-hand-to-toe_transition.m4a",
+    "text": "Draw one knee up toward your chest and catch your big toe..."
+  },
+  {
+    "pose": "Standing Hand-to-Toe",
+    "slug": "standing-hand-to-toe",
+    "type": "narration",
+    "index": 0,
+    "filename": "standing-hand-to-toe_01.m4a",
+    "text": "Shift your weight to one leg, draw the opposite knee up toward your chest..."
+  },
+  {
+    "pose": "Standing Hand-to-Toe",
+    "slug": "standing-hand-to-toe",
+    "type": "narration",
+    "index": 1,
+    "filename": "standing-hand-to-toe_02.m4a",
+    "text": "Catch your big toe with two fingers, or hold the outside of your foot..."
+  },
+  {
+    "pose": "Standing Hand-to-Toe",
+    "slug": "standing-hand-to-toe",
+    "type": "narration",
+    "index": 2,
+    "filename": "standing-hand-to-toe_03.m4a",
+    "text": "Slowly extend your leg forward... it doesn't have to be fully straight..."
+  },
+  {
+    "pose": "Standing Hand-to-Toe",
+    "slug": "standing-hand-to-toe",
+    "type": "narration",
+    "index": 3,
+    "filename": "standing-hand-to-toe_04.m4a",
+    "text": "Breathe here... find your balance between effort and ease..."
+  },
+  {
+    "pose": "Standing Hand-to-Toe",
+    "slug": "standing-hand-to-toe",
+    "type": "narration",
+    "index": 4,
+    "filename": "standing-hand-to-toe_05.m4a",
+    "text": "Stand tall through your spine, soften your face and jaw..."
+  },
+  {
+    "pose": "Crow Pose",
+    "slug": "crow-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "crow-pose_transition.m4a",
+    "text": "Come into a deep squat and place your hands on the mat..."
+  },
+  {
+    "pose": "Crow Pose",
+    "slug": "crow-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "crow-pose_01.m4a",
+    "text": "From a squat, place your hands flat, shoulder-width apart, spread your fingers wide..."
+  },
+  {
+    "pose": "Crow Pose",
+    "slug": "crow-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "crow-pose_02.m4a",
+    "text": "Bend your elbows slightly, squeeze your knees against the backs of your upper arms..."
+  },
+  {
+    "pose": "Crow Pose",
+    "slug": "crow-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "crow-pose_03.m4a",
+    "text": "Shift your weight forward into your hands, lift one foot, then maybe both..."
+  },
+  {
+    "pose": "Crow Pose",
+    "slug": "crow-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "crow-pose_04.m4a",
+    "text": "Gaze forward, not down... trust your hands..."
+  },
+  {
+    "pose": "Crow Pose",
+    "slug": "crow-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "crow-pose_05.m4a",
+    "text": "Breathe steadily... even a moment of flight is a victory..."
+  },
+  {
+    "pose": "Child's Pose",
+    "slug": "childs-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "childs-pose_transition.m4a",
+    "text": "Come to your knees and sit your hips back toward your heels..."
+  },
+  {
+    "pose": "Child's Pose",
+    "slug": "childs-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "childs-pose_01.m4a",
+    "text": "Sink your hips back toward your heels, walk your hands forward on the mat..."
+  },
+  {
+    "pose": "Child's Pose",
+    "slug": "childs-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "childs-pose_02.m4a",
+    "text": "Let your forehead rest on the earth, close your eyes..."
+  },
+  {
+    "pose": "Child's Pose",
+    "slug": "childs-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "childs-pose_03.m4a",
+    "text": "Feel your whole back body opening and softening with each breath..."
+  },
+  {
+    "pose": "Child's Pose",
+    "slug": "childs-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "childs-pose_04.m4a",
+    "text": "This is a place of rest... of coming home to yourself..."
+  },
+  {
+    "pose": "Child's Pose",
+    "slug": "childs-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "childs-pose_05.m4a",
+    "text": "Breathe into your lower back... let everything go..."
+  },
+  {
+    "pose": "Cobra",
+    "slug": "cobra",
+    "type": "transition",
+    "index": null,
+    "filename": "cobra_transition.m4a",
+    "text": "Lower down onto your belly, hands beneath your shoulders..."
+  },
+  {
+    "pose": "Cobra",
+    "slug": "cobra",
+    "type": "narration",
+    "index": 0,
+    "filename": "cobra_01.m4a",
+    "text": "Lie on your belly, place your hands under your shoulders..."
+  },
+  {
+    "pose": "Cobra",
+    "slug": "cobra",
+    "type": "narration",
+    "index": 1,
+    "filename": "cobra_02.m4a",
+    "text": "Press gently into your hands, peel your chest off the floor..."
+  },
+  {
+    "pose": "Cobra",
+    "slug": "cobra",
+    "type": "narration",
+    "index": 2,
+    "filename": "cobra_03.m4a",
+    "text": "Keep your elbows slightly bent, shoulders away from your ears..."
+  },
+  {
+    "pose": "Cobra",
+    "slug": "cobra",
+    "type": "narration",
+    "index": 3,
+    "filename": "cobra_04.m4a",
+    "text": "Breathe into the front of your body... feel your heart lifting open..."
+  },
+  {
+    "pose": "Cobra",
+    "slug": "cobra",
+    "type": "narration",
+    "index": 4,
+    "filename": "cobra_05.m4a",
+    "text": "Keep your lower body heavy and relaxed on the mat..."
+  },
+  {
+    "pose": "Upward-Facing Dog",
+    "slug": "upward-facing-dog",
+    "type": "transition",
+    "index": null,
+    "filename": "upward-facing-dog_transition.m4a",
+    "text": "Press through your hands and roll over your toes..."
+  },
+  {
+    "pose": "Upward-Facing Dog",
+    "slug": "upward-facing-dog",
+    "type": "narration",
+    "index": 0,
+    "filename": "upward-facing-dog_01.m4a",
+    "text": "Press into your hands and the tops of your feet, lift your thighs and knees off the floor..."
+  },
+  {
+    "pose": "Upward-Facing Dog",
+    "slug": "upward-facing-dog",
+    "type": "narration",
+    "index": 1,
+    "filename": "upward-facing-dog_02.m4a",
+    "text": "Roll your shoulders back and down, lift your chest proudly toward the ceiling..."
+  },
+  {
+    "pose": "Upward-Facing Dog",
+    "slug": "upward-facing-dog",
+    "type": "narration",
+    "index": 2,
+    "filename": "upward-facing-dog_03.m4a",
+    "text": "Your arms are straight, legs strong, only your hands and feet touch the mat..."
+  },
+  {
+    "pose": "Upward-Facing Dog",
+    "slug": "upward-facing-dog",
+    "type": "narration",
+    "index": 3,
+    "filename": "upward-facing-dog_04.m4a",
+    "text": "Breathe deeply into this beautiful heart opener..."
+  },
+  {
+    "pose": "Upward-Facing Dog",
+    "slug": "upward-facing-dog",
+    "type": "narration",
+    "index": 4,
+    "filename": "upward-facing-dog_05.m4a",
+    "text": "Gaze slightly upward, keep your neck long..."
+  },
+  {
+    "pose": "Pigeon Pose",
+    "slug": "pigeon-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "pigeon-pose_transition.m4a",
+    "text": "From Downward Dog, draw one knee forward toward your wrist..."
+  },
+  {
+    "pose": "Pigeon Pose",
+    "slug": "pigeon-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "pigeon-pose_01.m4a",
+    "text": "Bring your right shin forward, angling it across the mat..."
+  },
+  {
+    "pose": "Pigeon Pose",
+    "slug": "pigeon-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "pigeon-pose_02.m4a",
+    "text": "Extend your back leg long behind you, the top of your foot on the floor..."
+  },
+  {
+    "pose": "Pigeon Pose",
+    "slug": "pigeon-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "pigeon-pose_03.m4a",
+    "text": "Walk your hands forward and fold over your front shin..."
+  },
+  {
+    "pose": "Pigeon Pose",
+    "slug": "pigeon-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "pigeon-pose_04.m4a",
+    "text": "Breathe into the deep stretch in your outer hip... this is where we hold so much tension..."
+  },
+  {
+    "pose": "Pigeon Pose",
+    "slug": "pigeon-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "pigeon-pose_05.m4a",
+    "text": "Surrender into this pose... let gravity do the work... just breathe and release..."
+  },
+  {
+    "pose": "Bridge Pose",
+    "slug": "bridge-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "bridge-pose_transition.m4a",
+    "text": "Lie on your back with your knees bent and feet flat on the floor..."
+  },
+  {
+    "pose": "Bridge Pose",
+    "slug": "bridge-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "bridge-pose_01.m4a",
+    "text": "Lie on your back, bend your knees, feet flat on the floor hip-width apart..."
+  },
+  {
+    "pose": "Bridge Pose",
+    "slug": "bridge-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "bridge-pose_02.m4a",
+    "text": "Press into your feet, lift your hips toward the ceiling..."
+  },
+  {
+    "pose": "Bridge Pose",
+    "slug": "bridge-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "bridge-pose_03.m4a",
+    "text": "Roll your shoulders under, interlace your hands beneath you if you can..."
+  },
+  {
+    "pose": "Bridge Pose",
+    "slug": "bridge-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "bridge-pose_04.m4a",
+    "text": "Breathe into the front of your body... feel your chest opening toward your chin..."
+  },
+  {
+    "pose": "Bridge Pose",
+    "slug": "bridge-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "bridge-pose_05.m4a",
+    "text": "With each inhale, lift a little higher... with each exhale, root through your feet..."
+  },
+  {
+    "pose": "Sphinx Pose",
+    "slug": "sphinx-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "sphinx-pose_transition.m4a",
+    "text": "Come down onto your belly and place your forearms on the mat..."
+  },
+  {
+    "pose": "Sphinx Pose",
+    "slug": "sphinx-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "sphinx-pose_01.m4a",
+    "text": "Lie on your belly, place your forearms on the mat, elbows under your shoulders..."
+  },
+  {
+    "pose": "Sphinx Pose",
+    "slug": "sphinx-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "sphinx-pose_02.m4a",
+    "text": "Press gently into your forearms, lift your chest..."
+  },
+  {
+    "pose": "Sphinx Pose",
+    "slug": "sphinx-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "sphinx-pose_03.m4a",
+    "text": "Let your lower body be completely passive and heavy..."
+  },
+  {
+    "pose": "Sphinx Pose",
+    "slug": "sphinx-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "sphinx-pose_04.m4a",
+    "text": "Breathe into the gentle backbend... this is a kind and nourishing pose for your spine..."
+  },
+  {
+    "pose": "Sphinx Pose",
+    "slug": "sphinx-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "sphinx-pose_05.m4a",
+    "text": "Soften your face, relax your jaw... just be here..."
+  },
+  {
+    "pose": "Supine Twist",
+    "slug": "supine-twist",
+    "type": "transition",
+    "index": null,
+    "filename": "supine-twist_transition.m4a",
+    "text": "Draw one knee into your chest and let it fall across your body..."
+  },
+  {
+    "pose": "Supine Twist",
+    "slug": "supine-twist",
+    "type": "narration",
+    "index": 0,
+    "filename": "supine-twist_01.m4a",
+    "text": "Lying on your back, draw one knee into your chest..."
+  },
+  {
+    "pose": "Supine Twist",
+    "slug": "supine-twist",
+    "type": "narration",
+    "index": 1,
+    "filename": "supine-twist_02.m4a",
+    "text": "Guide that knee across your body to the opposite side..."
+  },
+  {
+    "pose": "Supine Twist",
+    "slug": "supine-twist",
+    "type": "narration",
+    "index": 2,
+    "filename": "supine-twist_03.m4a",
+    "text": "Extend your arm out to the side, gaze in the opposite direction of your knee..."
+  },
+  {
+    "pose": "Supine Twist",
+    "slug": "supine-twist",
+    "type": "narration",
+    "index": 3,
+    "filename": "supine-twist_04.m4a",
+    "text": "Breathe into the twist... feel your spine gently wringing out tension..."
+  },
+  {
+    "pose": "Supine Twist",
+    "slug": "supine-twist",
+    "type": "narration",
+    "index": 4,
+    "filename": "supine-twist_05.m4a",
+    "text": "Each exhale, let your knee drop a little heavier... each inhale, expand through your chest..."
+  },
+  {
+    "pose": "Happy Baby",
+    "slug": "happy-baby",
+    "type": "transition",
+    "index": null,
+    "filename": "happy-baby_transition.m4a",
+    "text": "Lying on your back, draw your knees wide and catch the outsides of your feet..."
+  },
+  {
+    "pose": "Happy Baby",
+    "slug": "happy-baby",
+    "type": "narration",
+    "index": 0,
+    "filename": "happy-baby_01.m4a",
+    "text": "Lie on your back, draw both knees toward your armpits..."
+  },
+  {
+    "pose": "Happy Baby",
+    "slug": "happy-baby",
+    "type": "narration",
+    "index": 1,
+    "filename": "happy-baby_02.m4a",
+    "text": "Grab the outer edges of your feet with your hands..."
+  },
+  {
+    "pose": "Happy Baby",
+    "slug": "happy-baby",
+    "type": "narration",
+    "index": 2,
+    "filename": "happy-baby_03.m4a",
+    "text": "Gently press your knees toward the floor beside your ribcage..."
+  },
+  {
+    "pose": "Happy Baby",
+    "slug": "happy-baby",
+    "type": "narration",
+    "index": 3,
+    "filename": "happy-baby_04.m4a",
+    "text": "Rock gently side to side if that feels good... massaging your lower back..."
+  },
+  {
+    "pose": "Happy Baby",
+    "slug": "happy-baby",
+    "type": "narration",
+    "index": 4,
+    "filename": "happy-baby_05.m4a",
+    "text": "Breathe and smile... find that childlike ease and playfulness..."
+  },
+  {
+    "pose": "Locust Pose",
+    "slug": "locust-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "locust-pose_transition.m4a",
+    "text": "Come onto your belly, arms by your sides, forehead on the mat..."
+  },
+  {
+    "pose": "Locust Pose",
+    "slug": "locust-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "locust-pose_01.m4a",
+    "text": "Lie on your belly, arms alongside your body, palms facing up..."
+  },
+  {
+    "pose": "Locust Pose",
+    "slug": "locust-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "locust-pose_02.m4a",
+    "text": "On an inhale, lift your chest, arms, and legs off the floor simultaneously..."
+  },
+  {
+    "pose": "Locust Pose",
+    "slug": "locust-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "locust-pose_03.m4a",
+    "text": "Reach back through your fingertips and through the balls of your feet..."
+  },
+  {
+    "pose": "Locust Pose",
+    "slug": "locust-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "locust-pose_04.m4a",
+    "text": "Breathe steadily... feel your entire back body engaging..."
+  },
+  {
+    "pose": "Locust Pose",
+    "slug": "locust-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "locust-pose_05.m4a",
+    "text": "Lift from your inner strength... you are stronger than you think..."
+  },
+  {
+    "pose": "Bow Pose",
+    "slug": "bow-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "bow-pose_transition.m4a",
+    "text": "Bend your knees and reach back to catch your ankles..."
+  },
+  {
+    "pose": "Bow Pose",
+    "slug": "bow-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "bow-pose_01.m4a",
+    "text": "Lie on your belly, bend your knees, reach back and catch your ankles..."
+  },
+  {
+    "pose": "Bow Pose",
+    "slug": "bow-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "bow-pose_02.m4a",
+    "text": "On an inhale, press your feet into your hands and lift your chest and thighs off the floor..."
+  },
+  {
+    "pose": "Bow Pose",
+    "slug": "bow-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "bow-pose_03.m4a",
+    "text": "Your body forms the shape of a bow, your arms are the string..."
+  },
+  {
+    "pose": "Bow Pose",
+    "slug": "bow-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "bow-pose_04.m4a",
+    "text": "Breathe into the deep opening across the front of your body..."
+  },
+  {
+    "pose": "Bow Pose",
+    "slug": "bow-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "bow-pose_05.m4a",
+    "text": "Rock gently with your breath if it feels natural..."
+  },
+  {
+    "pose": "Legs Up the Wall",
+    "slug": "legs-up-the-wall",
+    "type": "transition",
+    "index": null,
+    "filename": "legs-up-the-wall_transition.m4a",
+    "text": "Sit sideways next to a wall, then swing your legs up as you lie back..."
+  },
+  {
+    "pose": "Legs Up the Wall",
+    "slug": "legs-up-the-wall",
+    "type": "narration",
+    "index": 0,
+    "filename": "legs-up-the-wall_01.m4a",
+    "text": "Swing your legs up against the wall, or simply extend them toward the ceiling..."
+  },
+  {
+    "pose": "Legs Up the Wall",
+    "slug": "legs-up-the-wall",
+    "type": "narration",
+    "index": 1,
+    "filename": "legs-up-the-wall_02.m4a",
+    "text": "Let your arms rest by your sides, palms facing up..."
+  },
+  {
+    "pose": "Legs Up the Wall",
+    "slug": "legs-up-the-wall",
+    "type": "narration",
+    "index": 2,
+    "filename": "legs-up-the-wall_03.m4a",
+    "text": "Close your eyes and feel the gentle inversion, blood flowing back toward your heart..."
+  },
+  {
+    "pose": "Legs Up the Wall",
+    "slug": "legs-up-the-wall",
+    "type": "narration",
+    "index": 3,
+    "filename": "legs-up-the-wall_04.m4a",
+    "text": "This is one of the most healing poses in yoga... just receive its benefits..."
+  },
+  {
+    "pose": "Legs Up the Wall",
+    "slug": "legs-up-the-wall",
+    "type": "narration",
+    "index": 4,
+    "filename": "legs-up-the-wall_05.m4a",
+    "text": "Breathe naturally... there is nothing to do, nowhere to go..."
+  },
+  {
+    "pose": "Seated Forward Fold",
+    "slug": "seated-forward-fold",
+    "type": "transition",
+    "index": null,
+    "filename": "seated-forward-fold_transition.m4a",
+    "text": "Extend both legs in front of you and sit tall..."
+  },
+  {
+    "pose": "Seated Forward Fold",
+    "slug": "seated-forward-fold",
+    "type": "narration",
+    "index": 0,
+    "filename": "seated-forward-fold_01.m4a",
+    "text": "Sit tall with your legs extended in front of you..."
+  },
+  {
+    "pose": "Seated Forward Fold",
+    "slug": "seated-forward-fold",
+    "type": "narration",
+    "index": 1,
+    "filename": "seated-forward-fold_02.m4a",
+    "text": "On an inhale, reach your arms up, lengthening your spine..."
+  },
+  {
+    "pose": "Seated Forward Fold",
+    "slug": "seated-forward-fold",
+    "type": "narration",
+    "index": 2,
+    "filename": "seated-forward-fold_03.m4a",
+    "text": "On the exhale, hinge from your hips and fold forward over your legs..."
+  },
+  {
+    "pose": "Seated Forward Fold",
+    "slug": "seated-forward-fold",
+    "type": "narration",
+    "index": 3,
+    "filename": "seated-forward-fold_04.m4a",
+    "text": "Let your hands rest wherever they reach... shins, ankles, feet..."
+  },
+  {
+    "pose": "Seated Forward Fold",
+    "slug": "seated-forward-fold",
+    "type": "narration",
+    "index": 4,
+    "filename": "seated-forward-fold_05.m4a",
+    "text": "Breathe into the stretch along the entire back of your body... be patient with yourself..."
+  },
+  {
+    "pose": "Butterfly Pose",
+    "slug": "butterfly-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "butterfly-pose_transition.m4a",
+    "text": "Bring the soles of your feet together and let your knees open wide..."
+  },
+  {
+    "pose": "Butterfly Pose",
+    "slug": "butterfly-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "butterfly-pose_01.m4a",
+    "text": "Bring the soles of your feet together, let your knees fall open to the sides..."
+  },
+  {
+    "pose": "Butterfly Pose",
+    "slug": "butterfly-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "butterfly-pose_02.m4a",
+    "text": "Hold your feet with your hands, sit up tall..."
+  },
+  {
+    "pose": "Butterfly Pose",
+    "slug": "butterfly-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "butterfly-pose_03.m4a",
+    "text": "On each exhale, gently let your knees release toward the earth..."
+  },
+  {
+    "pose": "Butterfly Pose",
+    "slug": "butterfly-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "butterfly-pose_04.m4a",
+    "text": "Breathe into the openness in your hips... this is a gentle, nurturing pose..."
+  },
+  {
+    "pose": "Butterfly Pose",
+    "slug": "butterfly-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "butterfly-pose_05.m4a",
+    "text": "If you like, fold forward gently for a deeper stretch..."
+  },
+  {
+    "pose": "Seated Twist",
+    "slug": "seated-twist",
+    "type": "transition",
+    "index": null,
+    "filename": "seated-twist_transition.m4a",
+    "text": "Cross one foot over the opposite thigh and begin to twist..."
+  },
+  {
+    "pose": "Seated Twist",
+    "slug": "seated-twist",
+    "type": "narration",
+    "index": 0,
+    "filename": "seated-twist_01.m4a",
+    "text": "Sit tall, cross one foot over the opposite knee..."
+  },
+  {
+    "pose": "Seated Twist",
+    "slug": "seated-twist",
+    "type": "narration",
+    "index": 1,
+    "filename": "seated-twist_02.m4a",
+    "text": "Place the opposite elbow outside your top knee, twist your torso gently..."
+  },
+  {
+    "pose": "Seated Twist",
+    "slug": "seated-twist",
+    "type": "narration",
+    "index": 2,
+    "filename": "seated-twist_03.m4a",
+    "text": "Inhale to lengthen your spine... exhale to deepen the twist just a little more..."
+  },
+  {
+    "pose": "Seated Twist",
+    "slug": "seated-twist",
+    "type": "narration",
+    "index": 3,
+    "filename": "seated-twist_04.m4a",
+    "text": "Look over your back shoulder... breathe into the rotation..."
+  },
+  {
+    "pose": "Seated Twist",
+    "slug": "seated-twist",
+    "type": "narration",
+    "index": 4,
+    "filename": "seated-twist_05.m4a",
+    "text": "Twists are like wringing out a sponge... releasing what no longer serves you..."
+  },
+  {
+    "pose": "Head-to-Knee Pose",
+    "slug": "head-to-knee-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "head-to-knee-pose_transition.m4a",
+    "text": "Extend one leg and bend the other, sole of foot to inner thigh..."
+  },
+  {
+    "pose": "Head-to-Knee Pose",
+    "slug": "head-to-knee-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "head-to-knee-pose_01.m4a",
+    "text": "Extend one leg and bend the other, placing the sole of your foot against your inner thigh..."
+  },
+  {
+    "pose": "Head-to-Knee Pose",
+    "slug": "head-to-knee-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "head-to-knee-pose_02.m4a",
+    "text": "Inhale and reach up tall, then exhale and fold over your extended leg..."
+  },
+  {
+    "pose": "Head-to-Knee Pose",
+    "slug": "head-to-knee-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "head-to-knee-pose_03.m4a",
+    "text": "Let your hands rest on your leg, ankle, or foot..."
+  },
+  {
+    "pose": "Head-to-Knee Pose",
+    "slug": "head-to-knee-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "head-to-knee-pose_04.m4a",
+    "text": "Breathe into the stretch along the back of your extended leg..."
+  },
+  {
+    "pose": "Head-to-Knee Pose",
+    "slug": "head-to-knee-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "head-to-knee-pose_05.m4a",
+    "text": "Surrender the weight of your head and upper body... let gravity deepen the fold..."
+  },
+  {
+    "pose": "Fire Log Pose",
+    "slug": "fire-log-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "fire-log-pose_transition.m4a",
+    "text": "Stack your shins one on top of the other, like stacking logs..."
+  },
+  {
+    "pose": "Fire Log Pose",
+    "slug": "fire-log-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "fire-log-pose_01.m4a",
+    "text": "Stack your shins parallel, one on top of the other, feet flexed..."
+  },
+  {
+    "pose": "Fire Log Pose",
+    "slug": "fire-log-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "fire-log-pose_02.m4a",
+    "text": "If this is intense, keep your bottom foot on the floor instead..."
+  },
+  {
+    "pose": "Fire Log Pose",
+    "slug": "fire-log-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "fire-log-pose_03.m4a",
+    "text": "Sit tall, or fold forward gently for more depth..."
+  },
+  {
+    "pose": "Fire Log Pose",
+    "slug": "fire-log-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "fire-log-pose_04.m4a",
+    "text": "Breathe into the deep outer hip stretch... this may feel very intense, and that's okay..."
+  },
+  {
+    "pose": "Fire Log Pose",
+    "slug": "fire-log-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "fire-log-pose_05.m4a",
+    "text": "Find the edge where the stretch is present but not painful... breathe there..."
+  },
+  {
+    "pose": "Hero Pose",
+    "slug": "hero-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "hero-pose_transition.m4a",
+    "text": "Come to a kneeling position and gently sit back between your heels..."
+  },
+  {
+    "pose": "Hero Pose",
+    "slug": "hero-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "hero-pose_01.m4a",
+    "text": "Kneel with your knees together, sit back between your heels..."
+  },
+  {
+    "pose": "Hero Pose",
+    "slug": "hero-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "hero-pose_02.m4a",
+    "text": "If this is too intense on your knees, sit on a block or cushion..."
+  },
+  {
+    "pose": "Hero Pose",
+    "slug": "hero-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "hero-pose_03.m4a",
+    "text": "Rest your hands on your thighs, close your eyes..."
+  },
+  {
+    "pose": "Hero Pose",
+    "slug": "hero-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "hero-pose_04.m4a",
+    "text": "Breathe deeply... feel the gentle stretch through your thighs and ankles..."
+  },
+  {
+    "pose": "Hero Pose",
+    "slug": "hero-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "hero-pose_05.m4a",
+    "text": "This is a pose of quiet dignity and inner stillness..."
+  },
+  {
+    "pose": "Downward-Facing Dog",
+    "slug": "downward-facing-dog",
+    "type": "transition",
+    "index": null,
+    "filename": "downward-facing-dog_transition.m4a",
+    "text": "Tuck your toes and lift your hips up and back..."
+  },
+  {
+    "pose": "Downward-Facing Dog",
+    "slug": "downward-facing-dog",
+    "type": "narration",
+    "index": 0,
+    "filename": "downward-facing-dog_01.m4a",
+    "text": "Tuck your toes, lift your hips high, pressing back into an inverted V..."
+  },
+  {
+    "pose": "Downward-Facing Dog",
+    "slug": "downward-facing-dog",
+    "type": "narration",
+    "index": 1,
+    "filename": "downward-facing-dog_02.m4a",
+    "text": "Spread your fingers wide, press evenly through your whole hand..."
+  },
+  {
+    "pose": "Downward-Facing Dog",
+    "slug": "downward-facing-dog",
+    "type": "narration",
+    "index": 2,
+    "filename": "downward-facing-dog_03.m4a",
+    "text": "Let your head hang heavy between your arms, ears in line with your biceps..."
+  },
+  {
+    "pose": "Downward-Facing Dog",
+    "slug": "downward-facing-dog",
+    "type": "narration",
+    "index": 3,
+    "filename": "downward-facing-dog_04.m4a",
+    "text": "Pedal your feet gently... breathe into the length of your spine..."
+  },
+  {
+    "pose": "Downward-Facing Dog",
+    "slug": "downward-facing-dog",
+    "type": "narration",
+    "index": 4,
+    "filename": "downward-facing-dog_05.m4a",
+    "text": "Press your chest toward your thighs, send your sitting bones toward the ceiling..."
+  },
+  {
+    "pose": "Dolphin Pose",
+    "slug": "dolphin-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "dolphin-pose_transition.m4a",
+    "text": "Lower to your forearms and lift your hips up and back..."
+  },
+  {
+    "pose": "Dolphin Pose",
+    "slug": "dolphin-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "dolphin-pose_01.m4a",
+    "text": "Come onto your forearms, interlace your fingers or keep forearms parallel..."
+  },
+  {
+    "pose": "Dolphin Pose",
+    "slug": "dolphin-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "dolphin-pose_02.m4a",
+    "text": "Tuck your toes, lift your hips like Downward Dog but on your forearms..."
+  },
+  {
+    "pose": "Dolphin Pose",
+    "slug": "dolphin-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "dolphin-pose_03.m4a",
+    "text": "Press firmly through your forearms, draw your shoulders away from your ears..."
+  },
+  {
+    "pose": "Dolphin Pose",
+    "slug": "dolphin-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "dolphin-pose_04.m4a",
+    "text": "This is an intense shoulder opener and a preparation for headstand..."
+  },
+  {
+    "pose": "Dolphin Pose",
+    "slug": "dolphin-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "dolphin-pose_05.m4a",
+    "text": "Breathe steadily... build strength and patience here..."
+  },
+  {
+    "pose": "Shoulder Stand",
+    "slug": "shoulder-stand",
+    "type": "transition",
+    "index": null,
+    "filename": "shoulder-stand_transition.m4a",
+    "text": "Lie on your back, lift your hips and support your lower back with your hands..."
+  },
+  {
+    "pose": "Shoulder Stand",
+    "slug": "shoulder-stand",
+    "type": "narration",
+    "index": 0,
+    "filename": "shoulder-stand_01.m4a",
+    "text": "Lie on your back, lift your legs and hips up, supporting your lower back with your hands..."
+  },
+  {
+    "pose": "Shoulder Stand",
+    "slug": "shoulder-stand",
+    "type": "narration",
+    "index": 1,
+    "filename": "shoulder-stand_02.m4a",
+    "text": "Walk your hands higher up your back, straighten your legs toward the ceiling..."
+  },
+  {
+    "pose": "Shoulder Stand",
+    "slug": "shoulder-stand",
+    "type": "narration",
+    "index": 2,
+    "filename": "shoulder-stand_03.m4a",
+    "text": "Keep your elbows shoulder-width apart, press into the mat..."
+  },
+  {
+    "pose": "Shoulder Stand",
+    "slug": "shoulder-stand",
+    "type": "narration",
+    "index": 3,
+    "filename": "shoulder-stand_04.m4a",
+    "text": "Breathe softly... this is the queen of all yoga poses... nourishing every system in your body..."
+  },
+  {
+    "pose": "Shoulder Stand",
+    "slug": "shoulder-stand",
+    "type": "narration",
+    "index": 4,
+    "filename": "shoulder-stand_05.m4a",
+    "text": "Keep your neck still and relaxed... never turn your head in this pose..."
+  },
+  {
+    "pose": "Plow Pose",
+    "slug": "plow-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "plow-pose_transition.m4a",
+    "text": "From Shoulder Stand, begin to lower your legs behind your head..."
+  },
+  {
+    "pose": "Plow Pose",
+    "slug": "plow-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "plow-pose_01.m4a",
+    "text": "From Shoulder Stand, slowly lower your feet toward the floor behind your head..."
+  },
+  {
+    "pose": "Plow Pose",
+    "slug": "plow-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "plow-pose_02.m4a",
+    "text": "Keep your legs straight, toes reaching for the ground..."
+  },
+  {
+    "pose": "Plow Pose",
+    "slug": "plow-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "plow-pose_03.m4a",
+    "text": "Support your back with your hands, or extend your arms along the floor..."
+  },
+  {
+    "pose": "Plow Pose",
+    "slug": "plow-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "plow-pose_04.m4a",
+    "text": "Breathe into the stretch along your entire spine and the back of your legs..."
+  },
+  {
+    "pose": "Plow Pose",
+    "slug": "plow-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "plow-pose_05.m4a",
+    "text": "This pose calms the nervous system profoundly..."
+  },
+  {
+    "pose": "Mountain Pose",
+    "slug": "mountain-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "mountain-pose_transition.m4a",
+    "text": "Come to stand at the top of your mat..."
+  },
+  {
+    "pose": "Mountain Pose",
+    "slug": "mountain-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "mountain-pose_01.m4a",
+    "text": "Stand tall at the top of your mat, feet together or hip-width apart..."
+  },
+  {
+    "pose": "Mountain Pose",
+    "slug": "mountain-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "mountain-pose_02.m4a",
+    "text": "Feel all four corners of your feet grounding into the earth..."
+  },
+  {
+    "pose": "Mountain Pose",
+    "slug": "mountain-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "mountain-pose_03.m4a",
+    "text": "Arms by your sides, palms facing forward, shoulders relaxed..."
+  },
+  {
+    "pose": "Mountain Pose",
+    "slug": "mountain-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "mountain-pose_04.m4a",
+    "text": "Close your eyes... take a deep breath in... and slowly let it out..."
+  },
+  {
+    "pose": "Standing Forward Fold",
+    "slug": "standing-forward-fold",
+    "type": "transition",
+    "index": null,
+    "filename": "standing-forward-fold_transition.m4a",
+    "text": "Exhale and fold forward from your hips..."
+  },
+  {
+    "pose": "Standing Forward Fold",
+    "slug": "standing-forward-fold",
+    "type": "narration",
+    "index": 0,
+    "filename": "standing-forward-fold_01.m4a",
+    "text": "Exhale, hinge at your hips and fold forward..."
+  },
+  {
+    "pose": "Standing Forward Fold",
+    "slug": "standing-forward-fold",
+    "type": "narration",
+    "index": 1,
+    "filename": "standing-forward-fold_02.m4a",
+    "text": "Let your hands hang toward the floor, bend your knees as much as you need..."
+  },
+  {
+    "pose": "Standing Forward Fold",
+    "slug": "standing-forward-fold",
+    "type": "narration",
+    "index": 2,
+    "filename": "standing-forward-fold_03.m4a",
+    "text": "Relax the weight of your head and neck completely..."
+  },
+  {
+    "pose": "Standing Forward Fold",
+    "slug": "standing-forward-fold",
+    "type": "narration",
+    "index": 3,
+    "filename": "standing-forward-fold_04.m4a",
+    "text": "Breathe here... each exhale, release a little deeper into the fold..."
+  },
+  {
+    "pose": "Halfway Lift",
+    "slug": "halfway-lift",
+    "type": "transition",
+    "index": null,
+    "filename": "halfway-lift_transition.m4a",
+    "text": "Inhale, lift halfway with a flat back..."
+  },
+  {
+    "pose": "Halfway Lift",
+    "slug": "halfway-lift",
+    "type": "narration",
+    "index": 0,
+    "filename": "halfway-lift_01.m4a",
+    "text": "On your inhale, lift halfway, fingertips on shins, spine long and flat..."
+  },
+  {
+    "pose": "Halfway Lift",
+    "slug": "halfway-lift",
+    "type": "narration",
+    "index": 1,
+    "filename": "halfway-lift_02.m4a",
+    "text": "Gaze forward, draw your shoulder blades together..."
+  },
+  {
+    "pose": "Halfway Lift",
+    "slug": "halfway-lift",
+    "type": "narration",
+    "index": 2,
+    "filename": "halfway-lift_03.m4a",
+    "text": "This is a moment of strength and alignment in the flow..."
+  },
+  {
+    "pose": "Chaturanga",
+    "slug": "chaturanga",
+    "type": "transition",
+    "index": null,
+    "filename": "chaturanga_transition.m4a",
+    "text": "From plank, shift forward and lower halfway down..."
+  },
+  {
+    "pose": "Chaturanga",
+    "slug": "chaturanga",
+    "type": "narration",
+    "index": 0,
+    "filename": "chaturanga_01.m4a",
+    "text": "Shift forward to plank, then slowly lower halfway down, elbows hugging your ribs..."
+  },
+  {
+    "pose": "Chaturanga",
+    "slug": "chaturanga",
+    "type": "narration",
+    "index": 1,
+    "filename": "chaturanga_02.m4a",
+    "text": "Keep your body in one straight line, core engaged..."
+  },
+  {
+    "pose": "Chaturanga",
+    "slug": "chaturanga",
+    "type": "narration",
+    "index": 2,
+    "filename": "chaturanga_03.m4a",
+    "text": "Hover here... this is your moment of controlled strength..."
+  },
+  {
+    "pose": "Low Lunge",
+    "slug": "low-lunge",
+    "type": "transition",
+    "index": null,
+    "filename": "low-lunge_transition.m4a",
+    "text": "Step one foot forward and lower your back knee to the mat..."
+  },
+  {
+    "pose": "Low Lunge",
+    "slug": "low-lunge",
+    "type": "narration",
+    "index": 0,
+    "filename": "low-lunge_01.m4a",
+    "text": "Lower your back knee to the mat, untuck your toes..."
+  },
+  {
+    "pose": "Low Lunge",
+    "slug": "low-lunge",
+    "type": "narration",
+    "index": 1,
+    "filename": "low-lunge_02.m4a",
+    "text": "Sink your hips forward and down, feeling the stretch through your hip flexor..."
+  },
+  {
+    "pose": "Low Lunge",
+    "slug": "low-lunge",
+    "type": "narration",
+    "index": 2,
+    "filename": "low-lunge_03.m4a",
+    "text": "Sweep your arms overhead, lift your chest..."
+  },
+  {
+    "pose": "Low Lunge",
+    "slug": "low-lunge",
+    "type": "narration",
+    "index": 3,
+    "filename": "low-lunge_04.m4a",
+    "text": "Breathe into the opening in the front of your hip..."
+  },
+  {
+    "pose": "Ragdoll",
+    "slug": "ragdoll",
+    "type": "transition",
+    "index": null,
+    "filename": "ragdoll_transition.m4a",
+    "text": "Fold forward and grab opposite elbows, letting yourself hang..."
+  },
+  {
+    "pose": "Ragdoll",
+    "slug": "ragdoll",
+    "type": "narration",
+    "index": 0,
+    "filename": "ragdoll_01.m4a",
+    "text": "Fold forward, grab opposite elbows, and gently sway side to side..."
+  },
+  {
+    "pose": "Ragdoll",
+    "slug": "ragdoll",
+    "type": "narration",
+    "index": 1,
+    "filename": "ragdoll_02.m4a",
+    "text": "Let the weight of your arms and head traction your spine..."
+  },
+  {
+    "pose": "Ragdoll",
+    "slug": "ragdoll",
+    "type": "narration",
+    "index": 2,
+    "filename": "ragdoll_03.m4a",
+    "text": "Bend your knees as much as you need to be comfortable..."
+  },
+  {
+    "pose": "Ragdoll",
+    "slug": "ragdoll",
+    "type": "narration",
+    "index": 3,
+    "filename": "ragdoll_04.m4a",
+    "text": "Just breathe and hang... releasing all the tension from your day..."
+  },
+  {
+    "pose": "Boat Pose",
+    "slug": "boat-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "boat-pose_transition.m4a",
+    "text": "Sit back, lift your feet and find your balance on your sitting bones..."
+  },
+  {
+    "pose": "Boat Pose",
+    "slug": "boat-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "boat-pose_01.m4a",
+    "text": "Sit tall, lean back slightly, lift your feet off the floor..."
+  },
+  {
+    "pose": "Boat Pose",
+    "slug": "boat-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "boat-pose_02.m4a",
+    "text": "Extend your legs straight if you can, or keep your knees bent..."
+  },
+  {
+    "pose": "Boat Pose",
+    "slug": "boat-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "boat-pose_03.m4a",
+    "text": "Reach your arms forward, parallel to the floor..."
+  },
+  {
+    "pose": "Boat Pose",
+    "slug": "boat-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "boat-pose_04.m4a",
+    "text": "Your body forms a V shape... engage your core, breathe steadily..."
+  },
+  {
+    "pose": "Boat Pose",
+    "slug": "boat-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "boat-pose_05.m4a",
+    "text": "This is challenging... stay with it... breathe through the fire..."
+  },
+  {
+    "pose": "Plank Pose",
+    "slug": "plank-pose",
+    "type": "transition",
+    "index": null,
+    "filename": "plank-pose_transition.m4a",
+    "text": "Come to the top of a push-up position, hands under shoulders..."
+  },
+  {
+    "pose": "Plank Pose",
+    "slug": "plank-pose",
+    "type": "narration",
+    "index": 0,
+    "filename": "plank-pose_01.m4a",
+    "text": "Hands under shoulders, body in one long line from head to heels..."
+  },
+  {
+    "pose": "Plank Pose",
+    "slug": "plank-pose",
+    "type": "narration",
+    "index": 1,
+    "filename": "plank-pose_02.m4a",
+    "text": "Engage your core, press the floor away, spread your shoulder blades apart..."
+  },
+  {
+    "pose": "Plank Pose",
+    "slug": "plank-pose",
+    "type": "narration",
+    "index": 2,
+    "filename": "plank-pose_03.m4a",
+    "text": "Gaze just past your fingertips, keep your neck long..."
+  },
+  {
+    "pose": "Plank Pose",
+    "slug": "plank-pose",
+    "type": "narration",
+    "index": 3,
+    "filename": "plank-pose_04.m4a",
+    "text": "Breathe... hold steady... feel the heat building..."
+  },
+  {
+    "pose": "Plank Pose",
+    "slug": "plank-pose",
+    "type": "narration",
+    "index": 4,
+    "filename": "plank-pose_05.m4a",
+    "text": "You are strong... every second you hold this, you grow stronger..."
+  },
+  {
+    "pose": "Savasana",
+    "slug": "savasana",
+    "type": "transition",
+    "index": null,
+    "filename": "savasana_transition.m4a",
+    "text": "Find your way down onto your back, let everything release..."
+  },
+  {
+    "pose": "Savasana",
+    "slug": "savasana",
+    "type": "narration",
+    "index": 0,
+    "filename": "savasana_01.m4a",
+    "text": "Slowly lower yourself down to lie flat on your back..."
+  },
+  {
+    "pose": "Savasana",
+    "slug": "savasana",
+    "type": "narration",
+    "index": 1,
+    "filename": "savasana_02.m4a",
+    "text": "Let your feet fall open, arms by your sides, palms facing up..."
+  },
+  {
+    "pose": "Savasana",
+    "slug": "savasana",
+    "type": "narration",
+    "index": 2,
+    "filename": "savasana_03.m4a",
+    "text": "Close your eyes... let go of any effort, any control over your breath..."
+  },
+  {
+    "pose": "Savasana",
+    "slug": "savasana",
+    "type": "narration",
+    "index": 3,
+    "filename": "savasana_04.m4a",
+    "text": "Feel your body melting into the mat... heavy and completely supported..."
+  },
+  {
+    "pose": "Savasana",
+    "slug": "savasana",
+    "type": "narration",
+    "index": 4,
+    "filename": "savasana_05.m4a",
+    "text": "There is nothing to do now... nowhere to be... just rest..."
+  },
+  {
+    "pose": "Savasana",
+    "slug": "savasana",
+    "type": "narration",
+    "index": 5,
+    "filename": "savasana_06.m4a",
+    "text": "Let each exhale carry away any remaining tension..."
+  },
+  {
+    "pose": "Savasana",
+    "slug": "savasana",
+    "type": "narration",
+    "index": 6,
+    "filename": "savasana_07.m4a",
+    "text": "Allow yourself to simply be... still... peaceful... whole..."
+  },
+  {
+    "pose": "Savasana",
+    "slug": "savasana",
+    "type": "narration",
+    "index": 7,
+    "filename": "savasana_08.m4a",
+    "text": "Rest here in total stillness... you have earned this..."
+  },
+  {
+    "pose": "Mountain Pose",
+    "slug": "mountain-pose",
+    "type": "sun-sal-name",
+    "index": null,
+    "filename": "sun-sal_mountain-pose.m4a",
+    "text": "Mountain Pose"
+  },
+  {
+    "pose": "Standing Forward Fold",
+    "slug": "standing-forward-fold",
+    "type": "sun-sal-name",
+    "index": null,
+    "filename": "sun-sal_standing-forward-fold.m4a",
+    "text": "Standing Forward Fold"
+  },
+  {
+    "pose": "Halfway Lift",
+    "slug": "halfway-lift",
+    "type": "sun-sal-name",
+    "index": null,
+    "filename": "sun-sal_halfway-lift.m4a",
+    "text": "Halfway Lift"
+  },
+  {
+    "pose": "Chaturanga",
+    "slug": "chaturanga",
+    "type": "sun-sal-name",
+    "index": null,
+    "filename": "sun-sal_chaturanga.m4a",
+    "text": "Chaturanga"
+  },
+  {
+    "pose": "Upward-Facing Dog",
+    "slug": "upward-facing-dog",
+    "type": "sun-sal-name",
+    "index": null,
+    "filename": "sun-sal_upward-facing-dog.m4a",
+    "text": "Upward-Facing Dog"
+  },
+  {
+    "pose": "Downward-Facing Dog",
+    "slug": "downward-facing-dog",
+    "type": "sun-sal-name",
+    "index": null,
+    "filename": "sun-sal_downward-facing-dog.m4a",
+    "text": "Downward-Facing Dog"
+  }
+]

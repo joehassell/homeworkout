@@ -359,13 +359,13 @@ The gate is simple: `Entitlement.isPro()` before attempting to load the `.m4a` f
 
 ---
 
-## Open Questions
+## Decisions Made
 
-1. **Grok API access** — Do you have API access to Grok's voice generation, or is it web-only? If web-only, the manifest CSV can be used for manual batch generation.
-2. **Voice gender** — Female is the default for yoga. Do you want a male voice option in settings?
-3. **Multilingual** — English only for v1? The narration text is all English.
-4. **Audio download vs bundle** — Ship in the app bundle (adds ~18MB to download), or download on first Pro activation (keeps app small, requires one-time download)?
-5. **Singing bowl chime** — Currently synthesized via Web Audio API oscillator. Replace with a real recorded singing bowl sample too?
+1. **Grok API access** — Yes, API access available. Use batch generation from manifest.
+2. **Voice gender** — Both female and male voices. User selects in Settings. Files stored in `audio/yoga/female/` and `audio/yoga/male/`. Doubles the audio count to ~580 files (~36MB total).
+3. **Multilingual** — English only for v1.
+4. **Audio delivery** — Bundled in the app. Both male and female voice packs ship with the binary (~36MB). Pro users get them always; free users get them occasionally as a conversion hook (tasting mechanic).
+5. **Singing bowl chime** — Yes, replace synthesized oscillator with a real recorded singing bowl sample.
 
 ---
 

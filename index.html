@@ -455,6 +455,13 @@
     <label class="settings-label" for="set-voice">Voice</label>
     <button type="button" id="set-voice" class="settings-toggle" onclick="toggleVoiceFromSettings()">On</button>
   </div>
+  <div class="settings-row settings-row-stack">
+    <label class="settings-label">Yoga Voice</label>
+    <div class="option-pills" id="yoga-voice-pills">
+      <button type="button" class="pill selected" data-value="female" onclick="setYogaVoice('female')">Female</button>
+      <button type="button" class="pill" data-value="male" onclick="setYogaVoice('male')">Male</button>
+    </div>
+  </div>
   <div class="settings-row is-native-only">
     <label class="settings-label">Music Controls</label>
     <button type="button" id="set-music" class="settings-toggle on" onclick="toggleMusicSetting()">On</button>
@@ -1449,33 +1456,81 @@ function cloudPush(key) {
 // ═══════════════════════════════════════════════════
 // TEXT-TO-SPEECH
 // ═══════════════════════════════════════════════════
+// ── Voice settings ────────────────────────────────
+let yogaVoiceGender = 'female'; // 'female' or 'male'
+
+function poseSlug(name) {
+  return name.toLowerCase().replace(/['']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 function speak(text) {
-  if (!voiceEnabled || !('speechSynthesis' in window)) return;
+  if (!voiceEnabled) return;
+  // Native iOS: use AVSpeechSynthesizer
+  if (isNative() && window.Capacitor.Plugins.SpeechPlugin) {
+    window.Capacitor.Plugins.SpeechPlugin.speak({ text: text, rate: 0.50, pitch: 1.0 });
+    return;
+  }
+  // Web fallback
+  if (!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.95;
-  u.pitch = 1;
-  u.volume = 1;
+  u.rate = 0.95; u.pitch = 1; u.volume = 1;
   speechSynthesis.speak(u);
 }
 
 // ── Yoga voice narration ──────────────────────────
 let yogaNarrationQueue = [];
+let yogaNarrationPoseSlug = '';
 let yogaNarrationIdx = 0;
 let yogaNarrationNextAt = 0;
+let yogaAudioPlaying = null; // current Audio element
 
-function speakYoga(text) {
-  if (!voiceEnabled || !('speechSynthesis' in window)) return;
+function speakYoga(text, slug, cueIndex) {
+  if (!voiceEnabled) return;
+  // Try pre-recorded audio (Pro, or tasting mechanic)
+  if (Entitlement.isPro() && slug) {
+    const suffix = cueIndex !== undefined ? '_' + String(cueIndex + 1).padStart(2, '0') : '_transition';
+    const src = 'audio/yoga/' + yogaVoiceGender + '/' + slug + suffix + '.m4a';
+    const audio = new Audio(src);
+    audio.volume = 1.0;
+    audio.play().then(() => {
+      yogaAudioPlaying = audio;
+    }).catch(() => {
+      // File missing — fall back to TTS
+      speakYogaTTS(text);
+    });
+    return;
+  }
+  speakYogaTTS(text);
+}
+
+function speakYogaTTS(text) {
+  // Native iOS: use AVSpeechSynthesizer with calmer settings
+  if (isNative() && window.Capacitor.Plugins.SpeechPlugin) {
+    window.Capacitor.Plugins.SpeechPlugin.speak({ text: text, rate: 0.38, pitch: 0.9 });
+    return;
+  }
+  // Web fallback
+  if (!('speechSynthesis' in window)) return;
   const u = new SpeechSynthesisUtterance(text);
   const style = window.yoga && window.yoga.YOGA_STYLES[config.yogaStyle];
   u.rate = style ? style.speechRate : 0.75;
-  u.pitch = 0.95;
-  u.volume = 1;
-  speechSynthesis.speak(u); // queues, does NOT cancel previous
+  u.pitch = 0.95; u.volume = 1;
+  speechSynthesis.speak(u);
+}
+
+function stopYogaAudio() {
+  if (yogaAudioPlaying) { yogaAudioPlaying.pause(); yogaAudioPlaying = null; }
+  if (isNative() && window.Capacitor.Plugins.SpeechPlugin) {
+    window.Capacitor.Plugins.SpeechPlugin.stop({});
+  } else if ('speechSynthesis' in window) {
+    speechSynthesis.cancel();
+  }
 }
 
 function initYogaNarration(entry) {
   yogaNarrationQueue = (entry.narration || []).slice();
+  yogaNarrationPoseSlug = poseSlug(entry.exercise ? entry.exercise.name : (entry.name || ''));
   yogaNarrationIdx = 0;
   if (yogaNarrationQueue.length === 0) return;
   const interval = Math.floor(entry.workSec / (yogaNarrationQueue.length + 1));
@@ -1485,7 +1540,7 @@ function initYogaNarration(entry) {
 function scheduleYogaNarration() {
   if (yogaNarrationIdx >= yogaNarrationQueue.length) return;
   if (timerState.remaining <= yogaNarrationNextAt) {
-    speakYoga(yogaNarrationQueue[yogaNarrationIdx]);
+    speakYoga(yogaNarrationQueue[yogaNarrationIdx], yogaNarrationPoseSlug, yogaNarrationIdx);
     yogaNarrationIdx++;
     const left = yogaNarrationQueue.length - yogaNarrationIdx;
     if (left > 0) {
@@ -1538,6 +1593,14 @@ function toggleVoice() {
 // Settings screen calls into the same toggles so timer + settings stay in sync.
 function toggleSoundFromSettings() { toggleSound(); }
 function toggleVoiceFromSettings() { toggleVoice(); }
+
+function setYogaVoice(gender) {
+  yogaVoiceGender = gender;
+  document.querySelectorAll('#yoga-voice-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === gender);
+  });
+  saveAppSettings();
+}
 
 const THEMES = ['dark','midnight','forest','hc','light'];
 const FONT_STEPS = [0.875, 1.0, 1.125, 1.25, 1.5];
@@ -1608,6 +1671,9 @@ function loadAppSettings() {
       if (Array.isArray(s.yogaEquipment)) {
         yogaEquipment = new Set(s.yogaEquipment);
       }
+      if (typeof s.yogaVoiceGender === 'string' && (s.yogaVoiceGender === 'female' || s.yogaVoiceGender === 'male')) {
+        yogaVoiceGender = s.yogaVoiceGender;
+      }
       if (typeof s.units === 'string' && (s.units === 'metric' || s.units === 'imperial')) {
         userUnits = s.units;
       }
@@ -1629,6 +1695,10 @@ function loadAppSettings() {
   syncGoalUI();
   syncYogaExperienceUI();
   syncYogaEquipmentUI();
+  // Yoga voice gender
+  document.querySelectorAll('#yoga-voice-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === yogaVoiceGender);
+  });
 }
 
 function exportBackup() {
@@ -1690,6 +1760,7 @@ function saveAppSettings() {
       userGoals: userGoals,
       yogaExperience: config.yogaExperience,
       yogaEquipment: [...yogaEquipment],
+      yogaVoiceGender: yogaVoiceGender,
       units: userUnits,
     }));
     cloudPush('wk_settings');
@@ -3645,7 +3716,7 @@ function startWorkout() {
   if (config.type === 'yoga') {
     yogaChime();
     initYogaNarration(first);
-    if (first.transitionNarration) speakYoga(first.transitionNarration);
+    if (first.transitionNarration) speakYoga(first.transitionNarration, poseSlug(first.exercise.name));
   } else if (first.section === 'main' && first.single_sided) {
     speak(first.exercise.name + '. Start with right side.');
     beepWork();
@@ -3841,13 +3912,13 @@ function advancePhase() {
 
 function advanceYogaPhase() {
   const w = workout[timerState.idx];
-  speechSynthesis.cancel();
+  stopYogaAudio();
   if (timerState.phase === 'work' && w.restSec > 0) {
     timerState.phase = 'rest';
     timerState.remaining = w.restSec;
     yogaChime();
     const next = workout[timerState.idx + 1];
-    if (next && next.transitionNarration) speakYoga(next.transitionNarration);
+    if (next && next.transitionNarration) speakYoga(next.transitionNarration, poseSlug(next.exercise.name));
     hkUpdateLiveActivity();
     updateTimerUI();
     return;
@@ -3863,9 +3934,9 @@ function advanceYogaPhase() {
   yogaChime();
   initYogaNarration(next);
   if (next.single_sided) {
-    speakYoga(next.exercise.name + '. Beginning with the right side.');
+    speakYoga(next.exercise.name + '. Beginning with the right side.', poseSlug(next.exercise.name));
   } else if (next.transitionNarration && !w.restSec) {
-    speakYoga(next.transitionNarration);
+    speakYoga(next.transitionNarration, poseSlug(next.exercise.name));
   }
   hkUpdateLiveActivity();
   updateTimerUI();
