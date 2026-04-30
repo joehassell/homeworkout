@@ -24,10 +24,12 @@
 	<string>SimpleWorkoutGen uses your heart rate during workouts to show live data and calculate calories burned.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>SimpleWorkoutGen saves your completed workouts to Apple Health so they appear in the Fitness app.</string>
-	<key>UIBackgroundModes</key>
+	<key>CFBundleIconFiles</key>
 	<array>
-		<string>workout-processing</string>
+		<string>AppIcon</string>
 	</array>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
 	<key>WKApplication</key>
 	<true/>
 	<key>WKCompanionAppBundleIdentifier</key>
