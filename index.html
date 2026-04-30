@@ -4715,28 +4715,56 @@ function leastDoneType() {
 
 function surpriseMe() {
   clearGenError();
-  // Pick a random type and duration
-  const types = ['strength', 'hiit', 'conditioning', 'functional', 'yoga'];
-  config.type = types[Math.floor(Math.random() * types.length)];
-  const durations = [15, 20, 30, 45, 60];
-  config.duration = durations[Math.floor(Math.random() * durations.length)];
-  const intensities = ['light', 'moderate', 'high'];
-  config.intensity = intensities[Math.floor(Math.random() * intensities.length)];
-
-  // Update UI pills to reflect the selection
-  document.querySelectorAll('#type-pills .pill').forEach(p => {
-    p.classList.toggle('selected', p.dataset.value === config.type);
+  // Pool: saved workouts + all templates that match the user's equipment
+  const pool = [];
+  // Add saved workouts
+  savedWorkouts.forEach(w => pool.push({ source: 'saved', data: w }));
+  // Add templates filtered by user's equipment and fitness
+  const fitnessLevel = userProfile.fitness_level || 'untrained';
+  const allTemplates = window.templates.TEMPLATES;
+  allTemplates.forEach(tpl => {
+    if (window.templates.getTemplatesForType(tpl.type, selectedEquipment, fitnessLevel).find(t => t.id === tpl.id)) {
+      pool.push({ source: 'template', data: tpl });
+    }
   });
-  toggleYogaUI(config.type === 'yoga');
-  rebuildBuildEquipment();
-  document.querySelectorAll('#duration-pills .pill').forEach(p => {
-    p.classList.toggle('selected', p.dataset.value === String(config.duration));
-  });
-  document.querySelectorAll('#intensity-pills .pill').forEach(p => {
-    p.classList.toggle('selected', p.dataset.value === config.intensity);
-  });
-
-  generateWorkout();
+  if (pool.length === 0) {
+    // Fallback: just generate a random workout
+    generateWorkout();
+    return;
+  }
+  // Pick a random one
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+  if (pick.source === 'saved') {
+    replaySavedWorkout(pick.data.id);
+  } else {
+    // Apply template
+    const tpl = pick.data;
+    config.type = tpl.type;
+    config.duration = tpl.duration_min;
+    document.querySelectorAll('#type-pills .pill').forEach(p => {
+      p.classList.toggle('selected', p.dataset.value === tpl.type);
+    });
+    document.querySelectorAll('#duration-pills .pill').forEach(p => {
+      p.classList.toggle('selected', String(p.dataset.value) === String(tpl.duration_min));
+    });
+    toggleYogaUI(tpl.type === 'yoga');
+    if (tpl.type === 'yoga' && tpl.yoga_style) {
+      config.yogaStyle = tpl.yoga_style;
+      document.querySelectorAll('#yoga-style-pills .pill').forEach(p => {
+        p.classList.toggle('selected', p.dataset.value === tpl.yoga_style);
+      });
+    }
+    rebuildBuildEquipment();
+    activeTemplateName = tpl.name;
+    workout = window.templates.buildWorkoutFromTemplate(tpl);
+    if (workout.length === 0) {
+      showGenError('Could not build this template — try Generate Workout instead.');
+      return;
+    }
+    applyInterSetRest();
+    showScreen('preview');
+    renderPreview();
+  }
 }
 
 loadEquipPrefs();
