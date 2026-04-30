@@ -368,4 +368,239 @@ const DB = [
   {name:"Crab Reach",cat:"animal",equip:["bodyweight","mat"],muscles:["shoulders","core"],types:["conditioning","functional"],diff:1,
    impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:true,requires_floor:true,min_fitness:'untrained',contraindicated_for:['wrists'],pregnancy_safe:'no',
    info:"Start in a crab position (hips elevated, hands behind you). Lift one hand and reach it over and behind you while driving your hips up toward the ceiling. You should feel a stretch across your chest and shoulders. Return and repeat on the other side. Great for thoracic mobility and shoulder opening."},
+
+  // ── Resistance Band ─────────────────────────────────────
+  {name:"Banded Pull-Aparts",cat:"pull-h",equip:["resistance band"],muscles:["rear delts","upper back"],types:["strength","functional"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Hold a resistance band at shoulder height with both hands, arms extended. Pull the band apart by squeezing your shoulder blades together until the band touches your chest. Control the return. Keep your arms straight throughout. Great for posture and rear delt strength."},
+  {name:"Banded Squats",cat:"lower-squat",equip:["resistance band"],muscles:["quads","glutes"],types:["strength","functional"],diff:1,
+   impact:'low',complexity:1,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'early_only',
+   info:"Stand on the band with feet shoulder-width apart, holding the other end at your shoulders. Squat down keeping your chest up and knees tracking over toes. The band adds resistance at the top where bodyweight squats are easiest. Stand up powerfully against the band tension."},
+  {name:"Banded Rows",cat:"pull-h",equip:["resistance band"],muscles:["back","biceps"],types:["strength","functional"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Anchor the band at waist height or loop it around your feet while seated. Pull the band toward your torso, squeezing your shoulder blades together. Keep your elbows close to your body. Control the return. Focus on feeling your back muscles work, not your arms."},
+
+  // ── Foam Roller ─────────────────────────────────────────
+  {name:"Foam Roller Thoracic Extension",cat:"mobility",equip:["foam roller","mat"],muscles:["upper back","spine"],types:["functional"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:true,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'early_only',
+   info:"Place the foam roller horizontally under your upper back. Support your head with your hands. Slowly extend backward over the roller, opening your chest toward the ceiling. Hold for a breath, then curl back up. Move the roller up or down your spine and repeat. Excellent for desk workers."},
+  {name:"Foam Roller IT Band",cat:"mobility",equip:["foam roller","mat"],muscles:["quads","hips"],types:["functional"],diff:1,single_sided:true,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:true,min_fitness:'untrained',contraindicated_for:['knees'],pregnancy_safe:'early_only',
+   info:"Lie on your side with the foam roller under your outer thigh. Support yourself with your hands. Roll slowly from your hip to just above your knee. Pause on tender spots for 20-30 seconds. This is often uncomfortable but highly effective for releasing tightness in the IT band and outer quad."},
+
+  // ── Ab Wheel ────────────────────────────────────────────
+  {name:"Ab Wheel Rollout",cat:"core",equip:["ab wheel","mat"],muscles:["core","shoulders"],types:["strength"],diff:2,
+   impact:'none',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:true,requires_floor:true,min_fitness:'beginner',contraindicated_for:['lower_back','shoulders'],pregnancy_safe:'no',
+   info:"Kneel on a mat and grip the ab wheel handles. Roll forward slowly, extending your body as far as you can while keeping your core braced and back flat. Pull yourself back to the start using your abs. Start with partial range and build up. Do not let your lower back sag at any point."},
+
+  // ── TRX / Suspension Trainer ────────────────────────────
+  {name:"TRX Rows",cat:"pull-h",equip:["trx"],muscles:["back","biceps"],types:["strength","functional"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:true,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Hold the TRX handles with arms extended, lean back with your body straight. Pull your chest toward the handles by squeezing your shoulder blades together. The more horizontal your body, the harder it is. Keep your core tight and body in a straight line throughout."},
+  {name:"TRX Chest Press",cat:"push-h",equip:["trx"],muscles:["chest","triceps","shoulders"],types:["strength","functional"],diff:1,
+   impact:'none',complexity:1,joint_load:'medium',cv_demand:'low',requires_balance:true,requires_floor:false,min_fitness:'untrained',contraindicated_for:['shoulders'],pregnancy_safe:'no',
+   info:"Face away from the anchor point, holding the TRX handles with arms extended. Lean forward and lower your chest between your hands by bending your elbows. Push back to the start. The steeper the angle, the harder it is. Keep your core engaged and body straight."},
+  {name:"TRX Pike",cat:"core",equip:["trx","mat"],muscles:["core","shoulders"],types:["strength","functional"],diff:3,
+   impact:'none',complexity:3,joint_load:'medium',cv_demand:'medium',requires_balance:true,requires_floor:true,min_fitness:'intermediate',contraindicated_for:['shoulders','lower_back'],pregnancy_safe:'no',
+   info:"Place your feet in the TRX foot cradles, start in a push-up position. Pike your hips up toward the ceiling, keeping your legs straight, until your body forms an inverted V. Lower back to plank with control. Requires significant core and shoulder strength."},
+
+  // ── Parallettes ─────────────────────────────────────────
+  {name:"Parallette L-Sit",cat:"isometric",equip:["parallettes"],muscles:["core","triceps","hip flexors"],types:["strength","functional"],diff:3,
+   impact:'none',complexity:3,joint_load:'medium',cv_demand:'low',requires_balance:true,requires_floor:false,min_fitness:'intermediate',contraindicated_for:['wrists','shoulders'],pregnancy_safe:'no',
+   info:"Grip the parallettes, press down to lift your body off the ground. Extend your legs straight in front of you, parallel to the floor. Hold this position. Keep your shoulders down and core fully engaged. Start with tucked knees if straight legs are too difficult."},
+  {name:"Parallette Push-Ups",cat:"push-h",equip:["parallettes"],muscles:["chest","triceps","shoulders"],types:["strength"],diff:2,
+   impact:'none',complexity:1,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:true,min_fitness:'beginner',contraindicated_for:['wrists'],pregnancy_safe:'no',
+   info:"Place parallettes shoulder-width apart. Grip them and perform push-ups with a deeper range of motion than floor push-ups allow. Lower your chest below the level of your hands. The neutral grip is easier on the wrists than flat-hand push-ups."},
+
+  // ── EZ Curl Bar ─────────────────────────────────────────
+  {name:"EZ Bar Curls",cat:"pull-h",equip:["ez curl bar"],muscles:["biceps"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Stand holding the EZ curl bar at the angled grips. Curl the bar up toward your shoulders, keeping your elbows pinned to your sides. Lower with control. The angled grip reduces wrist strain compared to a straight bar. Don't swing your body — use strict form."},
+  {name:"EZ Bar Skull Crushers",cat:"push-h",equip:["ez curl bar","bench"],muscles:["triceps"],types:["strength"],diff:2,
+   impact:'none',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['shoulders'],pregnancy_safe:'no',
+   info:"Lie on a bench holding the EZ bar above your chest with arms extended. Lower the bar toward your forehead by bending only at the elbows. Extend back to the top. Keep your upper arms vertical throughout. The angled grip is much more comfortable on the wrists than a straight bar."},
+
+  // ── Power Rack ──────────────────────────────────────────
+  {name:"Rack Pulls",cat:"lower-hinge",equip:["barbell","power rack"],muscles:["back","glutes","hamstrings"],types:["strength"],diff:2,
+   impact:'low',complexity:2,joint_load:'high',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['lower_back'],pregnancy_safe:'no',
+   info:"Set the safety pins in a power rack at knee height. Deadlift the bar from the pins to lockout, squeezing your glutes at the top. Lower back to the pins with control. This shortened range of motion lets you load heavier than a full deadlift and builds lockout strength."},
+
+  // ── Smith Machine ───────────────────────────────────────
+  {name:"Smith Machine Squats",cat:"lower-squat",equip:["smith machine"],muscles:["quads","glutes"],types:["strength"],diff:1,
+   impact:'low',complexity:1,joint_load:'medium',cv_demand:'medium',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['knees'],pregnancy_safe:'no',
+   info:"Position yourself under the Smith machine bar with it across your upper traps. Unrack and squat down until your thighs are parallel. Drive back up. The fixed bar path provides stability, making this safer for solo training. Keep your feet slightly forward of the bar."},
+
+  // ── Flat / Incline / Decline Bench ──────────────────────
+  {name:"Dumbbell Incline Press",cat:"push-h",equip:["dumbbell","incline bench"],muscles:["chest","shoulders","triceps"],types:["strength"],diff:2,
+   impact:'none',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['shoulders'],pregnancy_safe:'no',
+   info:"Set the bench to 30-45 degrees. Press dumbbells from shoulder height to full extension above your upper chest. Lower with control. The incline shifts emphasis to the upper chest and front delts compared to flat pressing."},
+  {name:"Decline Dumbbell Press",cat:"push-h",equip:["dumbbell","decline bench"],muscles:["chest","triceps"],types:["strength"],diff:2,
+   impact:'none',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['shoulders'],pregnancy_safe:'no',
+   info:"Lie face-up on a decline bench, feet secured. Press dumbbells from chest level to full lockout. Lower with control. The decline angle emphasises the lower chest. Keep your core braced and don't let the dumbbells drift toward your face."},
+  {name:"Flat Dumbbell Fly",cat:"push-h",equip:["dumbbell","flat bench"],muscles:["chest"],types:["strength"],diff:2,
+   impact:'none',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['shoulders'],pregnancy_safe:'no',
+   info:"Lie on a flat bench holding dumbbells above your chest, palms facing each other. Lower the weights in a wide arc until you feel a stretch in your chest, keeping a slight bend in your elbows. Squeeze your chest to bring the weights back together. Don't go too deep."},
+
+  // ── Preacher Curl Bench ─────────────────────────────────
+  {name:"Preacher Curls",cat:"pull-h",equip:["dumbbell","preacher curl bench"],muscles:["biceps"],types:["strength"],diff:1,single_sided:true,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Sit at the preacher curl bench with your upper arm flat on the pad. Curl one dumbbell up toward your shoulder, then lower with control. The pad prevents you from cheating with momentum, isolating the bicep completely. Don't let your arm fully straighten at the bottom — keep slight tension."},
+
+  // ── Olympic Platform ────────────────────────────────────
+  {name:"Power Cleans",cat:"full-body",equip:["barbell","olympic platform"],muscles:["full body"],types:["strength","functional"],diff:3,
+   impact:'medium',complexity:4,joint_load:'high',cv_demand:'high',requires_balance:true,requires_floor:false,min_fitness:'intermediate',contraindicated_for:['lower_back','shoulders','wrists'],pregnancy_safe:'no',
+   info:"Start with the barbell on the floor. Explosively pull the bar from the ground, shrug your shoulders, and catch it on your front delts in a partial squat. Stand up. Lower the bar back to the floor. This Olympic lift builds total-body power. Learn the technique with light weight first."},
+
+  // ── Cable Column ────────────────────────────────────────
+  {name:"Cable Face Pulls",cat:"pull-h",equip:["cable column"],muscles:["rear delts","upper back"],types:["strength","functional"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Set the cable to head height with a rope attachment. Pull the rope toward your face, splitting the ends past your ears. Squeeze your shoulder blades together at the peak. Return with control. This is one of the best exercises for shoulder health and posture."},
+  {name:"Cable Woodchops",cat:"core",equip:["cable column"],muscles:["core","shoulders"],types:["strength","functional"],diff:2,single_sided:true,
+   impact:'none',complexity:2,joint_load:'low',cv_demand:'medium',requires_balance:true,requires_floor:false,min_fitness:'beginner',contraindicated_for:[],pregnancy_safe:'no',
+   info:"Set the cable high. Stand sideways to the machine and pull the handle diagonally across your body from high to low, rotating your torso. Control the return. Keep your arms mostly straight — the power comes from your core rotation, not your arms."},
+
+  // ── Cable Crossover ─────────────────────────────────────
+  {name:"Cable Crossover Fly",cat:"push-h",equip:["cable crossover"],muscles:["chest"],types:["strength"],diff:2,
+   impact:'none',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['shoulders'],pregnancy_safe:'no',
+   info:"Stand between the cable stations with handles set high. Step forward slightly. Pull both handles together in front of your chest in a hugging motion, squeezing your chest at the bottom. Return with control. The cables provide constant tension throughout the range of motion."},
+
+  // ── Lat Pulldown ────────────────────────────────────────
+  {name:"Lat Pulldown",cat:"pull-v",equip:["lat pulldown"],muscles:["back","biceps"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Sit at the lat pulldown machine with your thighs secured under the pads. Grip the bar wide. Pull it down to your upper chest, squeezing your shoulder blades together. Control the return, feeling the stretch in your lats at the top. Don't lean back excessively."},
+
+  // ── Seated Cable Row ────────────────────────────────────
+  {name:"Seated Cable Row",cat:"pull-h",equip:["seated cable row"],muscles:["back","biceps"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Sit at the cable row station with feet on the footplate, knees slightly bent. Pull the handle toward your torso, squeezing your shoulder blades together. Extend your arms back with control. Keep your torso upright — don't rock back and forth to cheat the weight."},
+
+  // ── Chest Press Machine ─────────────────────────────────
+  {name:"Machine Chest Press",cat:"push-h",equip:["chest press machine"],muscles:["chest","triceps","shoulders"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'no',
+   info:"Sit in the machine with your back flat against the pad. Grip the handles at chest height. Press forward until your arms are extended. Return with control. The machine guides the path, making this safer than free weights. Great for beginners or heavy burnout sets."},
+
+  // ── Shoulder Press Machine ──────────────────────────────
+  {name:"Machine Shoulder Press",cat:"push-v",equip:["shoulder press machine"],muscles:["shoulders","triceps"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['shoulders'],pregnancy_safe:'no',
+   info:"Sit in the machine with your back supported. Grip the handles at shoulder height. Press overhead to full extension. Lower with control. The fixed path removes the stabilisation demands of free weights, letting you focus purely on pushing strength."},
+
+  // ── Pec Deck ────────────────────────────────────────────
+  {name:"Pec Deck Fly",cat:"push-h",equip:["pec deck"],muscles:["chest"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['shoulders'],pregnancy_safe:'no',
+   info:"Sit in the pec deck machine with your forearms against the pads. Bring the pads together in front of your chest by squeezing your pecs. Control the return, feeling a stretch. Don't go so wide that your shoulders strain. Focus on the squeeze at the front."},
+
+  // ── Rear Delt Fly Machine ───────────────────────────────
+  {name:"Reverse Pec Deck",cat:"pull-h",equip:["rear delt fly"],muscles:["rear delts","upper back"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Sit facing the pec deck machine (reversed). Grip the handles with arms extended in front. Pull your arms back in a wide arc, squeezing your shoulder blades together. Return with control. Excellent for rear delts and upper back — muscles most people neglect."},
+
+  // ── Leg Press ───────────────────────────────────────────
+  {name:"Leg Press",cat:"lower-squat",equip:["leg press"],muscles:["quads","glutes"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'medium',cv_demand:'medium',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['knees'],pregnancy_safe:'no',
+   info:"Sit in the leg press machine with your feet shoulder-width on the platform. Lower the platform by bending your knees to 90 degrees. Press back up without locking your knees. Keep your lower back pressed into the seat throughout. Feet higher on the platform shifts emphasis to glutes."},
+
+  // ── Leg Extension ───────────────────────────────────────
+  {name:"Leg Extension",cat:"lower-squat",equip:["leg extension"],muscles:["quads"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['knees'],pregnancy_safe:'yes',
+   info:"Sit in the machine with the pad on your shins just above your ankles. Extend your legs to straight, squeezing your quads hard at the top. Lower with control — don't let the weight drop. This isolates the quads completely. Use moderate weight and focus on the contraction."},
+
+  // ── Seated Leg Curl ─────────────────────────────────────
+  {name:"Seated Leg Curl",cat:"lower-hinge",equip:["seated leg curl"],muscles:["hamstrings"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Sit in the machine with the pad behind your ankles and your knees at the edge of the seat. Curl your legs downward, squeezing your hamstrings. Return with control. Lean slightly forward at the hips for a deeper contraction."},
+
+  // ── Lying Leg Curl ──────────────────────────────────────
+  {name:"Lying Leg Curl",cat:"lower-hinge",equip:["lying leg curl"],muscles:["hamstrings"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Lie face down on the machine with the pad behind your ankles. Curl your heels toward your glutes, squeezing your hamstrings at the top. Lower with control. Keep your hips pressed into the bench — don't let them lift. Point your toes slightly inward to target the inner hamstrings."},
+
+  // ── Hip Abductor / Adductor ─────────────────────────────
+  {name:"Machine Hip Abduction",cat:"lower-squat",equip:["hip abductor"],muscles:["glutes","hips"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['hips'],pregnancy_safe:'early_only',
+   info:"Sit in the machine with the pads against your outer thighs. Push your legs apart against the resistance, squeezing your glutes at the widest point. Return with control. This targets the gluteus medius and outer hip — important for knee stability and hip health."},
+  {name:"Machine Hip Adduction",cat:"lower-squat",equip:["hip adductor"],muscles:["inner thighs","hips"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['hips'],pregnancy_safe:'early_only',
+   info:"Sit in the machine with the pads against your inner thighs. Squeeze your legs together against the resistance. Return with control. This targets the inner thigh muscles (adductors) which are important for hip stability and often underdeveloped."},
+
+  // ── Calf Raise Machine ──────────────────────────────────
+  {name:"Machine Calf Raises",cat:"lower-squat",equip:["calf raise machine"],muscles:["calves"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Stand on the platform with your toes on the edge and heels hanging off. Rise up on your toes as high as possible, squeezing your calves at the top. Lower slowly until you feel a deep stretch. Full range of motion is key — go all the way up and all the way down."},
+
+  // ── Assisted Pull-up / Dip ──────────────────────────────
+  {name:"Assisted Pull-Ups",cat:"pull-v",equip:["assisted pull-up/dip"],muscles:["back","biceps"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'no',
+   info:"Kneel on the pad of the assisted pull-up machine. Grip the bar overhead with a shoulder-width grip. Pull yourself up until your chin is over the bar. Lower with control. The counterweight reduces the load — set it so you can do 8-12 reps with good form. Great for building toward unassisted pull-ups."},
+  {name:"Assisted Dips",cat:"push-v",equip:["assisted pull-up/dip"],muscles:["chest","triceps","shoulders"],types:["strength"],diff:1,
+   impact:'none',complexity:1,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['shoulders'],pregnancy_safe:'no',
+   info:"Kneel on the pad. Grip the dip handles and lower your body by bending your elbows until your upper arms are parallel to the floor. Press back up. Lean forward slightly to target chest, stay upright for more tricep emphasis. The counterweight makes dips accessible to all fitness levels."},
+
+  // ── Hack Squat ──────────────────────────────────────────
+  {name:"Hack Squat",cat:"lower-squat",equip:["hack squat"],muscles:["quads","glutes"],types:["strength"],diff:1,
+   impact:'low',complexity:1,joint_load:'medium',cv_demand:'medium',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['knees'],pregnancy_safe:'no',
+   info:"Stand in the hack squat machine with your back against the pad and feet on the platform. Lower by bending your knees until your thighs are parallel. Push back up through your heels. The fixed path reduces balance demands. Foot placement changes emphasis — lower targets quads, higher targets glutes."},
+
+  // ── Belt Squat ──────────────────────────────────────────
+  {name:"Belt Squat",cat:"lower-squat",equip:["belt squat"],muscles:["quads","glutes"],types:["strength"],diff:1,
+   impact:'low',complexity:1,joint_load:'low',cv_demand:'medium',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['hips'],pregnancy_safe:'no',
+   info:"Attach the belt around your waist and stand on the platform. Squat down until your thighs are parallel. Stand back up. The load hangs from your hips instead of compressing your spine, making this the best squat variation for people with back issues. Full depth is comfortable."},
+
+  // ── T-Bar Row ───────────────────────────────────────────
+  {name:"T-Bar Row",cat:"pull-h",equip:["t-bar row"],muscles:["back","biceps"],types:["strength"],diff:2,
+   impact:'none',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['lower_back'],pregnancy_safe:'no',
+   info:"Stand over the T-bar with feet shoulder-width apart. Hinge at the hips and grip the handles. Row the bar up into your chest, squeezing your shoulder blades together. Lower with control. Keep your back flat and core braced. This allows heavier rowing than dumbbells with a natural hand position."},
+
+  // ── Iso-Lateral Machines ────────────────────────────────
+  {name:"Iso-Lateral Chest Press",cat:"push-h",equip:["iso-lateral chest press"],muscles:["chest","triceps"],types:["strength"],diff:1,single_sided:true,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'no',
+   info:"Sit in the machine and press one arm at a time, or both together. Each arm moves independently, which prevents your stronger side from compensating. Press forward to full extension, then control the return. Great for identifying and fixing strength imbalances."},
+  {name:"Iso-Lateral Row",cat:"pull-h",equip:["iso-lateral row"],muscles:["back","biceps"],types:["strength"],diff:1,single_sided:true,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Sit in the machine with your chest against the pad. Pull each handle independently toward your torso, squeezing your shoulder blades together. Control the return. Independent arms ensure each side works equally. Focus on pulling with your back, not your biceps."},
+  {name:"Iso-Lateral Shoulder Press",cat:"push-v",equip:["iso-lateral shoulder press"],muscles:["shoulders","triceps"],types:["strength"],diff:1,single_sided:true,
+   impact:'none',complexity:1,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['shoulders'],pregnancy_safe:'no',
+   info:"Sit in the machine with your back supported. Press each handle overhead independently. This reveals any side-to-side strength differences. Control both the pressing and lowering phases. The fixed path makes this safer than free-weight overhead pressing for beginners."},
+  {name:"Iso-Lateral Pulldown",cat:"pull-v",equip:["iso-lateral pulldown"],muscles:["back","biceps"],types:["strength"],diff:1,single_sided:true,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Sit in the machine and pull each handle independently down toward your shoulders. Each arm works through its own arc, which feels more natural than a straight bar. Squeeze at the bottom and control the return. Excellent for building lat width with balanced development."},
+
+  // ── Back Extension / GHD / Reverse Hyper ────────────────
+  {name:"Back Extension",cat:"lower-hinge",equip:["back extension bench"],muscles:["lower back","glutes","hamstrings"],types:["strength","functional"],diff:1,
+   impact:'none',complexity:1,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['lower_back'],pregnancy_safe:'no',
+   info:"Position yourself face down in the back extension bench with your hips on the pad. Cross your arms over your chest. Lower your torso toward the floor, then raise back up until your body is straight. Don't hyperextend — stop when your body is in line. Squeeze your glutes at the top."},
+  {name:"Glute-Ham Raise",cat:"lower-hinge",equip:["glute-ham developer"],muscles:["hamstrings","glutes"],types:["strength"],diff:3,
+   impact:'none',complexity:3,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'intermediate',contraindicated_for:['knees'],pregnancy_safe:'no',
+   info:"Position yourself in the GHD with your knees on the pad. Start with your body horizontal. Lower your torso forward under control, then curl back up using your hamstrings. This is extremely challenging — most people need a band for assistance. One of the best hamstring builders in existence."},
+  {name:"Reverse Hyper",cat:"lower-hinge",equip:["reverse hyper"],muscles:["glutes","hamstrings","lower back"],types:["strength","functional"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'no',
+   info:"Lie face down on the reverse hyper with your hips at the edge and legs hanging. Swing your legs up behind you until they're level with your torso, squeezing your glutes. Lower with control. This decompresses the spine while strengthening the posterior chain. Very back-friendly."},
+
+  // ── Cardio Machines ─────────────────────────────────────
+  {name:"Treadmill Intervals",cat:"cardio",equip:["treadmill"],muscles:["quads","cardio"],types:["hiit","conditioning"],diff:1,
+   impact:'medium',complexity:1,joint_load:'medium',cv_demand:'high',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['knees','ankles'],pregnancy_safe:'early_only',
+   info:"Alternate between fast running and recovery walking on the treadmill. Sprint at high speed for the work period, then reduce to a brisk walk for rest. Use the incline for added challenge without more impact. Hold the rails only if needed for safety."},
+  {name:"Upright Bike Intervals",cat:"cardio",equip:["stationary bike upright"],muscles:["quads","cardio"],types:["hiit","conditioning"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'high',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Pedal at maximum effort during work intervals and easy spinning during rest. Increase resistance for more challenge rather than just speed. Keep your core engaged and avoid rocking side to side. Zero impact makes this ideal for joint issues or heavy athletes."},
+  {name:"Recumbent Bike Intervals",cat:"cardio",equip:["stationary bike recumbent"],muscles:["quads","cardio"],types:["conditioning"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'medium',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Pedal at a steady effort, increasing resistance for harder intervals. The reclined position supports your back, making this the most comfortable bike option. Great for active recovery, warm-ups, and people with lower back issues."},
+  {name:"Elliptical Intervals",cat:"cardio",equip:["elliptical"],muscles:["full body","cardio"],types:["hiit","conditioning"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'high',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'early_only',
+   info:"Push and pull the handles while driving your legs in an elliptical motion. Increase resistance and speed for work intervals. The smooth motion eliminates impact while engaging both upper and lower body. Push with your legs for power, pull with your arms for total-body effort."},
+  {name:"Rowing Machine Intervals",cat:"cardio",equip:["rowing machine"],muscles:["full body","cardio"],types:["hiit","conditioning"],diff:1,
+   impact:'none',complexity:2,joint_load:'low',cv_demand:'high',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'early_only',
+   info:"Drive with your legs first, then lean back and pull the handle to your lower ribs. Reverse the sequence to return: arms, lean, legs. Keep your stroke rate around 26-30 for power intervals. The rower works 86% of your muscles with zero impact — the ultimate conditioning machine."},
+  {name:"Stair Climber Intervals",cat:"cardio",equip:["stair climber"],muscles:["quads","glutes","cardio"],types:["conditioning"],diff:1,
+   impact:'low',complexity:1,joint_load:'medium',cv_demand:'high',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['knees'],pregnancy_safe:'early_only',
+   info:"Step at a challenging pace, driving through your heels. Don't lean on the rails — stand upright and use the rails only for balance. Increase speed for harder intervals. The stair climber burns more calories per minute than almost any other cardio machine. Great for glute and quad development."},
+  {name:"Air Bike Intervals",cat:"cardio",equip:["air bike"],muscles:["full body","cardio"],types:["hiit","conditioning"],diff:2,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'high',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:[],pregnancy_safe:'no',
+   info:"Push and pull the handles while pedalling as hard as possible during work intervals. The fan resistance increases with effort — the harder you go, the harder it gets. All-out efforts are devastating. Recovery intervals should be very easy spinning. The ultimate HIIT machine."},
+  {name:"Ski Erg Intervals",cat:"cardio",equip:["ski erg"],muscles:["back","core","cardio"],types:["hiit","conditioning"],diff:2,
+   impact:'none',complexity:2,joint_load:'low',cv_demand:'high',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:[],pregnancy_safe:'no',
+   info:"Stand and pull both handles down simultaneously in a powerful double-pole motion. Hinge at the hips and drive with your lats and core. The fan provides air resistance — harder effort means more resistance. Return to standing between strokes. Excellent for back and core conditioning."},
+  {name:"Sled Push",cat:"full-body",equip:["sled"],muscles:["quads","glutes","cardio"],types:["hiit","conditioning","functional"],diff:2,
+   impact:'low',complexity:1,joint_load:'medium',cv_demand:'high',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:[],pregnancy_safe:'no',
+   info:"Load the sled and push it by driving with your legs. Keep your body at a 45-degree angle, arms extended on the handles. Take short, powerful steps. Push for the work duration, then rest. The sled has no eccentric component, meaning less soreness. Load heavy for strength or light for conditioning."},
 ];
