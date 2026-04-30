@@ -50,12 +50,8 @@ platform :ios do
       clean:              true,
       include_symbols:    true,
       include_bitcode:    false,
-      export_method:      "app-store-connect",
-      export_options: {
-        signingStyle:  "automatic",
-        teamID:        TEAM_ID,
-        uploadSymbols: true
-      },
+      export_method:      "app-store",
+      export_options:     File.join(REPO_ROOT, "fastlane", "ExportOptions.plist"),
       xcargs: "-allowProvisioningUpdates"
     )
   end
