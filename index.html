@@ -1490,7 +1490,7 @@ function speakYoga(text, slug, cueIndex) {
   // Try pre-recorded audio (Pro, or tasting mechanic)
   if (Entitlement.isPro() && slug) {
     const suffix = cueIndex !== undefined ? '_' + String(cueIndex + 1).padStart(2, '0') : '_transition';
-    const src = 'audio/yoga/' + yogaVoiceGender + '/' + slug + suffix + '.m4a';
+    const src = 'audio/yoga/' + yogaVoiceGender + '/' + slug + suffix + '.mp3';
     const audio = new Audio(src);
     audio.volume = 1.0;
     audio.play().then(() => {
