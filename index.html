@@ -2114,6 +2114,8 @@ const EQUIPMENT_CATALOG = {
     { id: 'ab wheel', name: 'Ab Wheel' },
     { id: 'trx', name: 'TRX / Suspension Trainer' },
     { id: 'parallettes', name: 'Parallettes' },
+    { id: 'bosu ball', name: 'BOSU Ball' },
+    { id: 'aerobic step', name: 'Aerobic Step' },
   ],
   commercial: [
     { id: 'barbell', name: 'Barbell' },
@@ -2241,7 +2243,7 @@ function syncEquipFromPrefs() {
 // Equipment relevant to each workout type
 const TYPE_EQUIPMENT = {
   strength: ['bodyweight','mat','skipping rope','dumbbell','kettlebell','bench','barbell','chinup bar','medicine ball',
-    'resistance band','trx','parallettes','ez curl bar','power rack','smith machine','flat bench','incline bench',
+    'resistance band','trx','parallettes','bosu ball','aerobic step','ez curl bar','power rack','smith machine','flat bench','incline bench',
     'decline bench','preacher curl bench','olympic platform','cable column','cable crossover','lat pulldown',
     'seated cable row','chest press machine','shoulder press machine','pec deck','rear delt fly',
     'leg press','leg extension','seated leg curl','lying leg curl','hip abductor','hip adductor',
@@ -2249,12 +2251,12 @@ const TYPE_EQUIPMENT = {
     'iso-lateral chest press','iso-lateral row','iso-lateral shoulder press','iso-lateral pulldown',
     'back extension bench','glute-ham developer','reverse hyper'],
   hiit: ['bodyweight','mat','dumbbell','kettlebell','skipping rope','medicine ball','resistance band',
-    'treadmill','stationary bike upright','elliptical','rowing machine','air bike','ski erg','sled'],
+    'bosu ball','aerobic step','treadmill','stationary bike upright','elliptical','rowing machine','air bike','ski erg','sled'],
   conditioning: ['bodyweight','mat','dumbbell','kettlebell','skipping rope','medicine ball','resistance band',
-    'bench','chinup bar','treadmill','stationary bike upright','stationary bike recumbent','elliptical',
+    'bench','chinup bar','bosu ball','aerobic step','treadmill','stationary bike upright','stationary bike recumbent','elliptical',
     'rowing machine','stair climber','air bike','ski erg','sled'],
   functional: ['bodyweight','mat','skipping rope','dumbbell','kettlebell','bench','medicine ball','resistance band',
-    'chinup bar','trx','parallettes','barbell','cable column','sled'],
+    'chinup bar','trx','parallettes','bosu ball','aerobic step','barbell','cable column','sled'],
   yoga: ['mat'],
 };
 
