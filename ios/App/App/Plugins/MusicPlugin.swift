@@ -1,6 +1,7 @@
 import Foundation
 import Capacitor
 import MediaPlayer
+import AVFoundation
 
 @objc(MusicPlugin)
 public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
@@ -13,22 +14,22 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "pause", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "next", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "previous", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "seek", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getVolume", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setVolume", returnType: CAPPluginReturnPromise),
     ]
 
     private let player = MPMusicPlayerController.systemMusicPlayer
 
     public override func load() {
+        super.load()
         NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(nowPlayingChanged),
-            name: .MPMusicPlayerControllerNowPlayingItemDidChange,
-            object: player
+            self, selector: #selector(nowPlayingChanged),
+            name: .MPMusicPlayerControllerNowPlayingItemDidChange, object: player
         )
         NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(playbackStateChanged),
-            name: .MPMusicPlayerControllerPlaybackStateDidChange,
-            object: player
+            self, selector: #selector(playbackStateChanged),
+            name: .MPMusicPlayerControllerPlaybackStateDidChange, object: player
         )
         player.beginGeneratingPlaybackNotifications()
     }
@@ -78,6 +79,28 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
         call.resolve(["success": true])
     }
 
+    @objc func seek(_ call: CAPPluginCall) {
+        guard let time = call.getDouble("time") else {
+            call.reject("Missing time parameter")
+            return
+        }
+        player.currentPlaybackTime = time
+        call.resolve(["success": true])
+    }
+
+    @objc func getVolume(_ call: CAPPluginCall) {
+        let volume = AVAudioSession.sharedInstance().outputVolume
+        call.resolve(["volume": volume])
+    }
+
+    @objc func setVolume(_ call: CAPPluginCall) {
+        // System volume can only be changed via MPVolumeView (hardware slider)
+        // or by using the deprecated MPMusicPlayerController.volume.
+        // We return the current volume and let the JS layer use the native slider.
+        let volume = AVAudioSession.sharedInstance().outputVolume
+        call.resolve(["volume": volume])
+    }
+
     // MARK: - Helpers
 
     private func buildStateDict() -> [String: Any] {
@@ -91,6 +114,15 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
             dict["album"] = item.albumTitle ?? ""
             dict["playbackTime"] = player.currentPlaybackTime
             dict["duration"] = item.playbackDuration
+
+            // Album art as base64 data URI (thumbnail for web display)
+            if let artwork = item.artwork {
+                let size = CGSize(width: 200, height: 200)
+                if let image = artwork.image(at: size),
+                   let data = image.jpegData(compressionQuality: 0.6) {
+                    dict["artworkBase64"] = "data:image/jpeg;base64," + data.base64EncodedString()
+                }
+            }
         }
 
         return dict
