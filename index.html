@@ -522,18 +522,24 @@
     <input type="text" class="exlib-search" id="exlib-search" placeholder="Search exercises..." oninput="renderExerciseLibrary()">
     <div class="exlib-filters" id="exlib-body-filters">
       <button type="button" class="exlib-filter-pill" data-filter="body" data-value="lower" onclick="toggleExlibFilter(this)">Lower</button>
-      <button type="button" class="exlib-filter-pill" data-filter="body" data-value="upper_push" onclick="toggleExlibFilter(this)">Upper Push</button>
-      <button type="button" class="exlib-filter-pill" data-filter="body" data-value="upper_pull" onclick="toggleExlibFilter(this)">Upper Pull</button>
+      <button type="button" class="exlib-filter-pill" data-filter="body" data-value="upper_push" onclick="toggleExlibFilter(this)">Push</button>
+      <button type="button" class="exlib-filter-pill" data-filter="body" data-value="upper_pull" onclick="toggleExlibFilter(this)">Pull</button>
       <button type="button" class="exlib-filter-pill" data-filter="body" data-value="core" onclick="toggleExlibFilter(this)">Core</button>
       <button type="button" class="exlib-filter-pill" data-filter="body" data-value="full_body" onclick="toggleExlibFilter(this)">Full Body</button>
       <button type="button" class="exlib-filter-pill" data-filter="body" data-value="posterior" onclick="toggleExlibFilter(this)">Mobility</button>
       <button type="button" class="exlib-filter-pill" data-filter="body" data-value="yoga" onclick="toggleExlibFilter(this)">Yoga</button>
     </div>
-    <div class="exlib-filters" id="exlib-equip-filters"></div>
     <div class="exlib-filters" id="exlib-diff-filters">
       <button type="button" class="exlib-filter-pill" data-filter="diff" data-value="1" onclick="toggleExlibFilter(this)">Beginner</button>
       <button type="button" class="exlib-filter-pill" data-filter="diff" data-value="2" onclick="toggleExlibFilter(this)">Intermediate</button>
       <button type="button" class="exlib-filter-pill" data-filter="diff" data-value="3" onclick="toggleExlibFilter(this)">Advanced</button>
+    </div>
+    <div class="exlib-filters" id="exlib-equip-filters">
+      <button type="button" class="exlib-filter-pill" data-filter="equip" data-value="bodyweight" onclick="toggleExlibFilter(this)">Bodyweight</button>
+      <button type="button" class="exlib-filter-pill" data-filter="equip" data-value="dumbbell" onclick="toggleExlibFilter(this)">Dumbbells</button>
+      <button type="button" class="exlib-filter-pill" data-filter="equip" data-value="barbell" onclick="toggleExlibFilter(this)">Barbell</button>
+      <button type="button" class="exlib-filter-pill" data-filter="equip" data-value="cable" onclick="toggleExlibFilter(this)">Cable</button>
+      <button type="button" class="exlib-filter-pill" data-filter="equip" data-value="machine" onclick="toggleExlibFilter(this)">Machine</button>
     </div>
     <div class="exlib-stats" id="exlib-stats"></div>
     <div class="exlib-list" id="exlib-list"></div>
@@ -1751,22 +1757,6 @@ function switchLibTab(tab) {
 }
 
 function renderExerciseLibraryInline() {
-  // Build equipment filter pills
-  const equipContainer = document.getElementById('exlib-equip-filters');
-  if (equipContainer) {
-    equipContainer.innerHTML = '';
-    const allEquip = new Set();
-    getAllExercises().forEach(e => e.equip.forEach(eq => allEquip.add(eq)));
-    for (const eq of [...allEquip].sort()) {
-      const pill = document.createElement('span');
-      pill.className = 'exlib-filter-pill';
-      pill.dataset.filter = 'equip';
-      pill.dataset.value = eq;
-      pill.textContent = eq.charAt(0).toUpperCase() + eq.slice(1);
-      pill.onclick = function() { toggleExlibFilter(this); };
-      equipContainer.appendChild(pill);
-    }
-  }
   exlibFilters = { body: null, equip: null, diff: null };
   document.querySelectorAll('.exlib-filter-pill').forEach(p => p.classList.remove('selected'));
   const searchEl = document.getElementById('exlib-search');
@@ -1979,19 +1969,6 @@ function getAllExercises() {
 }
 
 function renderExerciseLibrary() {
-  // Build equipment filter pills from user's selected equipment
-  const equipContainer = document.getElementById('exlib-equip-filters');
-  if (equipContainer && equipContainer.children.length === 0) {
-    for (const eq of selectedEquipment) {
-      const pill = document.createElement('span');
-      pill.className = 'exlib-filter-pill';
-      pill.dataset.filter = 'equip';
-      pill.dataset.value = eq;
-      pill.textContent = eq.charAt(0).toUpperCase() + eq.slice(1);
-      pill.onclick = function() { toggleExlibFilter(this); };
-      equipContainer.appendChild(pill);
-    }
-  }
   const searchVal = (document.getElementById('exlib-search')?.value || '').toLowerCase();
   const blacklist = exerciseSettings.exercise_blacklist || [];
   const whitelist = exerciseSettings.exercise_whitelist || [];
@@ -2013,9 +1990,16 @@ function renderExerciseLibrary() {
         if (!cats.includes(ex.cat)) return false;
       }
     }
-    // Equipment filter
+    // Equipment filter (simplified categories)
     if (exlibFilters.equip) {
-      if (!ex.equip.includes(exlibFilters.equip)) return false;
+      const ef = exlibFilters.equip;
+      if (ef === 'cable') {
+        if (!ex.equip.some(e => e.includes('cable') || e === 'lat pulldown' || e === 'seated cable row')) return false;
+      } else if (ef === 'machine') {
+        if (!ex.equip.some(e => e.includes('machine') || e.includes('press machine') || e === 'pec deck' || e === 'rear delt fly' || e === 'leg press' || e === 'leg extension' || e.includes('leg curl') || e.includes('hip ') || e.includes('calf raise') || e.includes('assisted') || e === 'hack squat' || e === 'belt squat' || e === 'smith machine' || e.includes('iso-lateral') || e.includes('back extension') || e.includes('glute-ham') || e.includes('reverse hyper'))) return false;
+      } else {
+        if (!ex.equip.includes(ef)) return false;
+      }
     }
     // Difficulty filter
     if (exlibFilters.diff) {
@@ -2264,7 +2248,12 @@ function renderEquipmentCatalog() {
   let html = '';
   const TIER_LABELS = { basic: 'Basic', home: 'Home Gym', commercial: 'Commercial Gym' };
   for (const [tier, items] of Object.entries(EQUIPMENT_CATALOG)) {
-    html += '<div class="equip-catalog-tier"><div class="equip-catalog-tier-label">' + TIER_LABELS[tier] + '</div>';
+    html += '<div class="equip-catalog-tier open">';
+    html += '<button type="button" class="equip-catalog-tier-label" onclick="this.parentElement.classList.toggle(\'open\')">';
+    html += '<span class="tier-arrow">&#x25B6;</span> ' + TIER_LABELS[tier];
+    html += ' <span class="tier-count">' + items.length + '</span>';
+    html += '</button>';
+    html += '<div class="equip-catalog-tier-body">';
     items.forEach(item => {
       const pref = getEquipPref(item.id);
       const count = exCount[item.id] || 0;
@@ -2274,7 +2263,7 @@ function renderEquipmentCatalog() {
         '<span class="equip-pref-label">' + pref.charAt(0).toUpperCase() + pref.slice(1) + '</span>' +
       '</div>';
     });
-    html += '</div>';
+    html += '</div></div>';
   }
   container.innerHTML = html;
 }
@@ -4364,38 +4353,85 @@ function closeAllExportMenus() {
 function renderLibrary() {
   const list = document.getElementById('library-list');
   if (!list) return;
-  if (savedWorkouts.length === 0) {
-    list.innerHTML = '<div class="library-empty">No saved workouts yet.<br>Complete a workout and save it.</div>';
-    return;
-  }
-  list.innerHTML = savedWorkouts.map(w => {
-    const stars = '\u2605'.repeat(w.rating) + '\u2606'.repeat(5 - w.rating);
-    const dateStr = new Date(w.created).toLocaleDateString();
-    const safeId = w.id;
-    return '<div class="library-card">' +
-      '<div class="library-card-top">' +
-        '<div class="library-card-name">' + escapeHtml(w.name) + '</div>' +
-        '<div class="library-card-date">' + dateStr + '</div>' +
-      '</div>' +
-      '<div class="library-card-meta">' +
-        '<span class="meta-tag">' + escapeHtml(w.config.type).toUpperCase() + '</span>' +
-        '<span class="meta-tag">' + w.config.duration + ' min</span>' +
-        '<span class="library-card-stars">' + stars + '</span>' +
-      '</div>' +
-      '<div class="library-card-actions">' +
-        '<button class="btn btn-primary" onclick="replaySavedWorkout(\'' + safeId + '\')">Start</button>' +
-        '<div class="library-export-wrap">' +
-          '<button class="btn btn-ghost" onclick="toggleExportMenu(\'' + safeId + '\')">Export</button>' +
-          '<div class="library-export-menu" id="export-menu-' + safeId + '" style="display:none;">' +
-            '<button onclick="exportSavedWorkout(\'' + safeId + '\',\'json\')">JSON</button>' +
-            '<button onclick="exportSavedWorkout(\'' + safeId + '\',\'markdown\')">Markdown</button>' +
-            '<button onclick="exportSavedWorkout(\'' + safeId + '\',\'csv\')">CSV</button>' +
-          '</div>' +
+  let html = '';
+
+  // Saved workouts section
+  if (savedWorkouts.length > 0) {
+    html += '<div class="exlib-section open">';
+    html += '<button type="button" class="exlib-section-header" onclick="this.parentElement.classList.toggle(\'open\')">';
+    html += '<span class="exlib-section-arrow">&#x25B6;</span> My Saved Workouts <span class="exlib-section-count">' + savedWorkouts.length + '</span>';
+    html += '</button><div class="exlib-section-body">';
+    html += savedWorkouts.map(w => {
+      const stars = '\u2605'.repeat(w.rating) + '\u2606'.repeat(5 - w.rating);
+      const dateStr = new Date(w.created).toLocaleDateString();
+      const safeId = w.id;
+      return '<div class="library-card">' +
+        '<div class="library-card-top">' +
+          '<div class="library-card-name">' + escapeHtml(w.name) + '</div>' +
+          '<div class="library-card-date">' + dateStr + '</div>' +
         '</div>' +
-        '<button class="btn btn-ghost" onclick="deleteSavedWorkout(\'' + safeId + '\')" style="color:var(--red);">Delete</button>' +
-      '</div>' +
-    '</div>';
-  }).join('');
+        '<div class="library-card-meta">' +
+          '<span class="meta-tag">' + escapeHtml(w.config.type).toUpperCase() + '</span>' +
+          '<span class="meta-tag">' + w.config.duration + ' min</span>' +
+          '<span class="library-card-stars">' + stars + '</span>' +
+        '</div>' +
+        '<div class="library-card-actions">' +
+          '<button class="btn btn-primary" onclick="replaySavedWorkout(\'' + safeId + '\')">Start</button>' +
+          '<div class="library-export-wrap">' +
+            '<button class="btn btn-ghost" onclick="toggleExportMenu(\'' + safeId + '\')">Export</button>' +
+            '<div class="library-export-menu" id="export-menu-' + safeId + '" style="display:none;">' +
+              '<button onclick="exportSavedWorkout(\'' + safeId + '\',\'json\')">JSON</button>' +
+              '<button onclick="exportSavedWorkout(\'' + safeId + '\',\'markdown\')">Markdown</button>' +
+              '<button onclick="exportSavedWorkout(\'' + safeId + '\',\'csv\')">CSV</button>' +
+            '</div>' +
+          '</div>' +
+          '<button class="btn btn-ghost" onclick="deleteSavedWorkout(\'' + safeId + '\')" style="color:var(--red);">Delete</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    html += '</div></div>';
+  }
+
+  // Templates section — grouped by type
+  const allTemplates = window.templates ? window.templates.TEMPLATES : [];
+  const TPL_TYPE_LABELS = { strength: 'Strength', hiit: 'HIIT', conditioning: 'Conditioning', functional: 'Functional', yoga: 'Yoga' };
+  const tplByType = {};
+  allTemplates.forEach(t => {
+    if (!tplByType[t.type]) tplByType[t.type] = [];
+    tplByType[t.type].push(t);
+  });
+
+  for (const type of Object.keys(TPL_TYPE_LABELS)) {
+    const tpls = tplByType[type];
+    if (!tpls || tpls.length === 0) continue;
+    html += '<div class="exlib-section open">';
+    html += '<button type="button" class="exlib-section-header" onclick="this.parentElement.classList.toggle(\'open\')">';
+    html += '<span class="exlib-section-arrow">&#x25B6;</span> ' + TPL_TYPE_LABELS[type] + ' Templates <span class="exlib-section-count">' + tpls.length + '</span>';
+    html += '</button><div class="exlib-section-body">';
+    html += tpls.map((tpl, idx) => {
+      const globalIdx = allTemplates.indexOf(tpl);
+      return '<div class="library-card">' +
+        '<div class="library-card-top">' +
+          '<div class="library-card-name">' + escapeHtml(tpl.name) + '</div>' +
+        '</div>' +
+        '<div class="library-card-meta">' +
+          '<span class="meta-tag">' + tpl.duration_min + ' min</span>' +
+          '<span class="meta-tag">' + (tpl.min_fitness || 'any').toUpperCase() + '</span>' +
+          (tpl.description ? '<div style="font-size:0.75rem;color:var(--text-dim);margin-top:4px;width:100%;">' + escapeHtml(tpl.description) + '</div>' : '') +
+        '</div>' +
+        '<div class="library-card-actions">' +
+          '<button class="btn btn-primary" onclick="window._tplFiltered=window.templates.TEMPLATES;applyTemplate(' + globalIdx + ')">Start</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+    html += '</div></div>';
+  }
+
+  if (savedWorkouts.length === 0 && allTemplates.length === 0) {
+    html = '<div class="library-empty">No workouts yet.<br>Complete a workout and save it.</div>';
+  }
+
+  list.innerHTML = html;
 }
 
 // ═══════════════════════════════════════════════════
