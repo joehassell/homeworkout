@@ -50,13 +50,11 @@ platform :ios do
       clean:              true,
       include_symbols:    true,
       include_bitcode:    false,
-      export_method:      "app-store",
+      export_method:      "app-store-connect",
       export_options: {
-        method:        "app-store",
         signingStyle:  "automatic",
         teamID:        TEAM_ID,
-        uploadSymbols: true,
-        uploadBitcode: false
+        uploadSymbols: true
       },
       xcargs: "-allowProvisioningUpdates"
     )
