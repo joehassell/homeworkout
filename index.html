@@ -2033,13 +2033,25 @@ function renderExerciseLibrary() {
       ' &middot; ' + excludedCount + ' excluded, ' + favCount + ' favourited';
   }
 
-  // Render list
+  // Group exercises into sections
+  const EXLIB_GROUPS = [
+    { key: 'lower',    label: 'Lower Body',       cats: ['lower-squat','lower-hinge'] },
+    { key: 'push',     label: 'Upper Body — Push', cats: ['push-h','push-v'] },
+    { key: 'pull',     label: 'Upper Body — Pull', cats: ['pull-h','pull-v'] },
+    { key: 'core',     label: 'Core & Stability',  cats: ['core','isometric'] },
+    { key: 'full',     label: 'Full Body',          cats: ['full-body','carry'] },
+    { key: 'cardio',   label: 'Cardio & Plyo',     cats: ['cardio','plyo'] },
+    { key: 'mobility', label: 'Mobility & Stretching', cats: ['mobility'] },
+    { key: 'animal',   label: 'Animal Movements',  cats: ['animal'] },
+    { key: 'yoga',     label: 'Yoga Poses',         cats: ['yoga-seated','yoga-standing','yoga-floor','yoga-balance','yoga-inversion','yoga-transition','yoga-prone','yoga-supine','yoga-kneeling'] },
+  ];
+
   const listEl = document.getElementById('exlib-list');
   if (!listEl) return;
   const DIFF_LABELS = { 1: 'Beginner', 2: 'Intermediate', 3: 'Advanced' };
   const diffLabel = d => DIFF_LABELS[d] || ('Level ' + d);
 
-  listEl.innerHTML = filtered.map(ex => {
+  function renderExItem(ex) {
     const isExcluded = blacklist.includes(ex.name);
     const isFav = whitelist.includes(ex.name);
     const cls = isExcluded ? ' excluded' : isFav ? ' favourited' : '';
@@ -2047,7 +2059,6 @@ function renderExerciseLibrary() {
     return '<div class="exlib-item' + cls + '" data-name="' + ex.name.replace(/"/g, '&quot;') + '">' +
       '<div class="exlib-item-top">' +
         '<span class="exlib-item-name" onclick="showInfo(\'' + ex.name.replace(/'/g, "\\'") + '\')">' + ex.name + sanskritHtml + '</span>' +
-        '<span class="exlib-cat-badge">' + ex.cat + '</span>' +
         '<span class="exlib-diff">' + diffLabel(ex.diff) + '</span>' +
       '</div>' +
       '<div class="exlib-item-meta">' +
@@ -2059,7 +2070,46 @@ function renderExerciseLibrary() {
         '<button class="exlib-fav' + (isFav ? ' active' : '') + '" onclick="toggleExlibFav(\'' + ex.name.replace(/'/g, "\\'") + '\')">' + (isFav ? 'Un-favourite' : 'Favourite') + '</button>' +
       '</div>' +
     '</div>';
-  }).join('');
+  }
+
+  // Build grouped HTML
+  let html = '';
+  const grouped = new Map();
+  EXLIB_GROUPS.forEach(g => grouped.set(g.key, []));
+  const ungrouped = [];
+  filtered.forEach(ex => {
+    let placed = false;
+    for (const g of EXLIB_GROUPS) {
+      if (g.cats.includes(ex.cat)) { grouped.get(g.key).push(ex); placed = true; break; }
+    }
+    if (!placed) ungrouped.push(ex);
+  });
+
+  // If searching or filtering, start sections expanded; otherwise collapsed
+  const isFiltering = !!(searchVal || exlibFilters.body || exlibFilters.equip || exlibFilters.diff);
+
+  for (const g of EXLIB_GROUPS) {
+    const items = grouped.get(g.key);
+    if (items.length === 0) continue;
+    const openClass = isFiltering ? ' open' : '';
+    html += '<div class="exlib-section' + openClass + '">';
+    html += '<button type="button" class="exlib-section-header" onclick="this.parentElement.classList.toggle(\'open\')">';
+    html += '<span class="exlib-section-arrow">&#x25B6;</span> ';
+    html += g.label + ' <span class="exlib-section-count">' + items.length + '</span>';
+    html += '</button>';
+    html += '<div class="exlib-section-body">';
+    html += items.map(renderExItem).join('');
+    html += '</div></div>';
+  }
+  if (ungrouped.length > 0) {
+    html += '<div class="exlib-section open">';
+    html += '<button type="button" class="exlib-section-header" onclick="this.parentElement.classList.toggle(\'open\')">';
+    html += '<span class="exlib-section-arrow">&#x25B6;</span> Other <span class="exlib-section-count">' + ungrouped.length + '</span>';
+    html += '</button>';
+    html += '<div class="exlib-section-body">' + ungrouped.map(renderExItem).join('') + '</div></div>';
+  }
+
+  listEl.innerHTML = html;
 }
 
 function toggleExlibExclude(name) {

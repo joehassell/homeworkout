@@ -961,7 +961,21 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
 .exlib-filter-pill:active { transform: scale(0.95); }
 .exlib-stats { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 10px; }
 .exlib-stats strong { color: var(--accent); }
-.exlib-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.exlib-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.exlib-section { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.exlib-section-header {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 12px 14px; background: var(--surface2); border: none;
+  color: var(--text); font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; touch-action: manipulation; font-family: inherit;
+  -webkit-appearance: none; appearance: none; text-align: left;
+}
+.exlib-section-header:active { opacity: 0.7; }
+.exlib-section-arrow { font-size: 0.65rem; transition: transform 0.2s; display: inline-block; }
+.exlib-section.open .exlib-section-arrow { transform: rotate(90deg); }
+.exlib-section-count { font-size: 0.7rem; font-weight: 400; color: var(--text-dim); margin-left: auto; }
+.exlib-section-body { display: none; padding: 6px; gap: 6px; flex-direction: column; }
+.exlib-section.open .exlib-section-body { display: flex; }
 .exlib-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
 .exlib-item.excluded { opacity: 0.5; border-color: var(--red); }
 .exlib-item.excluded .exlib-item-name { text-decoration: line-through; color: var(--red); }
