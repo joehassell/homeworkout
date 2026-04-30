@@ -161,8 +161,8 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 /* Native iOS shell is always fullscreen; the in-browser toggle is meaningless. */
 html.is-native .fs-toggle { display: none; }
 html.is-native .ios-fs-hint { display: none !important; }
-.is-native-only { display: none !important; }
-html.is-native .is-native-only { display: flex !important; }
+.is-native-only { display: none; }
+html.is-native .is-native-only { display: flex; }
 
 /* Music mini-player bar */
 .music-bar {
@@ -930,6 +930,9 @@ html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-a
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 0; border-bottom: 1px solid var(--border);
 }
+/* Re-assert after settings-row to win specificity on web */
+.settings-row.is-native-only { display: none; }
+html.is-native .settings-row.is-native-only { display: flex; }
 .settings-label { font-size: 1rem; color: var(--text); }
 .settings-toggle {
   background: var(--surface2); color: var(--text-dim); border: 2px solid var(--border);

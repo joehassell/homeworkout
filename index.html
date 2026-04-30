@@ -2578,12 +2578,6 @@ function rebuildBuildEquipment() {
     });
   }
 
-  // Remove equipment that isn't relevant to this workout type
-  // so the generator can't use invisible equipment
-  for (const eq of [...selectedEquipment]) {
-    if (!relevant.includes(eq)) selectedEquipment.delete(eq);
-  }
-
   buildPills(EQUIPMENT_CATALOG.basic, basicEl);
   buildPills(EQUIPMENT_CATALOG.home, homeEl);
   buildPills(EQUIPMENT_CATALOG.commercial, commEl);
@@ -2948,6 +2942,10 @@ function generateWorkout() {
     return;
   }
 
+  // Filter equipment to only type-relevant items (prevents using invisible equipment)
+  const relevant = TYPE_EQUIPMENT[config.type] || TYPE_EQUIPMENT.hiit;
+  const effectiveEquipment = new Set([...selectedEquipment].filter(eq => relevant.includes(eq)));
+
   // Capability profile filter
   const capBmi = window.capability.computeBmi(userWeightKg, userProfile.height_cm || 170);
   const profileForFilter = { ...userProfile, bmi: capBmi };
@@ -2974,7 +2972,7 @@ function generateWorkout() {
   const usedNames = new Set();
 
   // Warm-up.
-  const warmupEntries = buildWarmup(config.type, selectedEquipment, wDur, usedNames, caps, profileForFilter, exerciseSettings);
+  const warmupEntries = buildWarmup(config.type, effectiveEquipment, wDur, usedNames, caps, profileForFilter, exerciseSettings);
   if (warmupEntries.length === 0) {
     showGenError('No warm-up movements available for the selected equipment.');
     return;
@@ -2987,7 +2985,7 @@ function generateWorkout() {
   });
   const typePool = DB.filter(e =>
     e.types.includes(config.type) &&
-    e.equip.every(eq => selectedEquipment.has(eq)) &&
+    e.equip.every(eq => effectiveEquipment.has(eq)) &&
     !excludedCats.has(e.cat) &&
     !usedNames.has(e.name) &&
     window.capability.isAllowed(e, caps, profileForFilter, exerciseSettings)
@@ -3087,7 +3085,7 @@ function generateWorkout() {
   // Cooldown — exclude warmup + main names; bias toward main muscle groups.
   const mainMuscles = new Set();
   mainExercises.forEach(ex => ex.muscles.forEach(m => mainMuscles.add(m)));
-  const cooldownEntries = buildCooldown(selectedEquipment, mainMuscles, usedNames, caps, profileForFilter, exerciseSettings, cdDur);
+  const cooldownEntries = buildCooldown(effectiveEquipment, mainMuscles, usedNames, caps, profileForFilter, exerciseSettings, cdDur);
   if (cooldownEntries.length === 0) {
     showGenError('No cooldown movements available. Make sure a mat is selected.');
     return;
