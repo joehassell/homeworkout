@@ -92,43 +92,49 @@
 
   // ── Feature gates ──────────────────────────────────────
   // These return true if the user is ALLOWED to use the feature.
+  // PWA (non-native) gets full access — paywall only applies to iOS app.
   var FREE_EQUIPMENT = new Set(['bodyweight', 'mat']);
   var FREE_THEMES = new Set(['dark', 'light']);
   var HISTORY_DAYS_FREE = 14;
 
+  function _isNative() {
+    try {
+      return !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+    } catch (e) { return false; }
+  }
+
   function canUseEquipment(name) {
-    if (isPro()) return true;
+    if (!_isNative() || isPro()) return true;
     return FREE_EQUIPMENT.has(name);
   }
 
   function canUseTheme(name) {
-    if (isPro()) return true;
+    if (!_isNative() || isPro()) return true;
     return FREE_THEMES.has(name);
   }
 
   function canUseFullHistory() {
-    return isPro();
+    return !_isNative() || isPro();
   }
 
   function historyDayLimit() {
-    return isPro() ? Infinity : HISTORY_DAYS_FREE;
+    return (!_isNative() || isPro()) ? Infinity : HISTORY_DAYS_FREE;
   }
 
   function canUseFocusBoost() {
-    // Free: include / exclude only.  Pro: include / boost / exclude.
-    return isPro();
+    return !_isNative() || isPro();
   }
 
   function canUseWeightTracking() {
-    return isPro();
+    return !_isNative() || isPro();
   }
 
   function canUseBackup() {
-    return isPro();
+    return !_isNative() || isPro();
   }
 
   function canUseFontScale() {
-    return isPro();
+    return !_isNative() || isPro();
   }
 
   // ── Init ───────────────────────────────────────────────

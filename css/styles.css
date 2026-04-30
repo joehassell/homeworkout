@@ -10,7 +10,7 @@ body { display:flex; flex-direction:column; }
 
 /* Use dvh (dynamic viewport) where supported so iOS Safari's URL-bar dance doesn't
    stretch content past the visible area; fall back to vh for older browsers. */
-.screen { display:none; flex-direction:column; min-height:100vh; min-height:100dvh; padding: 20px; padding-top: calc(20px + env(safe-area-inset-top, 0px)); padding-bottom: env(safe-area-inset-bottom, 20px); }
+.screen { display:none; flex-direction:column; min-height:100vh; min-height:100dvh; padding: 20px; padding-top: calc(20px + env(safe-area-inset-top, 0px)); padding-bottom: env(safe-area-inset-bottom, 20px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
 .screen.active { display:flex; }
 /* Generous bottom clearance: nav (~62-96px depending on safe-area) + a clear ~50px gap
    so the last in-flow control (Generate Workout) is unambiguously above the nav. */
@@ -105,19 +105,17 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 .equip-tier.collapsed .option-pills-multi { display: none; }
 
 /* Custom duration input */
-.custom-dur-wrap {
-  display: none; align-items: center; gap: 8px; margin-top: 8px;
+/* Custom duration — inline in pill */
+.pill-custom-dur { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0; }
+.pill-custom-dur input {
+  width: 100%; max-width: 60px; padding: 0; margin: 0;
+  background: transparent; border: none; color: var(--text);
+  font-size: 1.1rem; font-weight: 600; text-align: center;
+  -webkit-appearance: none; outline: none; font-family: inherit;
 }
-.custom-dur-wrap.visible { display: flex; }
-.custom-dur-wrap input {
-  width: 80px; padding: 10px; border-radius: 10px;
-  background: var(--surface); border: 2px solid var(--border);
-  color: var(--text); font-size: 1rem; font-weight: 600;
-  text-align: center; -webkit-appearance: none; outline: none;
-  font-family: inherit;
-}
-.custom-dur-wrap input:focus { border-color: var(--accent); }
-.custom-dur-wrap span { font-size: 0.85rem; color: var(--text-dim); }
+.pill-custom-dur input::placeholder { color: var(--text-dim); opacity: 0.4; }
+.pill-custom-dur input::-webkit-inner-spin-button,
+.pill-custom-dur input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
 .gen-error { color: var(--exclude); font-size: 0.85rem; padding: 6px 10px; border-radius: 8px;
   background: var(--red-soft); border: 1px solid var(--exclude); margin-bottom: 8px; display: none; }
