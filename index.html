@@ -430,6 +430,21 @@
     </div>
   </div>
 
+  <div class="settings-group is-native-only" id="settings-watch-group">
+    <div class="settings-group-label">Apple Watch</div>
+    <div class="settings-row">
+      <label class="settings-label">Watch App Status</label>
+      <span class="settings-health-status" id="watch-status">Checking...</span>
+    </div>
+    <div class="settings-row">
+      <label class="settings-label">Install on Apple Watch</label>
+      <button type="button" class="settings-action" id="watch-install-btn" onclick="openWatchAppSettings()">Open Watch App</button>
+    </div>
+    <div class="settings-hint">
+      If SimpleWorkoutGen isn't on your Apple Watch, open the Watch app on your iPhone, scroll down to find SimpleWorkoutGen, and tap Install.
+    </div>
+  </div>
+
   <div class="settings-group">
     <div class="settings-group-label">Audio</div>
     <div class="settings-row">
@@ -1290,9 +1305,49 @@ function initWatchConnectivity() {
       watchConnected = !!data.reachable;
     });
 
-    // Check initial state
-    wc.isWatchAvailable().then(r => { watchConnected = !!r.reachable; });
+    // Check initial state and update Watch settings UI
+    wc.isWatchAvailable().then(r => {
+      watchConnected = !!r.reachable;
+      updateWatchStatus(r);
+    });
   } catch (e) { /* degrade silently */ }
+}
+
+function updateWatchStatus(r) {
+  const statusEl = document.getElementById('watch-status');
+  const btnEl = document.getElementById('watch-install-btn');
+  if (!statusEl) return;
+  if (r.paired && r.installed) {
+    statusEl.textContent = r.reachable ? 'Connected' : 'Paired (not reachable)';
+    statusEl.classList.add('connected');
+    statusEl.classList.remove('disconnected');
+    if (btnEl) btnEl.textContent = 'Open Watch App';
+  } else if (r.paired) {
+    statusEl.textContent = 'Watch paired — app not installed';
+    statusEl.classList.remove('connected');
+    statusEl.classList.add('disconnected');
+    if (btnEl) btnEl.textContent = 'Install on Watch';
+  } else {
+    statusEl.textContent = 'No Apple Watch paired';
+    statusEl.classList.remove('connected');
+    statusEl.classList.add('disconnected');
+    if (btnEl) btnEl.textContent = 'Open Watch App';
+  }
+}
+
+function openWatchAppSettings() {
+  // Deep-link to the Watch app on iPhone where the user can install the companion
+  if (isNative()) {
+    try {
+      // Open the Apple Watch app's "My Watch" screen
+      window.Capacitor.Plugins.App && window.Capacitor.Plugins.App.openUrl({ url: 'itms-watchs://' });
+    } catch (e) {
+      // Fallback: open the Watch app via general settings URL
+      try {
+        window.Capacitor.Plugins.App && window.Capacitor.Plugins.App.openUrl({ url: 'App-prefs:WATCH' });
+      } catch (e2) {}
+    }
+  }
 }
 
 function watchSendState() {

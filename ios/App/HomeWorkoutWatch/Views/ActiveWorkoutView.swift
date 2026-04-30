@@ -43,9 +43,26 @@ struct ActiveWorkoutView: View {
                 .foregroundStyle(phaseColor)
                 .frame(maxWidth: .infinity)
 
-            // Heart rate
+            // Heart rate + calories
             if manager.heartRate > 0 {
                 HeartRateView(bpm: manager.heartRate)
+                HStack(spacing: 12) {
+                    if manager.activeCalories > 0 {
+                        Label("\(Int(manager.activeCalories)) kcal", systemImage: "flame.fill")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.orange)
+                    }
+                    if manager.avgHeartRate > 0 {
+                        Text("avg \(Int(manager.avgHeartRate))")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary)
+                    }
+                    if manager.peakHeartRate > 0 {
+                        Text("peak \(Int(manager.peakHeartRate))")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.red.opacity(0.7))
+                    }
+                }
             }
 
             // Next exercise

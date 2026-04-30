@@ -19,6 +19,9 @@ class WorkoutSessionManager: NSObject, ObservableObject {
     @Published var totalRemaining = 0
     @Published var isPaused = false
     @Published var heartRate: Double = 0
+    @Published var peakHeartRate: Double = 0
+    @Published var avgHeartRate: Double = 0
+    @Published var activeCalories: Double = 0
     @Published var isPhoneReachable = false
     @Published var workoutType = ""
 
@@ -315,27 +318,39 @@ extension WorkoutSessionManager: HKLiveWorkoutBuilderDelegate {
 
     nonisolated func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
         for type in collectedTypes {
-            guard let quantityType = type as? HKQuantityType,
-                  quantityType == HKQuantityType(.heartRate) else { continue }
+            guard let quantityType = type as? HKQuantityType else { continue }
 
-            let stats = workoutBuilder.statistics(for: quantityType)
-            guard let mostRecent = stats?.mostRecentQuantity() else { continue }
+            if quantityType == HKQuantityType(.heartRate) {
+                let stats = workoutBuilder.statistics(for: quantityType)
+                guard let mostRecent = stats?.mostRecentQuantity() else { continue }
 
-            let bpm = mostRecent.doubleValue(for: HKUnit.count().unitDivided(by: .minute()))
+                let bpm = mostRecent.doubleValue(for: HKUnit.count().unitDivided(by: .minute()))
+                let peak = stats?.maximumQuantity()?.doubleValue(for: HKUnit.count().unitDivided(by: .minute())) ?? bpm
+                let avg = stats?.averageQuantity()?.doubleValue(for: HKUnit.count().unitDivided(by: .minute())) ?? bpm
 
-            Task { @MainActor in
-                self.heartRate = bpm
+                Task { @MainActor in
+                    self.heartRate = bpm
+                    self.peakHeartRate = peak
+                    self.avgHeartRate = avg
+                }
+
+                // Send HR to phone
+                if WCSession.default.isReachable {
+                    WCSession.default.sendMessage([
+                        "type": "heartRate",
+                        "bpm": bpm,
+                        "timestamp": Date().timeIntervalSince1970,
+                    ], replyHandler: nil) { _ in }
+                }
             }
 
-            // Send HR to phone
-            let hrMessage: [String: Any] = [
-                "type": "heartRate",
-                "bpm": bpm,
-                "timestamp": Date().timeIntervalSince1970,
-            ]
+            if quantityType == HKQuantityType(.activeEnergyBurned) {
+                let stats = workoutBuilder.statistics(for: quantityType)
+                let cals = stats?.sumQuantity()?.doubleValue(for: .kilocalorie()) ?? 0
 
-            if WCSession.default.isReachable {
-                WCSession.default.sendMessage(hrMessage, replyHandler: nil) { _ in }
+                Task { @MainActor in
+                    self.activeCalories = cals
+                }
             }
         }
     }
