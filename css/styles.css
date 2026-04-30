@@ -161,8 +161,8 @@ h2 { font-size: 1.2rem; font-weight: 600; color: var(--text-dim); margin-bottom:
 /* Native iOS shell is always fullscreen; the in-browser toggle is meaningless. */
 html.is-native .fs-toggle { display: none; }
 html.is-native .ios-fs-hint { display: none !important; }
-.is-native-only { display: none; }
-html.is-native .is-native-only { display: flex; }
+.is-native-only { display: none !important; }
+html.is-native .is-native-only { display: flex !important; }
 
 /* Music mini-player bar */
 .music-bar {

@@ -4655,7 +4655,7 @@ function renderLibrary() {
   for (const type of Object.keys(TPL_TYPE_LABELS)) {
     const tpls = tplByType[type];
     if (!tpls || tpls.length === 0) continue;
-    html += '<div class="exlib-section open">';
+    html += '<div class="exlib-section">';
     html += '<button type="button" class="exlib-section-header" onclick="this.parentElement.classList.toggle(\'open\')">';
     html += '<span class="exlib-section-arrow">&#x25B6;</span> ' + TPL_TYPE_LABELS[type] + ' Templates <span class="exlib-section-count">' + tpls.length + '</span>';
     html += '</button><div class="exlib-section-body">';
