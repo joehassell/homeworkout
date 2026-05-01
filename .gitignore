@@ -30,3 +30,4 @@ build/
 # Bundler
 vendor/bundle/
 .bundle/
+tmp/
