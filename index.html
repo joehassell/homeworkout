@@ -505,6 +505,10 @@
       <button class="btn btn-primary" onclick="Paywall.open('settings')" style="font-size:0.85rem;padding:8px 20px;">Upgrade</button>
     </div>
     <div class="settings-hint" id="settings-tier-hint">Free tier — bodyweight &amp; mat workouts</div>
+    <div id="promo-code-row" class="settings-row" style="display:none;margin-top:8px;">
+      <input type="text" id="promo-code-input" placeholder="Enter promo code" autocomplete="off" autocapitalize="characters" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--fg);font-size:0.9rem;">
+      <button type="button" id="promo-code-btn" class="btn btn-primary" style="font-size:0.85rem;padding:8px 16px;margin-left:8px;">Apply</button>
+    </div>
   </div>
 
   <div class="settings-group">
@@ -714,6 +718,7 @@
 <script src="js/history.js"></script>
 <script src="js/iap.js"></script>
 <script src="js/paywall.js"></script>
+<script src="js/promo.js"></script>
 <script>
 // ═══════════════════════════════════════════════════
 // EXERCISE DATABASE WITH INSTRUCTIONS
