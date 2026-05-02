@@ -927,25 +927,28 @@ function updateMusicBar(data) {
     return;
   }
 
+  // Always show the music bar on native — even when no music is playing
+  bar.classList.add('visible');
+  document.documentElement.classList.add('music-bar-visible');
+
   if (data.title) {
-    bar.classList.add('visible');
-    document.documentElement.classList.add('music-bar-visible');
     title.textContent = data.title;
     artist.textContent = data.artist || '';
     playBtn.innerHTML = data.isPlaying ? '&#x23F8;' : '&#x25B6;';
-    // Album art
     if (art) {
       if (data.artworkBase64) { art.src = data.artworkBase64; art.style.display = ''; }
       else { art.style.display = 'none'; }
     }
-    // Progress bar
     if (progress && data.duration > 0) {
       const pct = Math.min(100, (data.playbackTime / data.duration) * 100);
       progress.style.width = pct + '%';
     }
   } else {
-    bar.classList.remove('visible');
-    document.documentElement.classList.remove('music-bar-visible');
+    title.textContent = 'Not Playing';
+    artist.textContent = 'Tap to play music';
+    playBtn.innerHTML = '&#x25B6;';
+    if (art) art.style.display = 'none';
+    if (progress) progress.style.width = '0%';
   }
 }
 
