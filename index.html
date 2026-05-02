@@ -2693,7 +2693,15 @@ const WARMUP_POOL_BY_TYPE = {
   conditioning: ['cardio', 'mobility', 'lower-squat'],
   functional:   ['cardio', 'mobility', 'lower-squat', 'core'],
 };
-const COOLDOWN_CATS = ['mobility'];
+const COOLDOWN_CATS_BY_TYPE = {
+  hiit: ['cardio', 'mobility'],
+  conditioning: ['cardio', 'mobility'],
+  strength: ['mobility'],
+  functional: ['mobility'],
+};
+function getCooldownCats() {
+  return COOLDOWN_CATS_BY_TYPE[config.type] || ['mobility'];
+}
 
 // Per-set rest seconds keyed by derived intensity (PDR §6.4 mapping).
 const SET_REST = { light: 60, moderate: 90, high: 120, very_high: 180 };
@@ -2712,7 +2720,8 @@ function cooldownDuration(sessionMin, goals) {
   if (goals && (goals.includes('mobility') || goals.includes('flexibility'))) {
     base = Math.round(base * 1.5);
   }
-  return base;
+  // Cap cooldown to prevent excessive duration (max 10 min)
+  return Math.min(base, 600);
 }
 const COOLDOWN_PER_MOVE = 60;      // 5 holds at 60s = 300s
 const WARMUP_PER_MOVE = 60;        // 60s per warmup movement (3-5 movements typical)
@@ -2859,7 +2868,7 @@ function buildCooldown(equipment, mainMuscles, usedNames, capCaps, capProfile, c
   // Bias toward muscles loaded by main; PDR §6.2.
   const COOLDOWN_DUR_LOCAL = cdDur || 300;
   const pool = DB.filter(e =>
-    COOLDOWN_CATS.includes(e.cat) &&
+    getCooldownCats().includes(e.cat) &&
     e.equip.every(eq => equipment.has(eq)) &&
     !usedNames.has(e.name) &&
     (!capCaps || window.capability.isAllowed(e, capCaps, capProfile, capSettings))
@@ -2884,7 +2893,7 @@ function buildCooldown(equipment, mainMuscles, usedNames, capCaps, capProfile, c
   }
   // If pool was tiny, recycle from broader mobility pool ignoring dedup as last resort.
   if (out.length === 0) {
-    const fallback = DB.filter(e => COOLDOWN_CATS.includes(e.cat) && e.equip.every(eq => equipment.has(eq)));
+    const fallback = DB.filter(e => getCooldownCats().includes(e.cat) && e.equip.every(eq => equipment.has(eq)));
     if (fallback.length) {
       out.push({ exercise: fallback[0], workSec: COOLDOWN_DUR_LOCAL, restSec: 0, section: 'cooldown', continuous: true, single_sided: !!fallback[0].single_sided });
     }
@@ -3059,7 +3068,9 @@ function generateWorkout() {
   const interSetTotal = (sets - 1) * avgInterSet;
   const remainingForMain = Math.max(avgEntry, mainBudget - interSetTotal);
   let mainCount = Math.max(1, Math.round(remainingForMain / (sets * avgEntry)));
-  mainCount = Math.min(mainCount, typePool.length, 10);
+  // Cap per-set exercises based on session length and set count
+  const maxPerSet = sets <= 2 ? Math.min(typePool.length, 20) : 10;
+  mainCount = Math.min(mainCount, maxPerSet);
 
   // Pick mainExercises distributed across body groups (region cats), focus-weighted.
   const ordered = focusOrderedPool(typePool);
@@ -3158,14 +3169,31 @@ function reconcileTotalTime(targetSec) {
     w.restSec = newRest;
     if (delta === 0) break;
   }
-  // Residual: lengthen the last cooldown movement (PDR §9 gap policy).
-  if (delta !== 0) {
-    for (let i = workout.length - 1; i >= 0; i--) {
-      if (workout[i].section === 'cooldown') {
-        workout[i].workSec = Math.max(15, (workout[i].workSec || 0) + delta);
-        break;
+  // Second lever: spread excess across ALL main exercise rests (no restReason)
+  if (delta > 0) {
+    const mainEntries = workout.filter(w => w.section === 'main' && !w.restReason);
+    if (mainEntries.length > 0) {
+      const perEx = Math.floor(delta / mainEntries.length);
+      for (const w of mainEntries) {
+        const add = Math.min(perEx, 90 - (w.restSec || 0)); // cap each rest at 90s
+        if (add > 0) { w.restSec = (w.restSec || 0) + add; delta -= add; }
       }
     }
+  }
+  // Residual: distribute across cooldown movements (cap each at 120s to avoid absurd holds).
+  if (delta > 0) {
+    const cdEntries = workout.filter(w => w.section === 'cooldown');
+    for (const cd of cdEntries) {
+      if (delta <= 0) break;
+      const room = 120 - (cd.workSec || 0);
+      if (room > 0) {
+        const add = Math.min(room, delta);
+        cd.workSec = (cd.workSec || 0) + add;
+        delta -= add;
+      }
+    }
+    // If still residual, just accept the workout is slightly short rather than
+    // dumping 10+ minutes into a single stretch.
   }
 }
 
@@ -3727,10 +3755,11 @@ function startWorkout() {
     initYogaNarration(first);
     if (first.transitionNarration) speakYoga(first.transitionNarration, poseSlug(first.exercise.name));
   } else if (first.section === 'main' && first.single_sided) {
-    speak(first.exercise.name + '. Start with right side.');
+    speak(first.exercise.name + '. ' + first.workSec + ' seconds. Start with right side.');
     beepWork();
   } else {
-    speak(first.exercise.name);
+    const firstDur = first.workSec > 0 ? '. ' + first.workSec + ' seconds' : '';
+    speak(first.exercise.name + firstDur);
     beepWork();
   }
   timerState.intervalId = setInterval(tick, 1000);
@@ -3906,7 +3935,8 @@ function advancePhase() {
         speak('Warm-up done. Get ready.');
       } else if (nextEntry) {
         const sideHint = nextEntry.single_sided ? ' (single side)' : '';
-        speak('Rest. Next up: ' + nextEntry.exercise.name + sideHint);
+        const restDur = w.restSec ? w.restSec + ' seconds. ' : '';
+        speak('Rest ' + restDur + 'Next up: ' + nextEntry.exercise.name + sideHint);
       } else {
         speak('Rest. Last exercise done.');
       }
@@ -3962,11 +3992,12 @@ function advanceExercise() {
   timerState.strengthSide = 0;
   timerState.totalRemaining = computeTotalRemaining();
   beepWork();
-  // Single-sided cue: announce the starting side after the exercise name.
+  // Announce exercise name + duration
+  const durAnnounce = w.workSec > 0 ? '. ' + w.workSec + ' seconds' : '';
   if (w.section === 'main' && w.single_sided) {
-    speak(w.exercise.name + '. Start with right side.');
+    speak(w.exercise.name + durAnnounce + '. Start with right side.');
   } else {
-    speak(w.exercise.name);
+    speak(w.exercise.name + durAnnounce);
   }
   hkUpdateLiveActivity();
 }
