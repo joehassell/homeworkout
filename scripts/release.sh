@@ -641,23 +641,57 @@ EOF
       -allowProvisioningUpdates \
       archive 2>&1 | tail -3
 
+    # Export locally (destination=export), then upload via altool with API key.
+    # This avoids Xcode account session timeouts that break destination=upload.
+    local export_local_plist
+    export_local_plist=$(mktemp).plist
+    cat > "$export_local_plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>method</key>
+	<string>app-store-connect</string>
+	<key>destination</key>
+	<string>export</string>
+	<key>signingStyle</key>
+	<string>automatic</string>
+	<key>teamID</key>
+	<string>T33B88TGA8</string>
+	<key>uploadSymbols</key>
+	<true/>
+	<key>manageAppVersionAndBuildNumber</key>
+	<false/>
+</dict>
+</plist>
+PLIST
+
     info "Exporting IPA..."
     xcodebuild -exportArchive \
       -archivePath "$archive_path" \
       -exportPath "$export_path" \
-      -exportOptionsPlist "$export_plist" \
+      -exportOptionsPlist "$export_local_plist" \
       -allowProvisioningUpdates 2>&1 | tail -3
+    rm -f "$export_local_plist"
 
-    # With destination=upload in ExportOptions.plist, xcodebuild uploads
-    # directly to App Store Connect. No local IPA is created.
-    # Check if an IPA exists (older Xcode) or trust the upload succeeded.
     local exported_ipa
     exported_ipa=$(find "$export_path" -name "*.ipa" -print -quit 2>/dev/null || true)
-    if [[ -n "$exported_ipa" ]]; then
-      cp "$exported_ipa" "$BUILD_DIR/$IPA_NAME"
-      ok "IPA exported: $BUILD_DIR/$IPA_NAME"
-    else
-      ok "Uploaded directly to App Store Connect (no local IPA)"
+    if [[ -z "$exported_ipa" ]]; then
+      die "No IPA found in $export_path — export failed"
+    fi
+    ok "IPA exported: $exported_ipa"
+
+    if [[ $FLAG_SKIP_UPLOAD -eq 0 ]]; then
+      info "Uploading to App Store Connect via altool..."
+      local asc_key_id asc_issuer
+      asc_key_id=$(python3 -c "import json; print(json.load(open('$ASC_CONFIG_FILE'))['key_id'])")
+      asc_issuer=$(python3 -c "import json; print(json.load(open('$ASC_CONFIG_FILE'))['issuer_id'])")
+      xcrun altool --upload-app \
+        --file "$exported_ipa" \
+        --type ios \
+        --apiKey "$asc_key_id" \
+        --apiIssuer "$asc_issuer" 2>&1 | tail -5
+      ok "Upload complete"
     fi
   fi
 
