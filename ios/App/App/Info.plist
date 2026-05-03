@@ -51,6 +51,8 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>SimpleWorkoutGen lets you control your music during workouts — play, pause, skip tracks, and see what's playing without leaving the app.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>SimpleWorkoutGen reads your body weight to estimate calories burned and your heart rate during workouts for live display.</string>
 	<key>NSHealthUpdateUsageDescription</key>
