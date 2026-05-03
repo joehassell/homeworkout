@@ -52,7 +52,20 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
     // MARK: - Plugin Methods
 
     @objc func isAvailable(_ call: CAPPluginCall) {
-        call.resolve(["available": true])
+        let status = MPMediaLibrary.authorizationStatus()
+        if status == .notDetermined {
+            MPMediaLibrary.requestAuthorization { newStatus in
+                call.resolve([
+                    "available": newStatus == .authorized,
+                    "authorized": newStatus == .authorized,
+                ])
+            }
+        } else {
+            call.resolve([
+                "available": status == .authorized,
+                "authorized": status == .authorized,
+            ])
+        }
     }
 
     @objc func getNowPlaying(_ call: CAPPluginCall) {

@@ -1011,7 +1011,12 @@ function setMusicVolume(val) {
 }
 
 function musicToggle() {
-  if (!musicAvailable) return;
+  if (!isNative()) return;
+  if (!musicAvailable) {
+    // Try to initialize music (triggers authorization prompt)
+    initMusic();
+    return;
+  }
   const mp = window.Capacitor.Plugins.MusicPlugin;
   mp.getNowPlaying().then(s => s.isPlaying ? mp.pause() : mp.play());
 }
@@ -1323,6 +1328,7 @@ function initWatchConnectivity() {
     // Check initial state and update Watch settings UI
     wc.isWatchAvailable().then(r => {
       watchConnected = !!r.reachable;
+      isRelaySource = !!r.supported; // iPhone has WC support, iPad doesn't
       updateWatchStatus(r);
     });
   } catch (e) { /* degrade silently */ }
@@ -1438,6 +1444,11 @@ async function initCloudSync() {
 
     // Listen for remote changes from other devices
     cs.addListener('cloudSync', (data) => {
+      // Watch relay data from iPhone → iPad
+      if (data.key === RELAY_KEY && data.value) {
+        applyRelayData(data.value);
+        return;
+      }
       if (data.key && data.value && SYNC_KEYS.includes(data.key)) {
         localStorage.setItem(data.key, data.value);
         // Reload relevant state into memory
@@ -1457,6 +1468,47 @@ function cloudPush(key) {
     const value = localStorage.getItem(key);
     if (value) {
       window.Capacitor.Plugins.iCloudSyncPlugin.syncToCloud({ key, value });
+    }
+  } catch (e) {}
+}
+
+// ── iPad←iPhone Watch relay via iCloud KV ────────────
+// iPhone writes Watch HR + state to iCloud KV; iPad reads it.
+const RELAY_KEY = 'swg.watch_relay';
+let isRelaySource = false; // true on iPhone (has Watch), false on iPad
+
+function relayWatchState() {
+  // Only relay if this device has Watch connectivity (iPhone)
+  if (!isRelaySource || !timerState.running) return;
+  try {
+    const relay = JSON.stringify({
+      hr: currentHeartRate,
+      ts: Date.now(),
+      phase: timerState.phase,
+      exerciseName: workout[timerState.idx] ? workout[timerState.idx].exercise.name : '',
+      remaining: timerState.remaining,
+      idx: timerState.idx,
+    });
+    window.Capacitor.Plugins.iCloudSyncPlugin.syncToCloud({ key: RELAY_KEY, value: relay });
+  } catch (e) {}
+}
+
+function applyRelayData(json) {
+  // iPad receives Watch data relayed from iPhone
+  try {
+    const d = JSON.parse(json);
+    // Only apply if data is fresh (< 10 seconds old)
+    if (Date.now() - d.ts > 10000) return;
+    if (d.hr > 0) {
+      currentHeartRate = Math.round(d.hr);
+      const hrEl = document.getElementById('t-hr');
+      const hrVal = document.getElementById('t-hr-val');
+      if (hrEl && hrVal && timerState.running) {
+        hrEl.style.display = '';
+        hrEl.classList.remove('waiting');
+        hrVal.textContent = currentHeartRate;
+        updateHRZoneDisplay(currentHeartRate);
+      }
     }
   } catch (e) {}
 }
@@ -3799,6 +3851,8 @@ function tick() {
   if (timerState.paused || !timerState.running) return;
   if (!timerState.paused) timerState.totalRemaining--;
   watchSendState();
+  // Relay Watch data to iPad every 3 seconds via iCloud KV
+  if (timerState.totalRemaining % 3 === 0) relayWatchState();
   // Yoga timer path — no countdown beeps, uses narration instead
   if (config.type === 'yoga') {
     timerState.remaining--;
