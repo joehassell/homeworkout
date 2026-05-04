@@ -1085,7 +1085,8 @@ async function initHealthKit() {
       } catch (e) {}
     }
   } catch (e) {
-    if (statusEl) { statusEl.textContent = 'Not available'; statusEl.classList.add('disconnected'); }
+    if (statusEl) { statusEl.textContent = 'Error: ' + (e.message || e); statusEl.classList.add('disconnected'); }
+    if (actionEl) actionEl.style.display = '';
   }
 }
 

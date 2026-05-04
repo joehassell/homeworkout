@@ -70,7 +70,9 @@ public class HealthKitPlugin: CAPPlugin, CAPBridgedPlugin {
     // MARK: - Plugin Methods
 
     @objc func isAvailable(_ call: CAPPluginCall) {
-        call.resolve(["available": HKHealthStore.isHealthDataAvailable()])
+        let available = HKHealthStore.isHealthDataAvailable()
+        NSLog("HealthKitPlugin: isAvailable = \(available)")
+        call.resolve(["available": available])
     }
 
     @objc func requestAuthorization(_ call: CAPPluginCall) {
