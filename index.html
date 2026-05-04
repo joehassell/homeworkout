@@ -1039,7 +1039,9 @@ async function initHealthKit() {
   try {
     const hk = window.Capacitor.Plugins.HealthKitPlugin;
     if (!hk) {
-      if (statusEl) { statusEl.textContent = 'Plugin not loaded'; statusEl.classList.add('disconnected'); }
+      // Debug: show available plugins
+      const available = window.Capacitor && window.Capacitor.Plugins ? Object.keys(window.Capacitor.Plugins).join(', ') : 'none';
+      if (statusEl) { statusEl.textContent = 'Plugin not loaded (' + available + ')'; statusEl.classList.add('disconnected'); }
       return;
     }
     const avail = await hk.isAvailable();
