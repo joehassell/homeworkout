@@ -88,9 +88,10 @@ class WorkoutSessionManager: NSObject, ObservableObject {
         guard let session = session, let builder = builder else { return }
 
         session.end()
-        builder.endCollection(withEnd: Date()) { success, error in
+        let localBuilder = builder
+        localBuilder.endCollection(withEnd: Date()) { success, error in
             if success {
-                builder.finishWorkout { workout, error in
+                localBuilder.finishWorkout { workout, error in
                     if let error = error {
                         NSLog("Watch: finishWorkout error: \(error.localizedDescription)")
                     }
@@ -100,6 +101,7 @@ class WorkoutSessionManager: NSObject, ObservableObject {
 
         // Notify phone
         sendToPhone(["type": "workoutSessionEnded"])
+        // Nil out after capturing builder in closure above
         self.session = nil
         self.builder = nil
     }

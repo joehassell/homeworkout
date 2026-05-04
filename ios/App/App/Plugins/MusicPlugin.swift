@@ -54,11 +54,16 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
     @objc func isAvailable(_ call: CAPPluginCall) {
         let status = MPMediaLibrary.authorizationStatus()
         if status == .notDetermined {
-            MPMediaLibrary.requestAuthorization { newStatus in
-                call.resolve([
-                    "available": newStatus == .authorized,
-                    "authorized": newStatus == .authorized,
-                ])
+            MPMediaLibrary.requestAuthorization { [weak self] newStatus in
+                let authorized = newStatus == .authorized
+                call.resolve(["available": authorized, "authorized": authorized])
+                // After auth granted, immediately send current state
+                if authorized, let self = self {
+                    DispatchQueue.main.async {
+                        self.player.beginGeneratingPlaybackNotifications()
+                        self.notifyListeners("musicStateChanged", data: self.buildStateDict())
+                    }
+                }
             }
         } else {
             call.resolve([

@@ -873,7 +873,9 @@ async function initMusic() {
     const result = await mp.isAvailable();
     musicAvailable = !!result.available;
 
+    // Re-fetch state after authorization (plugin sends musicStateChanged after auth)
     mp.addListener('musicStateChanged', (data) => {
+      musicAvailable = true; // if we get state updates, auth succeeded
       musicState = data;
       updateMusicBar(data);
       updateMusicPlayer(data);
@@ -1039,9 +1041,7 @@ async function initHealthKit() {
   try {
     const hk = window.Capacitor.Plugins.HealthKitPlugin;
     if (!hk) {
-      // Debug: show available plugins
-      const available = window.Capacitor && window.Capacitor.Plugins ? Object.keys(window.Capacitor.Plugins).join(', ') : 'none';
-      if (statusEl) { statusEl.textContent = 'Plugin not loaded (' + available + ')'; statusEl.classList.add('disconnected'); }
+      if (statusEl) { statusEl.textContent = 'Not available'; statusEl.classList.add('disconnected'); }
       return;
     }
     const avail = await hk.isAvailable();
