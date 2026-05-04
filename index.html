@@ -871,9 +871,8 @@ async function initMusic() {
   if (!isNative()) return;
   try {
     const mp = window.Capacitor.Plugins.MusicPlugin;
-    const { available } = await mp.isAvailable();
-    musicAvailable = available;
-    if (!available) return;
+    const result = await mp.isAvailable();
+    musicAvailable = !!result.available;
 
     mp.addListener('musicStateChanged', (data) => {
       musicState = data;
