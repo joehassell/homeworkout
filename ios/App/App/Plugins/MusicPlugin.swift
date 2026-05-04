@@ -73,7 +73,25 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func play(_ call: CAPPluginCall) {
+        // If nothing is queued, try to play the user's entire library
+        if player.nowPlayingItem == nil {
+            let query = MPMediaQuery.songs()
+            if let items = query.items, !items.isEmpty {
+                let collection = MPMediaItemCollection(items: items)
+                player.setQueue(with: collection)
+                player.shuffleMode = .songs
+            }
+        }
         player.play()
+        // Check if playback actually started after a brief delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let isPlaying = self.player.playbackState == .playing
+            if !isPlaying {
+                self.notifyListeners("musicError", data: [
+                    "error": "No music available. Open Apple Music and play a song first.",
+                ])
+            }
+        }
         call.resolve(["success": true])
     }
 

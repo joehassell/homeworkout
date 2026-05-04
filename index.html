@@ -897,6 +897,13 @@ async function initMusic() {
       watchSendMusicState(data);
     });
 
+    mp.addListener('musicError', (data) => {
+      const title = document.getElementById('music-title');
+      const artist = document.getElementById('music-artist');
+      if (title) title.textContent = 'No Music';
+      if (artist) artist.textContent = data.error || 'Open Apple Music first';
+    });
+
     const state = await mp.getNowPlaying();
     musicState = state;
     updateMusicBar(state);

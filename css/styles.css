@@ -184,6 +184,7 @@ html.is-native .music-bar.visible { display: flex; }
 .music-btn:active { opacity: 0.6; }
 .music-play { font-size: 1.3rem; }
 html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-area-inset-bottom, 0px)); }
+html.music-bar-visible #setup .generate-section { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px) + 12px); }
 
 /* Music full player */
 .music-player-overlay {
