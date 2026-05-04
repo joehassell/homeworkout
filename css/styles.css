@@ -164,60 +164,100 @@ html.is-native .ios-fs-hint { display: none !important; }
 .is-native-only { display: none; }
 html.is-native .is-native-only { display: flex; }
 
-/* Music mini-player bar */
-.music-bar {
-  position: fixed; bottom: calc(62px + env(safe-area-inset-bottom, 0px)); left: 0; right: 0;
-  display: none; align-items: center; gap: 10px;
-  background: var(--surface); border-top: 1px solid var(--border);
-  padding: 8px 16px; cursor: pointer;
-  z-index: 45;
+/* Music bubble — floating album art icon */
+.music-bubble {
+  display: none; position: fixed;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  right: 16px; z-index: 45;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--surface2); border: 2px solid var(--border);
+  overflow: hidden; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s;
+  touch-action: manipulation;
 }
-html.is-native .music-bar.visible { display: flex; }
-.music-bar-art { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; flex-shrink: 0; background: var(--surface2); }
-.music-info { flex: 1; min-width: 0; }
-.music-title { font-size: 0.85rem; font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.music-artist { font-size: 0.7rem; color: var(--text-dim); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.music-bar-progress { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--border); }
-.music-bar-progress-fill { height: 100%; background: var(--accent); transition: width 1s linear; }
-.music-controls { display: flex; gap: 4px; flex-shrink: 0; }
-.music-btn { background: none; border: none; color: var(--text); font-size: 1.1rem; padding: 8px; cursor: pointer; touch-action: manipulation; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
-.music-btn:active { opacity: 0.6; }
-.music-play { font-size: 1.3rem; }
-html.music-bar-visible .screen.has-nav { padding-bottom: calc(164px + env(safe-area-inset-bottom, 0px)); }
-html.music-bar-visible #setup .generate-section { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px) + 12px); }
+.music-bubble:active { transform: scale(0.9); }
+.music-bubble.visible { display: block; }
+.music-bubble.playing { border-color: var(--accent); }
+.music-bubble-art {
+  width: 100%; height: 100%; object-fit: cover; display: none;
+}
+.music-bubble-art.has-art { display: block; }
+.music-bubble-note {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; color: var(--text-dim);
+}
+.music-bubble-art.has-art + .music-bubble-note { display: none; }
+.music-bubble-ring {
+  position: absolute; inset: -3px; border-radius: 50%;
+  border: 2px solid transparent; border-top-color: var(--accent);
+  animation: none;
+}
+.music-bubble.playing .music-bubble-ring {
+  animation: music-spin 2s linear infinite;
+}
+@keyframes music-spin { to { transform: rotate(360deg); } }
 
-/* Music full player */
-.music-player-overlay {
-  position: fixed; inset: 0; z-index: 9998;
-  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  display: none; align-items: flex-end; justify-content: center;
+/* Music expanded — controls panel */
+.music-expanded {
+  display: none; position: fixed;
+  bottom: calc(130px + env(safe-area-inset-bottom, 0px));
+  right: 16px; z-index: 46;
+  width: 260px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  transition: opacity 0.2s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: bottom right;
+  opacity: 0; transform: scale(0.8);
 }
-.music-player-overlay.visible { display: flex; }
-.music-player {
-  position: relative; width: 100%; max-width: 440px;
-  background: var(--surface); border-radius: 20px 20px 0 0;
-  padding: 24px 24px calc(env(safe-area-inset-bottom, 0px) + 24px);
-  text-align: center;
+.music-expanded.open {
+  display: block; opacity: 1; transform: scale(1);
 }
-.music-player-close { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text-dim); font-size: 1.6rem; cursor: pointer; padding: 4px 8px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
-.music-player-art { width: 200px; height: 200px; border-radius: 16px; object-fit: cover; margin: 0 auto 16px; background: var(--surface2); display: block; }
-.music-player-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.music-player-artist { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.music-player-seek { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-.music-player-time { font-size: 0.7rem; color: var(--text-dim); min-width: 32px; font-variant-numeric: tabular-nums; }
-.music-player-slider { flex: 1; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: var(--border); outline: none; }
-.music-player-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); cursor: pointer; }
-.music-player-controls { display: flex; align-items: center; justify-content: center; gap: 32px; margin-bottom: 20px; }
-.music-player-btn { background: none; border: none; color: var(--text); font-size: 1.4rem; cursor: pointer; padding: 12px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
-.music-player-btn:active { opacity: 0.6; }
-.music-player-play { font-size: 2rem; }
-.music-player-volume { display: flex; align-items: center; gap: 10px; }
-.music-vol-icon { font-size: 0.9rem; }
+.music-expanded-art {
+  width: 100%; aspect-ratio: 1; border-radius: 12px;
+  object-fit: cover; background: var(--surface2);
+  margin-bottom: 10px; cursor: pointer; display: block;
+}
+.music-expanded-info { margin-bottom: 8px; }
+.music-expanded-title {
+  font-size: 0.85rem; font-weight: 700; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.music-expanded-artist {
+  font-size: 0.72rem; color: var(--text-dim);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.music-expanded-controls {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; margin-bottom: 8px;
+}
+.music-ctrl {
+  background: none; border: none; color: var(--text);
+  font-size: 1.1rem; padding: 8px; cursor: pointer;
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation;
+}
+.music-ctrl:active { opacity: 0.6; }
+.music-ctrl-play { font-size: 1.5rem; }
+.music-expanded-seek { display: flex; align-items: center; gap: 8px; }
+.music-time { font-size: 0.65rem; color: var(--text-dim); min-width: 28px; font-variant-numeric: tabular-nums; }
+.music-seek-slider {
+  flex: 1; -webkit-appearance: none; appearance: none;
+  height: 3px; border-radius: 2px; background: var(--border); outline: none;
+}
+.music-seek-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 12px; height: 12px;
+  border-radius: 50%; background: var(--accent); cursor: pointer;
+}
 
-/* iPad: wider layout for mini-player */
+/* Bubble visibility controlled by JS — only on preview/timer screens */
+
 @media (min-width: 768px) {
-  .music-bar { max-width: 600px; left: 50%; transform: translateX(-50%); border-radius: 12px 12px 0 0; }
-  .music-player-art { width: 280px; height: 280px; }
+  .music-expanded { width: 300px; }
 }
 .sanskrit-name { font-style: italic; color: var(--text-dim); font-size: 0.85em; }
 .ios-fs-hint {
