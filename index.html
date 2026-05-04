@@ -432,16 +432,15 @@
 
   <div class="settings-group is-native-only" id="settings-watch-group">
     <div class="settings-group-label">Apple Watch</div>
-    <div class="settings-row">
-      <label class="settings-label">Watch App Status</label>
-      <span class="settings-health-status" id="watch-status">Checking...</span>
-    </div>
-    <div class="settings-row">
-      <label class="settings-label">Install on Apple Watch</label>
-      <button type="button" class="settings-action" id="watch-install-btn" onclick="openWatchAppSettings()">Open Watch App</button>
-    </div>
-    <div class="settings-hint">
-      If SimpleWorkoutGen isn't on your Apple Watch, open the Watch app on your iPhone, scroll down to find SimpleWorkoutGen, and tap Install.
+    <div class="settings-row settings-row-stack">
+      <div style="display:flex;justify-content:space-between;align-items:center;width:100%;">
+        <label class="settings-label">Watch App Status</label>
+        <span class="settings-health-status" id="watch-status">Checking...</span>
+      </div>
+      <button type="button" class="settings-action" id="watch-install-btn" onclick="openWatchAppSettings()" style="align-self:flex-start;margin-top:8px;">Open Watch App</button>
+      <div class="settings-hint" style="margin-top:4px;">
+        If SimpleWorkoutGen isn't on your Apple Watch, open the Watch app on your iPhone, scroll down to find SimpleWorkoutGen, and tap Install.
+      </div>
     </div>
   </div>
 
@@ -921,7 +920,10 @@ function updateMusicBar(data) {
     return;
   }
 
-  bubble.classList.add('visible');
+  // Only show bubble on preview/timer screens
+  const activeScreen = document.querySelector('.screen.active');
+  const onWorkoutScreen = activeScreen && (activeScreen.id === 'preview' || activeScreen.id === 'timer');
+  bubble.classList.toggle('visible', !!onWorkoutScreen);
 
   if (data.title) {
     if (title) title.textContent = data.title;
@@ -1036,9 +1038,14 @@ async function initHealthKit() {
   const actionEl = document.getElementById('set-health-action');
   try {
     const hk = window.Capacitor.Plugins.HealthKitPlugin;
-    const { available } = await hk.isAvailable();
-    if (!available) {
-      if (statusEl) { statusEl.textContent = 'Not available on this device'; statusEl.classList.add('disconnected'); }
+    if (!hk) {
+      if (statusEl) { statusEl.textContent = 'Plugin not loaded'; statusEl.classList.add('disconnected'); }
+      return;
+    }
+    const avail = await hk.isAvailable();
+    if (!avail || !avail.available) {
+      if (statusEl) { statusEl.textContent = 'Not available'; statusEl.classList.add('disconnected'); }
+      if (actionEl) actionEl.style.display = '';
       return;
     }
     const { granted } = await hk.requestAuthorization();
@@ -1304,10 +1311,22 @@ function initWatchConnectivity() {
     // Check initial state and update Watch settings UI
     wc.isWatchAvailable().then(r => {
       watchConnected = !!r.reachable;
-      isRelaySource = !!r.supported; // iPhone has WC support, iPad doesn't
+      isRelaySource = !!r.supported;
       updateWatchStatus(r);
+    }).catch(() => {
+      updateWatchStatus({ supported: false, paired: false, reachable: false });
     });
-  } catch (e) { /* degrade silently */ }
+    // Timeout fallback if plugin hangs
+    setTimeout(() => {
+      const el = document.getElementById('watch-status');
+      if (el && el.textContent === 'Checking...') {
+        updateWatchStatus({ supported: false, paired: false, reachable: false });
+      }
+    }, 5000);
+  } catch (e) {
+    const el = document.getElementById('watch-status');
+    if (el) el.textContent = 'Not available';
+  }
 }
 
 function updateWatchStatus(r) {
