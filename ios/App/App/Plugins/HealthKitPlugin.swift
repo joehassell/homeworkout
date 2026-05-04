@@ -29,6 +29,7 @@ public class HealthKitPlugin: CAPPlugin, CAPBridgedPlugin {
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "isAvailable", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "requestAuthorization", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "checkAuthorizationStatus", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "startWorkout", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "endWorkout", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "discardWorkout", returnType: CAPPluginReturnPromise),
@@ -73,6 +74,25 @@ public class HealthKitPlugin: CAPPlugin, CAPBridgedPlugin {
         let available = HKHealthStore.isHealthDataAvailable()
         NSLog("HealthKitPlugin: isAvailable = \(available)")
         call.resolve(["available": available])
+    }
+
+    @objc func checkAuthorizationStatus(_ call: CAPPluginCall) {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            call.resolve(["status": "unavailable"])
+            return
+        }
+        let bodyMass = HKQuantityType(.bodyMass)
+        let status = healthStore.authorizationStatus(for: bodyMass)
+        switch status {
+        case .notDetermined:
+            call.resolve(["status": "not_determined"])
+        case .sharingDenied:
+            call.resolve(["status": "denied"])
+        case .sharingAuthorized:
+            call.resolve(["status": "authorized"])
+        @unknown default:
+            call.resolve(["status": "unknown"])
+        }
     }
 
     @objc func requestAuthorization(_ call: CAPPluginCall) {

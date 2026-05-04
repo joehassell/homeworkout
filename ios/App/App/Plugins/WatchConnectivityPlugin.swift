@@ -11,6 +11,7 @@ public class WatchConnectivityPlugin: CAPPlugin, CAPBridgedPlugin, WCSessionDele
         CAPPluginMethod(name: "isWatchAvailable", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "sendWorkoutState", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "sendCommand", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "launchWatchApp", returnType: CAPPluginReturnPromise),
     ]
 
     private var session: WCSession?
@@ -90,6 +91,24 @@ public class WatchConnectivityPlugin: CAPPlugin, CAPBridgedPlugin, WCSessionDele
             s.transferUserInfo(command)
             call.resolve(["sent": true, "fallback": "transferUserInfo"])
         })
+    }
+
+    @objc func launchWatchApp(_ call: CAPPluginCall) {
+        guard let s = session, s.isPaired, s.isWatchAppInstalled else {
+            call.resolve(["launched": false])
+            return
+        }
+        // Send wake-up message
+        if s.isReachable {
+            s.sendMessage(["type": "workoutStart"], replyHandler: nil, errorHandler: nil)
+        }
+        // Also update context (works even when not reachable)
+        do {
+            try s.updateApplicationContext(["wakeUp": true, "timestamp": Date().timeIntervalSince1970])
+        } catch {
+            NSLog("WatchConnectivity: launchWatchApp context error: \(error.localizedDescription)")
+        }
+        call.resolve(["launched": true])
     }
 
     // MARK: - WCSessionDelegate

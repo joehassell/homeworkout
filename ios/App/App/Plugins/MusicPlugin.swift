@@ -17,6 +17,8 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "seek", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "getVolume", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "setVolume", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openAppleMusic", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "startRadio", returnType: CAPPluginReturnPromise),
     ]
 
     private let player = MPMusicPlayerController.systemMusicPlayer
@@ -135,6 +137,27 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
         // We return the current volume and let the JS layer use the native slider.
         let volume = AVAudioSession.sharedInstance().outputVolume
         call.resolve(["volume": volume])
+    }
+
+    @objc func openAppleMusic(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            if let url = URL(string: "music://") {
+                UIApplication.shared.open(url)
+            }
+        }
+        call.resolve(["success": true])
+    }
+
+    @objc func startRadio(_ call: CAPPluginCall) {
+        // Set queue to the user's library shuffled as a radio-like experience
+        let query = MPMediaQuery.songs()
+        if let items = query.items, !items.isEmpty {
+            let collection = MPMediaItemCollection(items: items)
+            player.setQueue(with: collection)
+            player.shuffleMode = .songs
+            player.play()
+        }
+        call.resolve(["success": true])
     }
 
     // MARK: - Helpers

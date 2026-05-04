@@ -205,6 +205,7 @@
     <span id="t-hr-val">--</span>
     <span class="hr-unit">BPM</span>
     <span id="t-hr-zone" class="hr-zone" style="display:none;"></span>
+    <span id="t-hr-source" class="hr-source"></span>
   </div>
   <div id="t-hr-recover" class="hr-recover-banner" style="display:none;">&#x26A0; Heart rate high — ease off and recover</div>
   <div class="timer-progress"><div class="timer-progress-bar" id="t-bar"></div></div>
@@ -461,6 +462,14 @@
       <button type="button" class="pill" data-value="male" onclick="setYogaVoice('male')">Male</button>
     </div>
   </div>
+  <div class="settings-row settings-row-stack">
+    <label class="settings-label">Voice Engine</label>
+    <div class="option-pills" id="voice-engine-pills">
+      <button type="button" class="pill selected" data-value="standard" onclick="setVoiceEngine('standard')">Standard<span class="pill-sub">Browser</span></button>
+      <button type="button" class="pill" data-value="siri" onclick="setVoiceEngine('siri')">Siri<span class="pill-sub">iOS only</span></button>
+      <button type="button" class="pill" data-value="custom" onclick="setVoiceEngine('custom')">Custom<span class="pill-sub">Pro only</span></button>
+    </div>
+  </div>
   <div class="settings-row is-native-only">
     <label class="settings-label">Music Controls</label>
     <button type="button" id="set-music" class="settings-toggle on" onclick="toggleMusicSetting()">On</button>
@@ -650,7 +659,7 @@
 <!-- MUSIC BUBBLE — floating album art that expands to show controls -->
 <div class="music-bubble is-native-only" id="music-bubble" onclick="toggleMusicBubble()">
   <img class="music-bubble-art" id="music-bubble-art" src="" alt="">
-  <div class="music-bubble-note" id="music-bubble-note">&#x266B;</div>
+  <div class="music-bubble-note" id="music-bubble-note"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
   <div class="music-bubble-ring" id="music-bubble-ring"></div>
 </div>
 
@@ -662,9 +671,13 @@
     <div class="music-expanded-artist" id="music-artist">Tap to play</div>
   </div>
   <div class="music-expanded-controls">
-    <button class="music-ctrl" onclick="event.stopPropagation();musicPrev()" aria-label="Previous">&#x23EE;</button>
-    <button class="music-ctrl music-ctrl-play" id="music-play-btn" onclick="event.stopPropagation();musicToggle()" aria-label="Play/Pause">&#x25B6;</button>
-    <button class="music-ctrl" onclick="event.stopPropagation();musicNext()" aria-label="Next">&#x23ED;</button>
+    <button class="music-ctrl" onclick="event.stopPropagation();musicPrev()" aria-label="Previous"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
+    <button class="music-ctrl music-ctrl-play" id="music-play-btn" onclick="event.stopPropagation();musicToggle()" aria-label="Play/Pause"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+    <button class="music-ctrl" onclick="event.stopPropagation();musicNext()" aria-label="Next"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
+  </div>
+  <div class="music-expanded-actions">
+    <button class="music-action-btn" onclick="event.stopPropagation();musicStartRadio()" aria-label="Radio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.4"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.4"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/><circle cx="12" cy="12" r="2"/></svg> Radio</button>
+    <button class="music-action-btn" onclick="event.stopPropagation();musicOpenApp()" aria-label="Open Apple Music"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> Apple Music</button>
   </div>
   <div class="music-expanded-seek">
     <span class="music-time" id="music-player-elapsed">0:00</span>
@@ -865,6 +878,8 @@ function isNative() {
 let musicAvailable = false;
 let musicEnabled = true;
 let musicState = {}; // cached now-playing state
+let cachedArtwork = null; // persisted album art base64
+let cachedArtworkTrack = ''; // track title the cached art belongs to
 
 async function initMusic() {
   if (!isNative()) return;
@@ -930,12 +945,25 @@ function updateMusicBar(data) {
   if (data.title) {
     if (title) title.textContent = data.title;
     if (artist) artist.textContent = data.artist || '';
-    if (playBtn) playBtn.innerHTML = data.isPlaying ? '&#x23F8;' : '&#x25B6;';
+    if (playBtn) playBtn.innerHTML = data.isPlaying
+      ? '<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+      : '<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
     bubble.classList.toggle('playing', !!data.isPlaying);
-    // Album art
+    // Album art caching — keep cached art if same track, only clear on track change
     if (data.artworkBase64) {
+      cachedArtwork = data.artworkBase64;
+      cachedArtworkTrack = data.title || '';
       if (bubbleArt) { bubbleArt.src = data.artworkBase64; bubbleArt.classList.add('has-art'); }
       if (expandedArt) expandedArt.src = data.artworkBase64;
+    } else if (data.title && data.title !== cachedArtworkTrack) {
+      // Track changed and no artwork — clear cache
+      cachedArtwork = null;
+      cachedArtworkTrack = '';
+      if (bubbleArt) bubbleArt.classList.remove('has-art');
+    } else if (cachedArtwork) {
+      // Same track, no artwork in this update — keep cached
+      if (bubbleArt) { bubbleArt.src = cachedArtwork; bubbleArt.classList.add('has-art'); }
+      if (expandedArt) expandedArt.src = cachedArtwork;
     } else {
       if (bubbleArt) bubbleArt.classList.remove('has-art');
     }
@@ -949,7 +977,7 @@ function updateMusicBar(data) {
   } else {
     if (title) title.textContent = 'Not Playing';
     if (artist) artist.textContent = 'Tap to play';
-    if (playBtn) playBtn.innerHTML = '&#x25B6;';
+    if (playBtn) playBtn.innerHTML = '<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
     bubble.classList.remove('playing');
     if (bubbleArt) bubbleArt.classList.remove('has-art');
   }
@@ -1011,6 +1039,47 @@ function musicPrev() {
   window.Capacitor.Plugins.MusicPlugin.previous();
 }
 
+function musicStartRadio() {
+  if (!isNative()) return;
+  window.Capacitor.Plugins.MusicPlugin.startRadio();
+}
+
+function musicOpenApp() {
+  if (!isNative()) return;
+  window.Capacitor.Plugins.MusicPlugin.openAppleMusic();
+}
+
+function showToast(msg) {
+  let t = document.getElementById('app-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'app-toast';
+    t.className = 'app-toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('visible');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('visible'), 3000);
+}
+
+function setVoiceEngine(engine) {
+  if (engine === 'custom' && !Entitlement.isPro()) {
+    Paywall.open('settings');
+    return;
+  }
+  if (engine === 'siri' && !isNative()) {
+    showToast('Siri voice is only available on iOS');
+    return;
+  }
+  voiceEngine = engine;
+  document.querySelectorAll('#voice-engine-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === engine);
+  });
+  customVoiceWarningShown = false;
+  saveAppSettings();
+}
+
 function toggleMusicSetting() {
   musicEnabled = !musicEnabled;
   const btn = document.getElementById('set-music');
@@ -1044,45 +1113,37 @@ async function initHealthKit() {
       if (statusEl) { statusEl.textContent = 'Not available'; statusEl.classList.add('disconnected'); }
       return;
     }
+    // Step 1: Check availability
     const avail = await hk.isAvailable();
     if (!avail || !avail.available) {
-      if (statusEl) { statusEl.textContent = 'Not available'; statusEl.classList.add('disconnected'); }
-      if (actionEl) actionEl.style.display = '';
+      if (statusEl) { statusEl.textContent = 'Not available on this device'; statusEl.classList.add('disconnected'); }
+      if (actionEl) actionEl.style.display = 'none';
       return;
     }
-    const { granted } = await hk.requestAuthorization();
-    healthKitReady = granted;
-    if (statusEl) {
-      statusEl.textContent = granted ? 'Connected — workouts auto-save' : 'Not connected — tap Connect to enable';
-      statusEl.classList.toggle('connected', granted);
-      statusEl.classList.toggle('disconnected', !granted);
-    }
-    if (actionEl) actionEl.style.display = granted ? 'none' : '';
-    if (granted) {
-      const w = await hk.getBodyWeight();
-      if (w.available) {
-        userWeightKg = Math.round(w.weightKg * 10) / 10;
-        const wEl = document.getElementById('set-weight');
-        if (wEl) wEl.value = userWeightKg;
-        saveAppSettings();
+    // Step 2: Check authorization status without prompting
+    const auth = await hk.checkAuthorizationStatus();
+    if (auth.status === 'authorized') {
+      // Already connected — proceed to read data
+      healthKitReady = true;
+      if (statusEl) { statusEl.textContent = 'Connected — workouts auto-save'; statusEl.classList.add('connected'); statusEl.classList.remove('disconnected'); }
+      if (actionEl) actionEl.style.display = 'none';
+      await fetchHealthKitData(hk);
+    } else if (auth.status === 'not_determined') {
+      // First time — request authorization (shows iOS prompt)
+      const { granted } = await hk.requestAuthorization();
+      healthKitReady = granted;
+      if (statusEl) {
+        statusEl.textContent = granted ? 'Connected — workouts auto-save' : 'Not connected — tap Connect to enable';
+        statusEl.classList.toggle('connected', granted);
+        statusEl.classList.toggle('disconnected', !granted);
       }
-      // Auto-detect age from HealthKit
-      try {
-        const dob = await hk.getDateOfBirth();
-        if (dob.available && dob.age > 0) {
-          const age = dob.age;
-          if (age < 18) userProfile.age_band = 'under_18';
-          else if (age <= 39) userProfile.age_band = '18-39';
-          else if (age <= 54) userProfile.age_band = '40-54';
-          else if (age <= 69) userProfile.age_band = '55-69';
-          else userProfile.age_band = '70+';
-          const ageBandGroup = document.getElementById('age-band-group');
-          const ageHkDisplay = document.getElementById('age-hk-display');
-          if (ageBandGroup) ageBandGroup.style.display = 'none';
-          if (ageHkDisplay) { ageHkDisplay.style.display = ''; ageHkDisplay.textContent = 'Age: ' + age + ' (from Apple Health)'; }
-          saveAppSettings();
-        }
-      } catch (e) {}
+      if (actionEl) actionEl.style.display = granted ? 'none' : '';
+      if (granted) await fetchHealthKitData(hk);
+    } else {
+      // Denied or unknown — show "Not connected" with Connect button
+      healthKitReady = false;
+      if (statusEl) { statusEl.textContent = 'Not connected — tap Connect to enable'; statusEl.classList.add('disconnected'); statusEl.classList.remove('connected'); }
+      if (actionEl) { actionEl.style.display = ''; actionEl.textContent = 'Connect'; }
     }
   } catch (e) {
     if (statusEl) { statusEl.textContent = 'Error: ' + (e.message || e); statusEl.classList.add('disconnected'); }
@@ -1090,8 +1151,49 @@ async function initHealthKit() {
   }
 }
 
+async function fetchHealthKitData(hk) {
+  try {
+    const w = await hk.getBodyWeight();
+    if (w.available) {
+      userWeightKg = Math.round(w.weightKg * 10) / 10;
+      const wEl = document.getElementById('set-weight');
+      if (wEl) wEl.value = userWeightKg;
+      saveAppSettings();
+    }
+    // Auto-detect age from HealthKit
+    const dob = await hk.getDateOfBirth();
+    if (dob.available && dob.age > 0) {
+      const age = dob.age;
+      if (age < 18) userProfile.age_band = 'under_18';
+      else if (age <= 39) userProfile.age_band = '18-39';
+      else if (age <= 54) userProfile.age_band = '40-54';
+      else if (age <= 69) userProfile.age_band = '55-69';
+      else userProfile.age_band = '70+';
+      const ageBandGroup = document.getElementById('age-band-group');
+      const ageHkDisplay = document.getElementById('age-hk-display');
+      if (ageBandGroup) ageBandGroup.style.display = 'none';
+      if (ageHkDisplay) { ageHkDisplay.style.display = ''; ageHkDisplay.textContent = 'Age: ' + age + ' (from Apple Health)'; }
+      saveAppSettings();
+    }
+  } catch (e) {}
+}
+
 async function reconnectHealthKit() {
-  await initHealthKit();
+  if (!isNative()) return;
+  try {
+    const hk = window.Capacitor.Plugins.HealthKitPlugin;
+    const auth = await hk.checkAuthorizationStatus();
+    if (auth.status === 'denied') {
+      // Open iOS Settings so user can re-enable Health permissions
+      if (window.Capacitor.Plugins.App) {
+        window.Capacitor.Plugins.App.openUrl({ url: 'App-prefs:Health' });
+      }
+    } else {
+      await initHealthKit();
+    }
+  } catch (e) {
+    await initHealthKit();
+  }
 }
 
 async function hkStartWorkout(exerciseName, remaining, phase, exerciseIndex, exerciseCount) {
@@ -1108,6 +1210,11 @@ async function hkStartWorkout(exerciseName, remaining, phase, exerciseIndex, exe
       isPro: Entitlement.isPro(),
     });
     healthKitSessionId = res.sessionId;
+    // Auto-launch Watch app when workout starts
+    try {
+      const wc = window.Capacitor.Plugins.WatchConnectivityPlugin;
+      if (wc) wc.launchWatchApp();
+    } catch (e) {}
   } catch (e) { /* degrade silently */ }
 }
 
@@ -1486,28 +1593,54 @@ function relayWatchState() {
       exerciseName: workout[timerState.idx] ? workout[timerState.idx].exercise.name : '',
       remaining: timerState.remaining,
       idx: timerState.idx,
+      musicTitle: musicState.title || '',
+      musicArtist: musicState.artist || '',
+      musicIsPlaying: !!musicState.isPlaying,
     });
     window.Capacitor.Plugins.iCloudSyncPlugin.syncToCloud({ key: RELAY_KEY, value: relay });
   } catch (e) {}
 }
 
+let relayStaleTimer = null;
 function applyRelayData(json) {
   // iPad receives Watch data relayed from iPhone
   try {
     const d = JSON.parse(json);
-    // Only apply if data is fresh (< 10 seconds old)
-    if (Date.now() - d.ts > 10000) return;
+    const age = Date.now() - d.ts;
+    const hrEl = document.getElementById('t-hr');
+    const hrVal = document.getElementById('t-hr-val');
+    const hrSource = document.getElementById('t-hr-source');
+    // Stale data (>10s) — show waiting indicator
+    if (age > 10000) {
+      if (hrEl && timerState.running) {
+        hrEl.classList.add('waiting');
+        if (hrSource) hrSource.textContent = 'Waiting...';
+      }
+      return;
+    }
     if (d.hr > 0) {
       currentHeartRate = Math.round(d.hr);
-      const hrEl = document.getElementById('t-hr');
-      const hrVal = document.getElementById('t-hr-val');
       if (hrEl && hrVal && timerState.running) {
         hrEl.style.display = '';
         hrEl.classList.remove('waiting');
         hrVal.textContent = currentHeartRate;
+        if (hrSource) hrSource.textContent = 'HR via iPhone';
         updateHRZoneDisplay(currentHeartRate);
       }
     }
+    // Music state from iPhone relay
+    if (d.musicTitle) {
+      const title = document.getElementById('music-title');
+      const artist = document.getElementById('music-artist');
+      if (title) title.textContent = d.musicTitle;
+      if (artist) artist.textContent = d.musicArtist || '';
+    }
+    // Reset stale timer
+    clearTimeout(relayStaleTimer);
+    relayStaleTimer = setTimeout(() => {
+      if (hrEl) hrEl.classList.add('waiting');
+      if (hrSource) hrSource.textContent = 'Waiting...';
+    }, 10000);
   } catch (e) {}
 }
 
@@ -1516,6 +1649,7 @@ function applyRelayData(json) {
 // ═══════════════════════════════════════════════════
 // ── Voice settings ────────────────────────────────
 let yogaVoiceGender = 'female'; // 'female' or 'male'
+let voiceEngine = 'standard'; // 'standard' | 'siri' | 'custom'
 
 function poseSlug(name) {
   return name.toLowerCase().replace(/['']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -1523,16 +1657,18 @@ function poseSlug(name) {
 
 function speak(text) {
   if (!voiceEnabled) return;
-  // Native iOS: use AVSpeechSynthesizer
-  if (isNative() && window.Capacitor.Plugins.SpeechPlugin) {
+  if (voiceEngine === 'siri' && isNative() && window.Capacitor.Plugins.SpeechPlugin) {
     window.Capacitor.Plugins.SpeechPlugin.speak({ text: text, rate: 0.50, pitch: 1.0 });
-    return;
+  } else {
+    webSpeechSpeak(text, 0.95, 1.0);
   }
-  // Web fallback
+}
+
+function webSpeechSpeak(text, rate, pitch) {
   if (!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.95; u.pitch = 1; u.volume = 1;
+  u.rate = rate; u.pitch = pitch; u.volume = 1;
   speechSynthesis.speak(u);
 }
 
@@ -1545,36 +1681,41 @@ let yogaAudioPlaying = null; // current Audio element
 
 function speakYoga(text, slug, cueIndex) {
   if (!voiceEnabled) return;
-  // Try pre-recorded audio (Pro, or tasting mechanic)
-  if (Entitlement.isPro() && slug) {
-    const suffix = cueIndex !== undefined ? '_' + String(cueIndex + 1).padStart(2, '0') : '_transition';
-    const src = 'audio/yoga/' + yogaVoiceGender + '/' + slug + suffix + '.mp3';
-    const audio = new Audio(src);
-    audio.volume = 1.0;
-    audio.play().then(() => {
-      yogaAudioPlaying = audio;
-    }).catch(() => {
-      // File missing — fall back to TTS
-      speakYogaTTS(text);
-    });
+  // Custom engine: try pre-recorded audio (Pro only)
+  if (voiceEngine === 'custom' && Entitlement.isPro() && slug) {
+    tryPrerecordedAudio(text, slug, cueIndex);
     return;
   }
   speakYogaTTS(text);
 }
 
+function tryPrerecordedAudio(text, slug, cueIndex) {
+  const suffix = cueIndex !== undefined ? '_' + String(cueIndex + 1).padStart(2, '0') : '_transition';
+  const src = 'audio/yoga/' + yogaVoiceGender + '/' + slug + suffix + '.mp3';
+  const audio = new Audio(src);
+  audio.volume = 1.0;
+  audio.play().then(() => {
+    yogaAudioPlaying = audio;
+  }).catch(() => {
+    console.warn('[Voice] Custom audio not found: ' + src);
+    if (!customVoiceWarningShown) {
+      customVoiceWarningShown = true;
+      showToast('Custom voices unavailable — using ' + (voiceEngine === 'siri' ? 'Siri' : 'Standard'));
+    }
+    speakYogaTTS(text);
+  });
+}
+let customVoiceWarningShown = false;
+
 function speakYogaTTS(text) {
-  // Native iOS: use AVSpeechSynthesizer with calmer settings
-  if (isNative() && window.Capacitor.Plugins.SpeechPlugin) {
+  if (voiceEngine === 'siri' && isNative() && window.Capacitor.Plugins.SpeechPlugin) {
     window.Capacitor.Plugins.SpeechPlugin.speak({ text: text, rate: 0.38, pitch: 0.9 });
     return;
   }
-  // Web fallback
-  if (!('speechSynthesis' in window)) return;
-  const u = new SpeechSynthesisUtterance(text);
+  // Standard: Web Speech API
   const style = window.yoga && window.yoga.YOGA_STYLES[config.yogaStyle];
-  u.rate = style ? style.speechRate : 0.75;
-  u.pitch = 0.95; u.volume = 1;
-  speechSynthesis.speak(u);
+  const rate = style ? style.speechRate : 0.75;
+  webSpeechSpeak(text, rate, 0.95);
 }
 
 function stopYogaAudio() {
@@ -1732,6 +1873,9 @@ function loadAppSettings() {
       if (typeof s.yogaVoiceGender === 'string' && (s.yogaVoiceGender === 'female' || s.yogaVoiceGender === 'male')) {
         yogaVoiceGender = s.yogaVoiceGender;
       }
+      if (typeof s.voiceEngine === 'string' && ['standard','siri','custom'].includes(s.voiceEngine)) {
+        voiceEngine = s.voiceEngine;
+      }
       if (typeof s.units === 'string' && (s.units === 'metric' || s.units === 'imperial')) {
         userUnits = s.units;
       }
@@ -1756,6 +1900,10 @@ function loadAppSettings() {
   // Yoga voice gender
   document.querySelectorAll('#yoga-voice-pills .pill').forEach(p => {
     p.classList.toggle('selected', p.dataset.value === yogaVoiceGender);
+  });
+  // Voice engine
+  document.querySelectorAll('#voice-engine-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === voiceEngine);
   });
 }
 
@@ -1819,6 +1967,7 @@ function saveAppSettings() {
       yogaExperience: config.yogaExperience,
       yogaEquipment: [...yogaEquipment],
       yogaVoiceGender: yogaVoiceGender,
+      voiceEngine: voiceEngine,
       units: userUnits,
     }));
     cloudPush('wk_settings');

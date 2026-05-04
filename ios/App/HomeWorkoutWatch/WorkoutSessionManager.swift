@@ -30,12 +30,18 @@ class WorkoutSessionManager: NSObject, ObservableObject {
     @Published var musicArtist = ""
     @Published var musicIsPlaying = false
 
+    // Heart rate zone tracking
+    @Published var currentZone: Int = 0  // 1-5
+    @Published var timeInCurrentZone: Int = 0  // seconds
+    @Published var zoneHistory: [Int: Int] = [1: 0, 2: 0, 3: 0, 4: 0, 5: 0]
+
     // MARK: - Internal
 
     private let healthStore = HKHealthStore()
     private var session: HKWorkoutSession?
     private var builder: HKLiveWorkoutBuilder?
     private var localTimer: Timer?
+    private var zoneTimer: Timer?
     private var lastSyncTimestamp: Date?
 
     // MARK: - Init
@@ -77,6 +83,8 @@ class WorkoutSessionManager: NSObject, ObservableObject {
                 }
             }
 
+            startZoneTimer()
+
             // Notify phone that watch owns the HK session
             sendToPhone(["type": "workoutSessionStarted"])
         } catch {
@@ -98,6 +106,8 @@ class WorkoutSessionManager: NSObject, ObservableObject {
                 }
             }
         }
+
+        stopZoneTimer()
 
         // Notify phone
         sendToPhone(["type": "workoutSessionEnded"])
@@ -131,14 +141,16 @@ class WorkoutSessionManager: NSObject, ObservableObject {
     // MARK: - Phone Communication
 
     private func sendToPhone(_ message: [String: Any]) {
-        guard WCSession.default.isReachable else {
+        guard WCSession.isSupported(),
+              WCSession.default.activationState == .activated else { return }
+        if WCSession.default.isReachable {
+            WCSession.default.sendMessage(message, replyHandler: nil) { error in
+                NSLog("Watch: sendMessage error: \(error.localizedDescription)")
+                // Fallback to queued delivery
+                WCSession.default.transferUserInfo(message)
+            }
+        } else {
             // Queue via transferUserInfo for reliable delivery
-            WCSession.default.transferUserInfo(message)
-            return
-        }
-        WCSession.default.sendMessage(message, replyHandler: nil) { error in
-            NSLog("Watch: sendMessage error: \(error.localizedDescription)")
-            // Fallback
             WCSession.default.transferUserInfo(message)
         }
     }
@@ -180,6 +192,48 @@ class WorkoutSessionManager: NSObject, ObservableObject {
         default:
             device.play(.click)
         }
+    }
+
+    // MARK: - Heart Rate Zone Tracking
+
+    private func computeZone(bpm: Double) -> Int {
+        // Estimated max HR = 220 - age (default 30 → 190)
+        let maxHR = 190.0
+        let pct = bpm / maxHR
+        if pct < 0.50 { return 0 }       // Below zone 1
+        else if pct < 0.60 { return 1 }  // Z1: 50-60% Rest
+        else if pct < 0.70 { return 2 }  // Z2: 60-70% Fat Burn
+        else if pct < 0.80 { return 3 }  // Z3: 70-80% Cardio
+        else if pct < 0.90 { return 4 }  // Z4: 80-90% Tempo
+        else { return 5 }                 // Z5: 90-100% Peak
+    }
+
+    private func updateZone() {
+        let zone = computeZone(bpm: heartRate)
+        if zone != currentZone {
+            currentZone = zone
+            timeInCurrentZone = 0
+        } else {
+            timeInCurrentZone += 1
+        }
+        if zone > 0 {
+            zoneHistory[zone, default: 0] += 1
+        }
+    }
+
+    private func startZoneTimer() {
+        stopZoneTimer()
+        zoneTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self, self.isActive else { return }
+                self.updateZone()
+            }
+        }
+    }
+
+    private func stopZoneTimer() {
+        zoneTimer?.invalidate()
+        zoneTimer = nil
     }
 
     // MARK: - Helpers
