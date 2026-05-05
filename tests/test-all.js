@@ -222,7 +222,7 @@ describe('Capability — computeBmi', () => {
 describe('Templates — data integrity', () => {
   const templates = window.templates.TEMPLATES;
 
-  it(`has ${templates.length} templates (expect 32)`, () => {
+  it(`has ${templates.length} templates (expect 34)`, () => {
     assert(templates.length >= 30, `Only ${templates.length} templates`);
   });
 
