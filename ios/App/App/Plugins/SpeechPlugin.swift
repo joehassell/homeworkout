@@ -32,9 +32,12 @@ public class SpeechPlugin: CAPPlugin, CAPBridgedPlugin {
         utterance.preUtteranceDelay = 0
         utterance.postUtteranceDelay = 0
 
-        // Select voice: prefer specified ID, then premium, then enhanced, then default
+        // Select voice: prefer specified ID, then quality-based selection
+        let quality = call.getString("quality") ?? "best"
         if let voiceId = voiceId, let voice = AVSpeechSynthesisVoice(identifier: voiceId) {
             utterance.voice = voice
+        } else if quality == "default" {
+            utterance.voice = defaultVoice()
         } else {
             utterance.voice = bestAvailableVoice()
         }
@@ -68,6 +71,15 @@ public class SpeechPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     // MARK: - Helpers
+
+    private func defaultVoice() -> AVSpeechSynthesisVoice? {
+        // Return the basic system voice (default quality)
+        let langTag = Locale.current.identifier.replacingOccurrences(of: "_", with: "-")
+        let allVoices = AVSpeechSynthesisVoice.speechVoices()
+            .filter { $0.language == langTag || $0.language.hasPrefix("en") }
+            .filter { $0.quality.rawValue <= 1 }  // default quality only
+        return allVoices.first ?? AVSpeechSynthesisVoice(language: "en-US")
+    }
 
     private func bestAvailableVoice() -> AVSpeechSynthesisVoice? {
         let langTag = Locale.current.identifier.replacingOccurrences(of: "_", with: "-")

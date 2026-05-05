@@ -1718,9 +1718,13 @@ function poseSlug(name) {
 
 function speak(text) {
   if (!voiceEnabled) return;
-  if (voiceEngine === 'siri' && isNative() && window.Capacitor.Plugins.SpeechPlugin) {
-    window.Capacitor.Plugins.SpeechPlugin.speak({ text: text, rate: 0.50, pitch: 1.0 });
+  if (isNative() && window.Capacitor.Plugins.SpeechPlugin) {
+    // On native, always use SpeechPlugin — Web Speech API is unreliable in WKWebView
+    const quality = voiceEngine === 'siri' ? 'best' : 'default';
+    const rate = voiceEngine === 'siri' ? 0.50 : 0.52;
+    window.Capacitor.Plugins.SpeechPlugin.speak({ text, rate, pitch: 1.0, quality });
   } else {
+    // Web fallback
     webSpeechSpeak(text, 0.95, 1.0);
   }
 }
@@ -1769,11 +1773,13 @@ function tryPrerecordedAudio(text, slug, cueIndex) {
 let customVoiceWarningShown = false;
 
 function speakYogaTTS(text) {
-  if (voiceEngine === 'siri' && isNative() && window.Capacitor.Plugins.SpeechPlugin) {
-    window.Capacitor.Plugins.SpeechPlugin.speak({ text: text, rate: 0.38, pitch: 0.9 });
+  if (isNative() && window.Capacitor.Plugins.SpeechPlugin) {
+    const quality = voiceEngine === 'siri' ? 'best' : 'default';
+    const rate = voiceEngine === 'siri' ? 0.38 : 0.42;
+    window.Capacitor.Plugins.SpeechPlugin.speak({ text, rate, pitch: 0.9, quality });
     return;
   }
-  // Standard: Web Speech API
+  // Web fallback: Web Speech API
   const style = window.yoga && window.yoga.YOGA_STYLES[config.yogaStyle];
   const rate = style ? style.speechRate : 0.75;
   webSpeechSpeak(text, rate, 0.95);
