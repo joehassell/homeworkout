@@ -2936,8 +2936,8 @@ function cycleFocus(el) {
   const region = el.dataset.region;
   if (!region) return;
   const cur = focusState[region] || 'include';
-  // Free users: include → exclude only (skip boost/increase)
-  const states = Entitlement.canUseFocusBoost() ? FOCUS_STATES : ['include', 'exclude'];
+  // All users can cycle through all focus states (include → increase → exclude)
+  const states = FOCUS_STATES;
   const next = states[(states.indexOf(cur) + 1) % states.length];
   focusState[region] = next;
   el.className = 'pill focus-pill fs-' + next;
@@ -5573,9 +5573,7 @@ function syncTierUI() {
   }
   var focusHint = document.getElementById('focus-hint');
   if (focusHint) {
-    focusHint.textContent = Entitlement.canUseFocusBoost()
-      ? 'tap to cycle: include \u2192 boost \u2192 exclude'
-      : 'tap to cycle: include \u2192 exclude';
+    focusHint.textContent = 'tap to cycle: include \u2192 boost \u2192 exclude';
   }
 }
 if (window.Entitlement) {

@@ -421,7 +421,7 @@ html.is-native .is-native-only { display: flex; }
 .template-link-wrap { text-align: center; margin-top: 6px; }
 .template-link { color: var(--accent); font-size: 0.85rem; text-decoration: none; opacity: 0.85; display: inline-block; padding: 10px 16px; }
 .template-link:active { opacity: 1; }
-.template-list { max-height: 55vh; overflow-y: auto; margin: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.template-list { max-height: 55vh; overflow-y: auto; -webkit-overflow-scrolling: touch; margin: 12px 0; display: flex; flex-direction: column; gap: 8px; }
 .tpl-card {
   text-align: left; background: var(--surface2); border: 1px solid var(--border);
   border-radius: 10px; padding: 12px 14px; color: var(--text);
@@ -432,7 +432,7 @@ html.is-native .is-native-only { display: flex; }
 .tpl-card-meta { font-size: 0.75rem; color: var(--text-dim); margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; }
 .tpl-card-desc { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; line-height: 1.3; }
 .tpl-card-empty { color: var(--text-dim); font-size: 0.9rem; padding: 16px 0; text-align: center; }
-.tpl-group { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
+.tpl-group { border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; }
 .tpl-group-header {
   display: flex; align-items: center; gap: 8px; width: 100%;
   padding: 12px 14px; background: var(--surface2); border: none;
