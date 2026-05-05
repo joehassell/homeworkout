@@ -137,6 +137,14 @@
     return !_isNative() || isPro();
   }
 
+  function canStartProgram(programId) {
+    if (!_isNative() || isPro()) return true;
+    var prog = window.programs && window.programs.getProgram(programId);
+    if (!prog) return false;
+    if (prog.is_trial_eligible && window.ProgramState && !window.ProgramState.isTrialConsumed()) return true;
+    return false;
+  }
+
   // ── Init ───────────────────────────────────────────────
   load();
 
@@ -155,6 +163,7 @@
     canUseWeightTracking: canUseWeightTracking,
     canUseBackup: canUseBackup,
     canUseFontScale: canUseFontScale,
+    canStartProgram: canStartProgram,
     // Constants
     FREE_EQUIPMENT: FREE_EQUIPMENT,
     FREE_THEMES: FREE_THEMES,

@@ -755,4 +755,12 @@ const DB = [
   {name:"Superman Hold",cat:"isometric",equip:["mat","bodyweight"],muscles:["back","glutes","shoulders"],types:["strength","isohiit"],diff:1,
    impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:true,min_fitness:'untrained',contraindicated_for:['lower_back'],pregnancy_safe:'no',
    info:"Lie face down with arms extended overhead. Simultaneously lift arms, chest, and legs off the floor. Hold this position, squeezing your glutes and back muscles. Keep neck neutral — look at the floor. Strengthens the entire posterior chain."},
+
+  // Programs: additional exercises
+  {name:"Band Pull-Apart",cat:"upper-pull",equip:["resistance band"],muscles:["back","shoulders"],types:["strength","functional","isohiit"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Hold a resistance band at shoulder height with arms extended, hands shoulder-width apart. Pull the band apart by squeezing your shoulder blades together until the band touches your chest. Control the return. Builds rear delt and upper back endurance."},
+  {name:"Side-Lying T-Spine Rotation",cat:"mobility",equip:["mat","bodyweight"],muscles:["spine","shoulders"],types:["functional"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:true,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Lie on your side with knees bent at 90 degrees, arms extended in front of you. Rotate your top arm up and over, following it with your gaze, opening your chest toward the ceiling. Return with control. Improves thoracic rotation and reduces upper-back stiffness."},
 ];

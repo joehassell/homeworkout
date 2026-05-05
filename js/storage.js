@@ -3,7 +3,7 @@
 
   const STORAGE_KEY = 'wk_sessions';
   const MAX_SESSIONS = 500;
-  const SCHEMA_VERSION = 1;
+  const SCHEMA_VERSION = 2;
 
   function loadSessions() {
     try {
@@ -53,6 +53,28 @@
     } catch (e) { return null; }
   }
 
+  // ── Schema migration ───────────────────────────────────
+  function migrateSchema() {
+    const currentVersion = readJSON('wk_schema_version') || 1;
+    if (currentVersion >= SCHEMA_VERSION) return;
+
+    // v2: program state keys
+    if (localStorage.getItem('wk_program_state') === null) {
+      localStorage.setItem('wk_program_state', JSON.stringify(null));
+    }
+    if (localStorage.getItem('wk_programs_history') === null) {
+      localStorage.setItem('wk_programs_history', JSON.stringify([]));
+    }
+    if (localStorage.getItem('wk_milestones') === null) {
+      localStorage.setItem('wk_milestones', JSON.stringify([]));
+    }
+    if (localStorage.getItem('wk_trial_consumed') === null) {
+      localStorage.setItem('wk_trial_consumed', JSON.stringify(false));
+    }
+
+    localStorage.setItem('wk_schema_version', JSON.stringify(SCHEMA_VERSION));
+  }
+
   function exportData() {
     return {
       version: SCHEMA_VERSION,
@@ -61,6 +83,10 @@
       sessions: loadSessions(),
       equipment: readJSON('wk_equipment'),
       settings: readJSON('wk_settings'),
+      program_state: readJSON('wk_program_state'),
+      programs_history: readJSON('wk_programs_history'),
+      milestones: readJSON('wk_milestones'),
+      trial_consumed: readJSON('wk_trial_consumed'),
     };
   }
 
@@ -77,8 +103,28 @@
       localStorage.setItem('wk_settings', JSON.stringify(payload.settings));
       if (typeof cloudPush === 'function') cloudPush('wk_settings');
     }
+    // Program data
+    if (payload.program_state !== undefined) {
+      localStorage.setItem('wk_program_state', JSON.stringify(payload.program_state));
+      if (typeof cloudPush === 'function') cloudPush('wk_program_state');
+    }
+    if (Array.isArray(payload.programs_history)) {
+      localStorage.setItem('wk_programs_history', JSON.stringify(payload.programs_history));
+      if (typeof cloudPush === 'function') cloudPush('wk_programs_history');
+    }
+    if (Array.isArray(payload.milestones)) {
+      localStorage.setItem('wk_milestones', JSON.stringify(payload.milestones));
+      if (typeof cloudPush === 'function') cloudPush('wk_milestones');
+    }
+    if (payload.trial_consumed !== undefined) {
+      localStorage.setItem('wk_trial_consumed', JSON.stringify(payload.trial_consumed));
+      if (typeof cloudPush === 'function') cloudPush('wk_trial_consumed');
+    }
     return { sessions: payload.sessions.length };
   }
+
+  // Run migration on load
+  migrateSchema();
 
   window.storage = {
     SCHEMA_VERSION,
@@ -89,5 +135,6 @@
     updateSession,
     exportData,
     importData,
+    migrateSchema,
   };
 })();

@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/paywall.css">
+<link rel="stylesheet" href="css/programs.css">
 </head>
 <body>
 
@@ -540,9 +541,14 @@
     <h2>Library</h2>
   </div>
   <div class="library-tabs">
+    <button class="lib-tab" data-tab="programs" onclick="switchLibTab('programs')">Programs</button>
     <button class="lib-tab active" data-tab="workouts" onclick="switchLibTab('workouts')">Workouts</button>
     <button class="lib-tab" data-tab="exercises" onclick="switchLibTab('exercises')">Exercises</button>
     <button class="lib-tab" data-tab="equipment" onclick="switchLibTab('equipment')">Equipment</button>
+  </div>
+  <!-- Programs panel -->
+  <div class="lib-panel" id="lib-programs" style="display:none;">
+    <div id="programs-list"></div>
   </div>
   <!-- Workouts panel -->
   <div class="lib-panel" id="lib-workouts">
@@ -585,6 +591,13 @@
     <div id="equip-catalog"></div>
   </div>
 </div>
+
+<!-- PROGRAM SCREENS -->
+<div id="program-detail" class="screen has-nav"></div>
+<div id="program-home" class="screen has-nav"></div>
+<div id="program-day" class="screen has-nav"></div>
+<div id="program-assessment" class="screen has-nav"></div>
+<div id="program-completion" class="screen has-nav"></div>
 
 <!-- SWITCH SIDES OVERLAY -->
 <div class="switch-overlay" id="switch-overlay"><span>Switch sides</span></div>
@@ -743,6 +756,10 @@
 <script src="js/iap.js"></script>
 <script src="js/paywall.js"></script>
 <script src="js/promo.js"></script>
+<script src="js/programs.js"></script>
+<script src="js/program-state.js"></script>
+<script src="js/program-resolver.js"></script>
+<script src="js/program-ui.js"></script>
 <script>
 // ═══════════════════════════════════════════════════
 // EXERCISE DATABASE WITH INSTRUCTIONS
@@ -1593,7 +1610,8 @@ function nativeHaptic(style) {
 
 // ── iCloud sync bridge ──────────────────────────────
 const SYNC_KEYS = ['wk_sessions','wk_settings','wk_equipment','wk_focus',
-                   'wk_saved_workouts','wk_exercise_prs','wk_weekly_plan','wk_equip_prefs'];
+                   'wk_saved_workouts','wk_exercise_prs','wk_weekly_plan','wk_equip_prefs',
+                   'wk_program_state','wk_programs_history','wk_milestones','wk_trial_consumed'];
 
 async function initCloudSync() {
   if (!isNative()) return;
@@ -2265,7 +2283,14 @@ function showScreen(id) {
 function navTo(screen) {
   if (screen === 'history' && window.history_view) window.history_view.refresh();
   if (screen === 'library') { renderLibrary(); renderExerciseLibraryInline(); }
-  if (screen === 'setup') { resetFocus(); }
+  if (screen === 'setup') {
+    var active = window.ProgramState && window.ProgramState.getActiveProgram();
+    if (active && active.state && !active.state.paused) {
+      ProgramUI.renderProgramHome();
+      return;
+    }
+    resetFocus();
+  }
   showScreen(screen);
 }
 
@@ -2279,6 +2304,7 @@ function switchLibTab(tab) {
   document.querySelectorAll('.lib-panel').forEach(p => p.style.display = 'none');
   const panel = document.getElementById('lib-' + tab);
   if (panel) panel.style.display = '';
+  if (tab === 'programs' && window.ProgramUI) ProgramUI.renderProgramsList();
   if (tab === 'exercises') renderExerciseLibraryInline();
   if (tab === 'equipment') renderEquipmentCatalog();
 }
@@ -3419,6 +3445,43 @@ function generateWorkout() {
     if (w.section === 'warmup') { warmupIdx++; w._phaseLabel = 'WARM-UP ' + warmupIdx + ' OF ' + warmupCount; }
     else if (w.section === 'cooldown') { cooldownIdx++; w._phaseLabel = 'COOLDOWN ' + cooldownIdx + ' OF ' + cooldownCount; }
   });
+
+  renderPreview();
+  showScreen('preview');
+}
+
+// ── Program workout bridge ─────────────────────────────
+function startProgramWorkout(resolved) {
+  if (!resolved || !resolved.exercises || resolved.exercises.length === 0) return;
+  workout = [];
+  activeTemplateName = resolved.title || 'Program Workout';
+  config.type = 'strength'; // Use count-up timer for program workouts (rep-based)
+
+  resolved.exercises.forEach(function (ex, i) {
+    var dbEntry = DB.find(function (d) { return d.name === ex.name; });
+    if (!dbEntry) {
+      // Create a minimal exercise object for unknown exercises
+      dbEntry = { name: ex.name, cat: 'general', equip: [], muscles: [], types: ['strength'], diff: 1, image: ex.image || null, info: ex.info || '' };
+    }
+    var sets = typeof ex.sets === 'number' ? ex.sets : 3;
+    for (var s = 0; s < sets; s++) {
+      workout.push({
+        exercise: dbEntry,
+        workSec: 0, // count-up (rep-based)
+        restSec: ex.rest_sec || 60,
+        intraRestSec: ex.rest_sec || 60,
+        section: 'main',
+        setIdx: s,
+        intensity: 'moderate',
+        single_sided: !!dbEntry.single_sided,
+        _programReps: ex.reps || null,
+        _programMeta: { week: window._programWorkout ? window._programWorkout.week : null, day: window._programWorkout ? window._programWorkout.day : null }
+      });
+    }
+  });
+
+  // Phase labels
+  workout.forEach(function (w, i) { w._phaseLabel = 'SET ' + (w.setIdx + 1); });
 
   renderPreview();
   showScreen('preview');
@@ -4837,6 +4900,7 @@ function captureDoneData() {
 function doneActionSave() {
   captureDoneData();
   saveWorkoutToLibrary();
+  _completeProgramDayIfActive();
   pendingSessionId = null;
   showScreen('setup');
   if (window.Paywall) Paywall.maybeShowCompletionPaywall();
@@ -4844,9 +4908,17 @@ function doneActionSave() {
 
 function doneActionRecord() {
   captureDoneData();
+  _completeProgramDayIfActive();
   pendingSessionId = null;
   showScreen('setup');
   if (window.Paywall) Paywall.maybeShowCompletionPaywall();
+}
+
+function _completeProgramDayIfActive() {
+  if (!window._programWorkout || !window.ProgramState) return;
+  var pw = window._programWorkout;
+  window.ProgramState.completeDay(pw.week, pw.day, pendingSessionId, pendingRpe);
+  window._programWorkout = null;
 }
 
 function doneActionModify() {
