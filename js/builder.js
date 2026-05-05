@@ -34,6 +34,7 @@
     hiit:         { work: 0.8, rest: 0.7 },
     conditioning: { work: 1.0, rest: 1.0 },
     functional:   { work: 1.0, rest: 1.0 },
+    isohiit:      { work: 0.85, rest: 0.8 },
   };
 
   const DIFF_MOD = {

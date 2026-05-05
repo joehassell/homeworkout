@@ -248,6 +248,7 @@ class WorkoutSessionManager: NSObject, ObservableObject {
         case "hiit": return .highIntensityIntervalTraining
         case "conditioning": return .crossTraining
         case "functional": return .functionalStrengthTraining
+        case "isohiit": return .highIntensityIntervalTraining
         default: return .functionalStrengthTraining
         }
     }

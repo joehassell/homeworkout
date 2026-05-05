@@ -956,6 +956,7 @@ html.is-native .is-native-only { display: flex; }
 .hist-type.strength { background: var(--yellow-soft); color: var(--yellow); }
 .hist-type.conditioning { background: var(--orange-soft); color: var(--orange); }
 .hist-type.functional { background: var(--green-soft); color: var(--green); }
+.hist-type.isohiit { background: var(--accent-soft); color: var(--accent); }
 .hist-rpe { padding: 2px 6px; border-radius: 4px; background: var(--surface2); }
 .hist-note-badge { padding: 2px 6px; border-radius: 4px; background: var(--surface2); font-style: italic; }
 .hist-row-body { display: none; padding: 0 14px 12px; }

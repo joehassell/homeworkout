@@ -64,6 +64,7 @@ public class HealthKitPlugin: CAPPlugin, CAPBridgedPlugin {
         case "hiit": return .highIntensityIntervalTraining
         case "conditioning": return .crossTraining
         case "functional": return .functionalStrengthTraining
+        case "isohiit": return .highIntensityIntervalTraining
         default: return .functionalStrengthTraining
         }
     }
