@@ -82,8 +82,10 @@ public class HealthKitPlugin: CAPPlugin, CAPBridgedPlugin {
             call.resolve(["status": "unavailable"])
             return
         }
-        let bodyMass = HKQuantityType(.bodyMass)
-        let status = healthStore.authorizationStatus(for: bodyMass)
+        // Check a WRITE type — read types always return .sharingDenied on iOS
+        // regardless of whether the user has been asked or not.
+        let workoutType = HKObjectType.workoutType()
+        let status = healthStore.authorizationStatus(for: workoutType)
         switch status {
         case .notDetermined:
             call.resolve(["status": "not_determined"])

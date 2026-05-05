@@ -456,12 +456,15 @@
       <button type="button" class="pill" data-value="male" onclick="setYogaVoice('male')">Male</button>
     </div>
   </div>
-  <div class="settings-row settings-row-stack">
-    <label class="settings-label">Voice Engine</label>
+  <div class="settings-row settings-row-stack" id="voice-engine-row">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <label class="settings-label">Voice Engine</label>
+      <span id="voice-engine-lock" class="settings-pro-lock" style="display:none;">&#x1F512; Pro</span>
+    </div>
     <div class="option-pills" id="voice-engine-pills">
       <button type="button" class="pill selected" data-value="standard" onclick="setVoiceEngine('standard')">Standard<span class="pill-sub">Browser</span></button>
       <button type="button" class="pill" data-value="siri" onclick="setVoiceEngine('siri')">Siri<span class="pill-sub">iOS only</span></button>
-      <button type="button" class="pill" data-value="custom" onclick="setVoiceEngine('custom')">Custom<span class="pill-sub">Pro only</span></button>
+      <button type="button" class="pill" data-value="custom" onclick="setVoiceEngine('custom')">Custom<span class="pill-sub">AI voices</span></button>
     </div>
   </div>
   <div class="settings-row is-native-only">
@@ -1086,7 +1089,7 @@ function showToast(msg) {
 }
 
 function setVoiceEngine(engine) {
-  if (engine === 'custom' && !Entitlement.isPro()) {
+  if ((engine === 'siri' || engine === 'custom') && !Entitlement.isPro()) {
     Paywall.open('settings');
     return;
   }
@@ -1102,6 +1105,14 @@ function setVoiceEngine(engine) {
   saveAppSettings();
 }
 
+function syncVoiceEngineUI() {
+  document.querySelectorAll('#voice-engine-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === voiceEngine);
+  });
+  const lock = document.getElementById('voice-engine-lock');
+  if (lock) lock.style.display = (typeof Entitlement !== 'undefined' && Entitlement.isPro()) ? 'none' : '';
+}
+
 function toggleMusicSetting() {
   musicEnabled = !musicEnabled;
   const btn = document.getElementById('set-music');
@@ -1111,6 +1122,10 @@ function toggleMusicSetting() {
   }
   const bar = document.getElementById('music-bar');
   if (bar && !musicEnabled) { bar.classList.remove('visible'); document.documentElement.classList.remove('music-bar-visible'); }
+  const bubble = document.getElementById('music-bubble');
+  if (bubble && !musicEnabled) { bubble.classList.remove('visible'); }
+  const expanded = document.getElementById('music-expanded');
+  if (expanded && !musicEnabled) { expanded.classList.remove('open'); musicBubbleOpen = false; }
   if (musicEnabled && musicAvailable) {
     const mp = window.Capacitor.Plugins.MusicPlugin;
     mp.getNowPlaying().then(s => updateMusicBar(s));
@@ -1204,14 +1219,23 @@ async function reconnectHealthKit() {
   if (!isNative()) return;
   try {
     const hk = window.Capacitor.Plugins.HealthKitPlugin;
-    const auth = await hk.checkAuthorizationStatus();
-    if (auth.status === 'denied') {
-      // Open iOS Settings so user can re-enable Health permissions
+    // Always request authorization — iOS will show the prompt if not yet asked,
+    // or silently succeed if already granted. If the user previously denied,
+    // requestAuthorization still resolves (Apple won't re-prompt) but we detect
+    // it via the granted flag and open Settings as fallback.
+    const { granted } = await hk.requestAuthorization();
+    if (granted) {
+      healthKitReady = true;
+      const statusEl = document.getElementById('health-status');
+      const actionEl = document.getElementById('set-health-action');
+      if (statusEl) { statusEl.textContent = 'Connected — workouts auto-save'; statusEl.classList.add('connected'); statusEl.classList.remove('disconnected'); }
+      if (actionEl) actionEl.style.display = 'none';
+      await fetchHealthKitData(hk);
+    } else {
+      // User denied — open iOS Settings so they can toggle Health permissions
       if (window.Capacitor.Plugins.App) {
         window.Capacitor.Plugins.App.openUrl({ url: 'App-prefs:Health' });
       }
-    } else {
-      await initHealthKit();
     }
   } catch (e) {
     await initHealthKit();
@@ -1939,9 +1963,7 @@ function loadAppSettings() {
     p.classList.toggle('selected', p.dataset.value === yogaVoiceGender);
   });
   // Voice engine
-  document.querySelectorAll('#voice-engine-pills .pill').forEach(p => {
-    p.classList.toggle('selected', p.dataset.value === voiceEngine);
-  });
+  syncVoiceEngineUI();
 }
 
 function exportBackup() {
@@ -5016,7 +5038,6 @@ let activeTemplateName = null;
 function showTemplatePicker() {
   const allTpls = window.templates.TEMPLATES;
   const list = document.getElementById('template-list');
-  // Group templates by type
   const typeOrder = ['strength', 'hiit', 'isohiit', 'conditioning', 'functional', 'yoga'];
   const typeLabels = { strength:'Strength', hiit:'HIIT', isohiit:'ISOHIIT', conditioning:'Conditioning', functional:'Functional', yoga:'Yoga' };
   const grouped = {};
@@ -5028,7 +5049,13 @@ function showTemplatePicker() {
   for (const type of typeOrder) {
     const tpls = grouped[type];
     if (!tpls || tpls.length === 0) continue;
-    html += '<div class="tpl-group-label">' + (typeLabels[type] || type) + '</div>';
+    html += '<div class="tpl-group">' +
+      '<button class="tpl-group-header" onclick="toggleTplGroup(this)">' +
+        '<span class="tpl-group-arrow">&#x25B6;</span> ' +
+        (typeLabels[type] || type) +
+        ' <span class="tpl-group-count">' + tpls.length + '</span>' +
+      '</button>' +
+      '<div class="tpl-group-body">';
     html += tpls.map(t => {
       const globalIdx = allTpls.indexOf(t);
       return '<button class="tpl-card" onclick="applyTemplate(' + globalIdx + ')">' +
@@ -5041,11 +5068,17 @@ function showTemplatePicker() {
         '<div class="tpl-card-desc">' + escapeHtml(t.description) + '</div>' +
       '</button>';
     }).join('');
+    html += '</div></div>';
   }
   if (!html) html = '<div class="tpl-card-empty">No templates available.</div>';
   list.innerHTML = html;
   window._tplFiltered = allTpls;
   document.getElementById('template-modal').classList.add('active');
+}
+
+function toggleTplGroup(header) {
+  const group = header.parentElement;
+  group.classList.toggle('open');
 }
 
 function closeTemplatePicker() {

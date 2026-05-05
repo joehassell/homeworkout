@@ -432,8 +432,24 @@ html.is-native .is-native-only { display: flex; }
 .tpl-card-meta { font-size: 0.75rem; color: var(--text-dim); margin-top: 3px; display: flex; gap: 8px; flex-wrap: wrap; }
 .tpl-card-desc { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; line-height: 1.3; }
 .tpl-card-empty { color: var(--text-dim); font-size: 0.9rem; padding: 16px 0; text-align: center; }
-.tpl-group-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin: 14px 0 6px; padding-left: 2px; }
-.tpl-group-label:first-child { margin-top: 0; }
+.tpl-group { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
+.tpl-group-header {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 12px 14px; background: var(--surface2); border: none;
+  color: var(--text); font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; touch-action: manipulation; font-family: inherit;
+  -webkit-appearance: none; appearance: none; text-align: left;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.tpl-group-header:active { opacity: 0.7; }
+.tpl-group-arrow { font-size: 0.65rem; transition: transform 0.2s; display: inline-block; }
+.tpl-group.open .tpl-group-arrow { transform: rotate(90deg); }
+.tpl-group-count { font-size: 0.7rem; font-weight: 400; color: var(--text-dim); margin-left: auto; }
+.tpl-group-body { display: none; padding: 6px; }
+.tpl-group.open .tpl-group-body { display: flex; flex-direction: column; gap: 6px; }
+
+/* Pro lock badge */
+.settings-pro-lock { font-size: 0.65rem; font-weight: 700; color: var(--accent); padding: 2px 8px; border-radius: 4px; background: var(--accent-soft); }
 .preview-tpl-name { font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
 
 .preview-actions { display: flex; gap: 10px; }
