@@ -463,8 +463,8 @@
       <span id="voice-engine-lock" class="settings-pro-lock" style="display:none;">&#x1F512; Pro</span>
     </div>
     <div class="option-pills" id="voice-engine-pills">
-      <button type="button" class="pill selected" data-value="standard" onclick="setVoiceEngine('standard')">Standard<span class="pill-sub">Browser</span></button>
-      <button type="button" class="pill" data-value="siri" onclick="setVoiceEngine('siri')">Siri<span class="pill-sub">iOS only</span></button>
+      <button type="button" class="pill selected" data-value="standard" onclick="setVoiceEngine('standard')">Standard<span class="pill-sub">System</span></button>
+      <button type="button" class="pill" data-value="siri" onclick="setVoiceEngine('siri')">Premium<span class="pill-sub">Enhanced</span></button>
       <button type="button" class="pill" data-value="custom" onclick="setVoiceEngine('custom')">Custom<span class="pill-sub">AI voices</span></button>
     </div>
   </div>
@@ -1111,7 +1111,7 @@ function setVoiceEngine(engine) {
     return;
   }
   if (engine === 'siri' && !isNative()) {
-    showToast('Siri voice is only available on iOS');
+    showToast('Premium voice is only available on iOS');
     return;
   }
   voiceEngine = engine;
@@ -1120,6 +1120,9 @@ function setVoiceEngine(engine) {
   });
   customVoiceWarningShown = false;
   saveAppSettings();
+  // Speak a preview so user hears the difference
+  var preview = engine === 'siri' ? 'Premium voice activated' : engine === 'custom' ? 'Custom voice activated' : 'Standard voice activated';
+  speak(preview);
 }
 
 function syncVoiceEngineUI() {
@@ -1734,13 +1737,23 @@ function poseSlug(name) {
   return name.toLowerCase().replace(/['']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
+function getSpeechPlugin() {
+  try {
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SpeechPlugin) {
+      return window.Capacitor.Plugins.SpeechPlugin;
+    }
+  } catch (e) {}
+  return null;
+}
+
 function speak(text) {
   if (!voiceEnabled) return;
-  if (isNative() && window.Capacitor.Plugins.SpeechPlugin) {
+  var sp = isNative() && getSpeechPlugin();
+  if (sp) {
     // On native, always use SpeechPlugin — Web Speech API is unreliable in WKWebView
     const quality = voiceEngine === 'siri' ? 'best' : 'default';
     const rate = voiceEngine === 'siri' ? 0.50 : 0.52;
-    window.Capacitor.Plugins.SpeechPlugin.speak({ text, rate, pitch: 1.0, quality });
+    sp.speak({ text, rate, pitch: 1.0, quality });
   } else {
     // Web fallback
     webSpeechSpeak(text, 0.95, 1.0);
@@ -1791,10 +1804,11 @@ function tryPrerecordedAudio(text, slug, cueIndex) {
 let customVoiceWarningShown = false;
 
 function speakYogaTTS(text) {
-  if (isNative() && window.Capacitor.Plugins.SpeechPlugin) {
+  var sp = isNative() && getSpeechPlugin();
+  if (sp) {
     const quality = voiceEngine === 'siri' ? 'best' : 'default';
     const rate = voiceEngine === 'siri' ? 0.38 : 0.42;
-    window.Capacitor.Plugins.SpeechPlugin.speak({ text, rate, pitch: 0.9, quality });
+    sp.speak({ text, rate, pitch: 0.9, quality });
     return;
   }
   // Web fallback: Web Speech API
@@ -1805,8 +1819,9 @@ function speakYogaTTS(text) {
 
 function stopYogaAudio() {
   if (yogaAudioPlaying) { yogaAudioPlaying.pause(); yogaAudioPlaying = null; }
-  if (isNative() && window.Capacitor.Plugins.SpeechPlugin) {
-    window.Capacitor.Plugins.SpeechPlugin.stop({});
+  var sp = isNative() && getSpeechPlugin();
+  if (sp) {
+    sp.stop({});
   } else if ('speechSynthesis' in window) {
     speechSynthesis.cancel();
   }

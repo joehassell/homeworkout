@@ -73,22 +73,31 @@ public class SpeechPlugin: CAPPlugin, CAPBridgedPlugin {
     // MARK: - Helpers
 
     private func defaultVoice() -> AVSpeechSynthesisVoice? {
-        // Return the basic system voice (default quality)
+        // Return the basic system voice for the user's locale
         let langTag = Locale.current.identifier.replacingOccurrences(of: "_", with: "-")
         let allVoices = AVSpeechSynthesisVoice.speechVoices()
             .filter { $0.language == langTag || $0.language.hasPrefix("en") }
-            .filter { $0.quality.rawValue <= 1 }  // default quality only
+            .sorted { v1, v2 in v1.quality.rawValue < v2.quality.rawValue }
         return allVoices.first ?? AVSpeechSynthesisVoice(language: "en-US")
     }
 
     private func bestAvailableVoice() -> AVSpeechSynthesisVoice? {
         let langTag = Locale.current.identifier.replacingOccurrences(of: "_", with: "-")
 
-        // Try premium first, then enhanced, then default
+        // Get all English voices sorted by quality (premium > enhanced > default)
         let allVoices = AVSpeechSynthesisVoice.speechVoices()
             .filter { $0.language == langTag || $0.language.hasPrefix("en") }
             .sorted { v1, v2 in v1.quality.rawValue > v2.quality.rawValue }
 
+        // Pick the best quality voice, but ensure it's different from default
+        let defaultV = defaultVoice()
+        if let best = allVoices.first, best.identifier != defaultV?.identifier {
+            return best
+        }
+        // If best == default (no premium downloaded), pick a different voice by name
+        if allVoices.count > 1 {
+            return allVoices.first { $0.identifier != defaultV?.identifier } ?? allVoices.first
+        }
         return allVoices.first ?? AVSpeechSynthesisVoice(language: "en-US")
     }
 
