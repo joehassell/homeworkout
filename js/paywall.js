@@ -27,6 +27,7 @@
     history:    'See your full history, heatmap, and stats with Pro',
     theme:      'Unlock all 5 themes with Pro',
     completion: 'Enjoying your workouts? Go Pro for the full experience',
+    programs:   'Unlock all 12 training programs with Pro',
     settings:   'Upgrade to Pro',
   };
 
