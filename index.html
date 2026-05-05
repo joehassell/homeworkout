@@ -130,8 +130,9 @@
       <div class="option-pills option-pills-multi">
         <button type="button" class="pill selected" data-value="bodyweight" onclick="toggleEquipmentPill(this)">Bodyweight</button>
         <button type="button" class="pill selected" data-value="mat" onclick="toggleEquipmentPill(this)">Mat</button>
-        <button type="button" class="pill selected" data-value="skipping rope" onclick="toggleEquipmentPill(this)">Skipping Rope</button>
-        <button type="button" class="pill selected" data-value="resistance band" onclick="toggleEquipmentPill(this)">Resistance Band</button>
+        <button type="button" class="pill" data-value="resistance band" onclick="toggleEquipmentPill(this)">Resistance Band</button>
+        <button type="button" class="pill" data-value="skipping rope" onclick="toggleEquipmentPill(this)">Skipping Rope</button>
+        <button type="button" class="pill" data-value="chinup bar" onclick="toggleEquipmentPill(this)">Chin-up Bar</button>
       </div>
     </div>
     <div class="equip-tier" id="equipment-home">
@@ -139,11 +140,10 @@
         <span class="tier-arrow">&#x25BC;</span> Home Gym
       </div>
       <div class="option-pills option-pills-multi">
-        <button type="button" class="pill selected" data-value="dumbbell" onclick="toggleEquipmentPill(this)">Dumbbell</button>
-        <button type="button" class="pill selected" data-value="kettlebell" onclick="toggleEquipmentPill(this)">Kettlebell</button>
-        <button type="button" class="pill selected" data-value="bench" onclick="toggleEquipmentPill(this)">Bench</button>
-        <button type="button" class="pill selected" data-value="chinup bar" onclick="toggleEquipmentPill(this)">Chin-up Bar</button>
-        <button type="button" class="pill selected" data-value="medicine ball" onclick="toggleEquipmentPill(this)">Medicine Ball</button>
+        <button type="button" class="pill" data-value="dumbbell" onclick="toggleEquipmentPill(this)">Dumbbell</button>
+        <button type="button" class="pill" data-value="kettlebell" onclick="toggleEquipmentPill(this)">Kettlebell</button>
+        <button type="button" class="pill" data-value="bench" onclick="toggleEquipmentPill(this)">Bench</button>
+        <button type="button" class="pill" data-value="medicine ball" onclick="toggleEquipmentPill(this)">Medicine Ball</button>
       </div>
     </div>
     <div class="equip-tier collapsed" id="equipment-commercial">
@@ -784,8 +784,9 @@ function parseHeightInput(val) {
 }
 let userGoals = [];
 let lastCustomDuration = 40;
-const ALL_EQUIPMENT = ['bodyweight','mat','dumbbell','kettlebell','barbell','bench','chinup bar','medicine ball','skipping rope'];
-let selectedEquipment = new Set(ALL_EQUIPMENT);
+const ALL_EQUIPMENT = ['bodyweight','mat','resistance band','skipping rope','dumbbell','kettlebell','barbell','bench','chinup bar','medicine ball'];
+const DEFAULT_EQUIPMENT = ['bodyweight','mat'];
+let selectedEquipment = new Set(DEFAULT_EQUIPMENT);
 let workout = [];
 let pendingSessionId = null;
 let pendingRpe = null;
@@ -2306,7 +2307,7 @@ function toggleEquipmentPill(el) {
 function loadEquipmentSelection() {
   try {
     const raw = localStorage.getItem('wk_equipment');
-    if (!raw) return; // default = all selected
+    if (!raw) return; // default = bodyweight + mat
     const arr = JSON.parse(raw);
     if (Array.isArray(arr)) selectedEquipment = new Set(arr);
   } catch (e) {}
@@ -2337,9 +2338,9 @@ function toggleEquipTier(tierEl) {
 
 const EQUIP_PRESETS = {
   none:       ['bodyweight', 'mat'],
-  light:      ['bodyweight', 'mat', 'dumbbell', 'kettlebell'],
-  full:       ['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'bench', 'chinup bar', 'medicine ball', 'skipping rope'],
-  commercial: ['bodyweight', 'mat', 'dumbbell', 'kettlebell', 'bench', 'chinup bar', 'medicine ball', 'skipping rope', 'barbell'],
+  light:      ['bodyweight', 'mat', 'resistance band', 'skipping rope', 'dumbbell'],
+  full:       ['bodyweight', 'mat', 'resistance band', 'skipping rope', 'dumbbell', 'kettlebell', 'bench', 'chinup bar', 'medicine ball'],
+  commercial: ['bodyweight', 'mat', 'resistance band', 'skipping rope', 'dumbbell', 'kettlebell', 'bench', 'chinup bar', 'medicine ball', 'barbell'],
 };
 
 function applyEquipPreset(preset) {
@@ -5013,14 +5014,24 @@ function renderLibrary() {
 let activeTemplateName = null;
 
 function showTemplatePicker() {
-  const fitnessLevel = (userProfile && userProfile.fitness_level) || 'beginner';
-  const tpls = window.templates.getTemplatesForType(config.type, selectedEquipment, fitnessLevel);
+  const allTpls = window.templates.TEMPLATES;
   const list = document.getElementById('template-list');
-  if (tpls.length === 0) {
-    list.innerHTML = '<div class="tpl-card-empty">No templates match your current type, equipment, and fitness level.</div>';
-  } else {
-    list.innerHTML = tpls.map((t, idx) =>
-      '<button class="tpl-card" onclick="applyTemplate(' + idx + ')">' +
+  // Group templates by type
+  const typeOrder = ['strength', 'hiit', 'isohiit', 'conditioning', 'functional', 'yoga'];
+  const typeLabels = { strength:'Strength', hiit:'HIIT', isohiit:'ISOHIIT', conditioning:'Conditioning', functional:'Functional', yoga:'Yoga' };
+  const grouped = {};
+  for (const t of allTpls) {
+    if (!grouped[t.type]) grouped[t.type] = [];
+    grouped[t.type].push(t);
+  }
+  let html = '';
+  for (const type of typeOrder) {
+    const tpls = grouped[type];
+    if (!tpls || tpls.length === 0) continue;
+    html += '<div class="tpl-group-label">' + (typeLabels[type] || type) + '</div>';
+    html += tpls.map(t => {
+      const globalIdx = allTpls.indexOf(t);
+      return '<button class="tpl-card" onclick="applyTemplate(' + globalIdx + ')">' +
         '<div class="tpl-card-name">' + escapeHtml(t.name) + '</div>' +
         '<div class="tpl-card-meta">' +
           '<span>' + t.duration_min + ' min</span>' +
@@ -5028,10 +5039,12 @@ function showTemplatePicker() {
           '<span>' + t.min_fitness + '</span>' +
         '</div>' +
         '<div class="tpl-card-desc">' + escapeHtml(t.description) + '</div>' +
-      '</button>'
-    ).join('');
+      '</button>';
+    }).join('');
   }
-  window._tplFiltered = tpls;
+  if (!html) html = '<div class="tpl-card-empty">No templates available.</div>';
+  list.innerHTML = html;
+  window._tplFiltered = allTpls;
   document.getElementById('template-modal').classList.add('active');
 }
 
