@@ -60,16 +60,25 @@ public class WatchConnectivityPlugin: CAPPlugin, CAPBridgedPlugin, WCSessionDele
         if let v = call.getInt("totalRemaining") { state["totalRemaining"] = v }
         if let v = call.getBool("isPaused") { state["isPaused"] = v }
         if let v = call.getString("workoutType") { state["workoutType"] = v }
+        if let v = call.getInt("workSec") { state["workSec"] = v }
+        if let v = call.getInt("restSec") { state["restSec"] = v }
         state["timestamp"] = Date().timeIntervalSince1970
 
         // Use applicationContext — latest-value-wins, works in background
         do {
             try s.updateApplicationContext(state)
-            call.resolve(["sent": true])
         } catch {
             NSLog("WatchConnectivity: failed to update context: \(error.localizedDescription)")
-            call.resolve(["sent": false])
         }
+
+        // Also send via sendMessage for real-time delivery when reachable
+        if s.isReachable {
+            var msg = state
+            msg["type"] = "stateUpdate"
+            s.sendMessage(msg, replyHandler: nil) { _ in }
+        }
+
+        call.resolve(["sent": true])
     }
 
     @objc func sendCommand(_ call: CAPPluginCall) {

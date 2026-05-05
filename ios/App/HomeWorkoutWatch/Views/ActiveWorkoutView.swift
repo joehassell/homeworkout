@@ -19,6 +19,9 @@ struct ActiveWorkoutView: View {
 struct WorkoutPageView: View {
     @EnvironmentObject var manager: WorkoutSessionManager
 
+    private let zoneNames = ["", "Rest", "Fat Burn", "Cardio", "Tempo", "Peak"]
+    private let zoneColors: [Color] = [.clear, .blue, .green, .yellow, .orange, .red]
+
     var body: some View {
         ScrollView {
             VStack(spacing: 6) {
@@ -45,6 +48,13 @@ struct WorkoutPageView: View {
                     }
                 }
 
+                // Work/rest duration context
+                if manager.workSec > 0 || manager.restSec > 0 {
+                    Text("Work \(manager.workSec)s \u{2192} Rest \(manager.restSec)s")
+                        .font(.system(size: 10))
+                        .foregroundStyle(.secondary)
+                }
+
                 // Exercise name
                 Text(manager.exerciseName)
                     .font(.system(.title3, design: .rounded))
@@ -60,9 +70,21 @@ struct WorkoutPageView: View {
                     .foregroundStyle(phaseColor)
                     .frame(maxWidth: .infinity)
 
-                // Heart rate + calories
+                // Heart rate + zone pill + calories
                 if manager.heartRate > 0 {
                     HeartRateView(bpm: manager.heartRate)
+
+                    // Compact HR zone pill
+                    if manager.currentZone > 0 && manager.currentZone <= 5 {
+                        Text("Z\(manager.currentZone) \(zoneNames[manager.currentZone])")
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(zoneColors[manager.currentZone].opacity(0.2))
+                            .foregroundStyle(zoneColors[manager.currentZone])
+                            .clipShape(Capsule())
+                    }
+
                     HStack(spacing: 12) {
                         if manager.activeCalories > 0 {
                             Label("\(Int(manager.activeCalories)) kcal", systemImage: "flame.fill")
@@ -130,97 +152,80 @@ struct WorkoutPageView: View {
     }
 }
 
-// MARK: - Watch Music View (Page 2)
+// MARK: - Watch Music View (Page 2) — Apple Fitness Style
 
 struct WatchMusicView: View {
     @EnvironmentObject var manager: WorkoutSessionManager
-    @State private var crownVolume: Double = 0.5
 
     var body: some View {
-        VStack(spacing: 8) {
-            Text("NOW PLAYING")
-                .font(.caption2)
-                .fontWeight(.bold)
-                .textCase(.uppercase)
-                .foregroundStyle(.secondary)
-
+        VStack(spacing: 10) {
             Spacer(minLength: 4)
 
-            if manager.musicTitle.isEmpty {
-                Image(systemName: "music.note")
-                    .font(.title2)
-                    .foregroundStyle(.secondary)
-                Text("No music playing")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            } else {
-                Image(systemName: "music.note")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            // Album art placeholder (rounded square with gradient)
+            RoundedRectangle(cornerRadius: 12)
+                .fill(
+                    LinearGradient(
+                        colors: [.purple.opacity(0.6), .blue.opacity(0.4)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .frame(width: 80, height: 80)
+                .overlay(
+                    Image(systemName: "music.note")
+                        .font(.title)
+                        .foregroundStyle(.white.opacity(0.7))
+                )
+
+            // Song info
+            if !manager.musicTitle.isEmpty {
                 Text(manager.musicTitle)
-                    .font(.system(.body, design: .rounded))
+                    .font(.system(.footnote, design: .rounded))
                     .fontWeight(.semibold)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
+                    .lineLimit(1)
                 if !manager.musicArtist.isEmpty {
                     Text(manager.musicArtist)
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
+            } else {
+                Text("Not Playing")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
-            Spacer(minLength: 4)
-
-            // Transport controls
-            HStack(spacing: 20) {
+            // Transport: prev | PLAY | next
+            HStack(spacing: 24) {
                 Button { manager.sendMusicControl("previous") } label: {
                     Image(systemName: "backward.fill")
-                        .font(.title3)
+                        .font(.body)
                 }
                 .buttonStyle(.plain)
 
                 Button {
                     manager.sendMusicControl(manager.musicIsPlaying ? "pause" : "play")
                 } label: {
-                    Image(systemName: manager.musicIsPlaying ? "pause.fill" : "play.fill")
-                        .font(.title2)
+                    Image(systemName: manager.musicIsPlaying ? "pause.circle.fill" : "play.circle.fill")
+                        .font(.system(size: 36))
                 }
                 .buttonStyle(.plain)
 
                 Button { manager.sendMusicControl("next") } label: {
                     Image(systemName: "forward.fill")
-                        .font(.title3)
+                        .font(.body)
                 }
                 .buttonStyle(.plain)
             }
             .foregroundStyle(.primary)
 
-            Spacer(minLength: 4)
+            // AirPlay indicator
+            Image(systemName: "airplayaudio")
+                .font(.caption)
+                .foregroundStyle(.secondary)
 
-            // Volume via Digital Crown
-            HStack(spacing: 6) {
-                Image(systemName: "speaker.fill")
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(height: 4)
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(Color.white)
-                            .frame(width: geo.size.width * crownVolume, height: 4)
-                    }
-                }
-                .frame(height: 4)
-                Image(systemName: "speaker.wave.3.fill")
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 8)
+            Spacer(minLength: 4)
         }
         .focusable()
-        .digitalCrownRotation($crownVolume, from: 0.0, through: 1.0, sensitivity: .low, isContinuous: false, isHapticFeedbackEnabled: true)
     }
 }

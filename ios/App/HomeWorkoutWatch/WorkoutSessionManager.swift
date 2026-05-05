@@ -30,6 +30,10 @@ class WorkoutSessionManager: NSObject, ObservableObject {
     @Published var musicArtist = ""
     @Published var musicIsPlaying = false
 
+    // Work/rest durations (sent from phone)
+    @Published var workSec: Int = 0
+    @Published var restSec: Int = 0
+
     // Heart rate zone tracking
     @Published var currentZone: Int = 0  // 1-5
     @Published var timeInCurrentZone: Int = 0  // seconds
@@ -248,7 +252,15 @@ class WorkoutSessionManager: NSObject, ObservableObject {
         }
     }
 
+    private var lastAppliedTimestamp: Double = 0
+
     private func applyState(_ state: [String: Any]) {
+        // Reject stale updates (timestamp must be newer)
+        if let ts = state["timestamp"] as? Double, ts <= lastAppliedTimestamp {
+            return
+        }
+        if let ts = state["timestamp"] as? Double { lastAppliedTimestamp = ts }
+
         if let v = state["exerciseName"] as? String { exerciseName = v }
         if let v = state["phase"] as? String {
             let oldPhase = phase
@@ -263,6 +275,8 @@ class WorkoutSessionManager: NSObject, ObservableObject {
         if let v = state["totalRemaining"] as? Int { totalRemaining = v }
         if let v = state["isPaused"] as? Bool { isPaused = v }
         if let v = state["workoutType"] as? String { workoutType = v }
+        if let v = state["workSec"] as? Int { workSec = v }
+        if let v = state["restSec"] as? Int { restSec = v }
 
         // Music state (if included)
         if let v = state["musicTitle"] as? String { musicTitle = v }
@@ -342,6 +356,13 @@ extension WorkoutSessionManager: WCSessionDelegate {
             case "hapticCue":
                 let style = message["style"] as? String ?? "click"
                 self.fireHaptic(for: style)
+
+            case "stateUpdate":
+                self.applyState(message)
+                if !self.isActive && message["exerciseName"] != nil {
+                    self.isActive = true
+                    self.startHealthKitSession()
+                }
 
             case "musicUpdate":
                 if let t = message["title"] as? String { self.musicTitle = t }

@@ -291,21 +291,13 @@
     <label class="done-label" for="d-note">Any notes?</label>
     <input type="text" id="d-note" class="done-note" maxlength="200" placeholder="e.g. left shoulder tight">
 
-    <div class="done-save-row">
-      <span class="done-save-label">Save this workout</span>
-      <button type="button" id="save-workout-toggle" class="settings-toggle" onclick="toggleSaveWorkout()">Off</button>
-    </div>
-    <div id="save-star-row" class="done-star-row" style="display:none;">
-      <button type="button" class="done-star" data-star="1" onclick="selectSaveStar(1)">&#9733;</button>
-      <button type="button" class="done-star" data-star="2" onclick="selectSaveStar(2)">&#9733;</button>
-      <button type="button" class="done-star" data-star="3" onclick="selectSaveStar(3)">&#9733;</button>
-      <button type="button" class="done-star" data-star="4" onclick="selectSaveStar(4)">&#9733;</button>
-      <button type="button" class="done-star" data-star="5" onclick="selectSaveStar(5)">&#9733;</button>
-    </div>
   </div>
 
-  <button class="btn btn-primary btn-full" onclick="saveAndFinish()" style="margin-top:20px;">Save &amp; Finish</button>
-  <button class="done-skip" onclick="skipFinish()">Skip</button>
+  <div class="done-actions">
+    <button class="btn btn-primary btn-full" onclick="doneActionSave()">Save Workout</button>
+    <button class="btn btn-ghost btn-full" onclick="doneActionRecord()">Record Only</button>
+    <button class="btn btn-ghost btn-full" onclick="doneActionModify()">Modify</button>
+  </div>
 </div>
 
 <!-- HISTORY -->
@@ -611,6 +603,35 @@
   <button class="set-rpe-skip" onclick="selectSetRpe(null)">Skip</button>
 </div>
 
+<!-- STRENGTH SET ENTRY (weight/reps/RPE overlay during rest) -->
+<div class="strength-set-overlay" id="strength-set-overlay">
+  <div class="strength-set-card">
+    <div class="strength-set-title">Log Set</div>
+    <div class="strength-set-field">
+      <label for="so-weight">Weight</label>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <input type="number" inputmode="decimal" step="0.5" id="so-weight" placeholder="--">
+        <span id="so-weight-unit" class="strength-set-unit">kg</span>
+      </div>
+    </div>
+    <div class="strength-set-field">
+      <label for="so-reps">Reps</label>
+      <input type="number" inputmode="numeric" id="so-reps" placeholder="--">
+    </div>
+    <div class="strength-set-field">
+      <label>RPE</label>
+      <div class="set-rpe-pills" id="so-rpe-row">
+        <button class="set-rpe-pill" data-rpe="6" onclick="selectStrengthSetRpe(this)">6</button>
+        <button class="set-rpe-pill" data-rpe="7" onclick="selectStrengthSetRpe(this)">7</button>
+        <button class="set-rpe-pill" data-rpe="8" onclick="selectStrengthSetRpe(this)">8</button>
+        <button class="set-rpe-pill" data-rpe="9" onclick="selectStrengthSetRpe(this)">9</button>
+        <button class="set-rpe-pill" data-rpe="10" onclick="selectStrengthSetRpe(this)">10</button>
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="submitStrengthSet()">Save Set</button>
+  </div>
+</div>
+
 <!-- PLATE CALCULATOR -->
 <div class="plate-calc-overlay" id="plate-calc-overlay" onclick="if(event.target===this)closePlateCalc()">
   <div class="plate-calc">
@@ -767,8 +788,6 @@ let workout = [];
 let pendingSessionId = null;
 let pendingRpe = null;
 let savedWorkouts = JSON.parse(localStorage.getItem('wk_saved_workouts') || '[]');
-let pendingSaveWorkout = false;
-let pendingSaveRating = 3;
 let timerState = { running:false, paused:false, idx:0, phase:'work', remaining:0, intervalId:null, startedAt:null };
 let timerEls = {};
 function cacheTimerEls() {
@@ -1404,6 +1423,19 @@ function initWatchConnectivity() {
         case 'skip':
           if (timerState.running) skipExercise();
           break;
+        case 'restart':
+          if (timerState.running) {
+            const w = workout[timerState.idx];
+            if (w) {
+              timerState.phase = 'work';
+              timerState.remaining = w.workSec;
+              timerState.elapsed = 0;
+              timerState.strengthSide = 0;
+              updateTimerUI();
+              watchSendState();
+            }
+          }
+          break;
       }
     });
 
@@ -1492,6 +1524,8 @@ function watchSendState() {
       totalRemaining: timerState.totalRemaining,
       isPaused: timerState.paused,
       workoutType: config.type,
+      workSec: w ? w.workSec : 0,
+      restSec: w ? w.restSec : 0,
     });
   } catch (e) { /* degrade silently */ }
 }
@@ -4094,25 +4128,33 @@ function finishStrengthSet() {
     }
   }
 
-  // Capture set type and weight before advancing
+  // Capture set type before advancing
   const setType = currentSetType;
-  const weightKg = entry ? (entry.actualWeightKg ?? null) : null;
   const exerciseName = entry ? entry.exercise.name : '';
   const diff = entry ? entry.exercise.diff : 1;
-  // Infer reps from rep target text
   const repStr = window.builder.repTarget(diff);
   const repMatch = repStr.match(/(\d+)/);
-  const reps = repMatch ? parseInt(repMatch[1]) : 8;
-  // Store set type on entry
+  const defaultReps = repMatch ? parseInt(repMatch[1]) : 8;
   if (entry) entry.setType = setType;
 
-  // Show per-set RPE, then do PR check + advance
+  // IMMEDIATELY advance to rest — timer starts counting down now
   timerState.strengthSide = 0;
   timerState.remaining = 0;
+  resetSetType();
+  advancePhase();
+  updateTimerUI();
 
-  showSetRpeOverlay().then(rpe => {
-    // Guard: workout may have been stopped while RPE overlay was open
+  // Show combined weight/reps/RPE overlay DURING rest
+  // Pre-fill from PR data or previous set
+  const prs = loadPRs();
+  const pr = prs[exerciseName];
+  const prevWeight = entry ? (entry.actualWeightKg ?? (pr ? pr.bestWeight : null)) : null;
+  showStrengthSetOverlay(prevWeight, defaultReps).then(result => {
     if (!timerState.running) return;
+    const weightKg = result.weight;
+    const reps = result.reps || defaultReps;
+    const rpe = result.rpe;
+    if (entry && weightKg != null) entry.actualWeightKg = weightKg;
 
     // Log the set
     strengthSetLog.push({ name: exerciseName, type: setType, reps, weight_kg: weightKg, rpe });
@@ -4127,12 +4169,43 @@ function finishStrengthSet() {
         setTimeout(() => prBadge.classList.remove('visible'), 3000);
       }
     }
-
-    // Reset set type to normal for next set
-    resetSetType();
-    advancePhase();
-    updateTimerUI();
   });
+}
+
+let pendingStrengthSetResolve = null;
+function showStrengthSetOverlay(prevWeight, defaultReps) {
+  return new Promise(resolve => {
+    pendingStrengthSetResolve = resolve;
+    const overlay = document.getElementById('strength-set-overlay');
+    const wInput = document.getElementById('so-weight');
+    const rInput = document.getElementById('so-reps');
+    const unitLabel = document.getElementById('so-weight-unit');
+    if (wInput) wInput.value = prevWeight != null ? (userUnits === 'imperial' ? Math.round(kgToLb(prevWeight) * 10) / 10 : prevWeight) : '';
+    if (rInput) rInput.value = defaultReps;
+    if (unitLabel) unitLabel.textContent = userUnits === 'imperial' ? 'lb' : 'kg';
+    document.querySelectorAll('#so-rpe-row .set-rpe-pill').forEach(p => p.classList.remove('selected'));
+    if (overlay) overlay.classList.add('active');
+  });
+}
+
+function submitStrengthSet() {
+  const overlay = document.getElementById('strength-set-overlay');
+  if (overlay) overlay.classList.remove('active');
+  const wRaw = parseFloat(document.getElementById('so-weight')?.value);
+  const rRaw = parseInt(document.getElementById('so-reps')?.value);
+  const selectedRpe = document.querySelector('#so-rpe-row .set-rpe-pill.selected');
+  const rpe = selectedRpe ? parseInt(selectedRpe.dataset.rpe) : null;
+  const weightKg = Number.isFinite(wRaw) && wRaw >= 0 ? (userUnits === 'imperial' ? lbToKg(wRaw) : wRaw) : null;
+  const reps = Number.isFinite(rRaw) && rRaw > 0 ? rRaw : null;
+  if (pendingStrengthSetResolve) {
+    pendingStrengthSetResolve({ weight: weightKg, reps, rpe });
+    pendingStrengthSetResolve = null;
+  }
+}
+
+function selectStrengthSetRpe(el) {
+  document.querySelectorAll('#so-rpe-row .set-rpe-pill').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
 }
 
 function advancePhase() {
@@ -4344,6 +4417,18 @@ function updateTimerUI() {
       '<strong style="color:var(--accent);">Ramp-up:</strong> before your first working set of ' +
       escapeHtml(nextEntry.exercise.name) +
       ', do 2 light sets at ~50% and ~70% of your working weight.';
+  } else if (timerState.phase === 'rest' && config.type === 'strength' && nextEntry) {
+    // Show previous lift data for the next strength exercise
+    const prs = loadPRs();
+    const pr = prs[nextEntry.exercise.name];
+    if (pr && pr.bestWeight) {
+      const wt = userUnits === 'imperial' ? Math.round(kgToLb(pr.bestWeight) * 10) / 10 + 'lb' : pr.bestWeight + 'kg';
+      timerEls.nextInfo.innerHTML =
+        '<strong style="color:var(--accent);">Previous:</strong> ' + wt + ' x ' + (pr.bestReps || '?') +
+        (pr.best1RM ? ' · Est 1RM: ' + (userUnits === 'imperial' ? Math.round(kgToLb(pr.best1RM)) + 'lb' : Math.round(pr.best1RM) + 'kg') : '');
+    } else {
+      timerEls.nextInfo.textContent = nextEntry.exercise.info || '';
+    }
   } else {
     timerEls.nextInfo.textContent = (timerState.phase === 'rest' && nextEntry) ? (nextEntry.exercise.info || '') : '';
   }
@@ -4532,6 +4617,9 @@ function stopWorkout() {
   const rpeOverlay = document.getElementById('set-rpe-overlay');
   if (rpeOverlay) rpeOverlay.classList.remove('visible');
   if (pendingSetRpeResolve) { pendingSetRpeResolve(null); pendingSetRpeResolve = null; }
+  if (pendingStrengthSetResolve) { pendingStrengthSetResolve({ weight: null, reps: null, rpe: null }); pendingStrengthSetResolve = null; }
+  const strengthOverlay = document.getElementById('strength-set-overlay');
+  if (strengthOverlay) strengthOverlay.classList.remove('active');
   releaseWakeLock();
   exitFullscreen();
   hkDiscardWorkout();
@@ -4696,15 +4784,9 @@ function finishWorkout() {
 
 function resetDoneCapture() {
   pendingRpe = null;
-  pendingSaveWorkout = false;
-  pendingSaveRating = 3;
   document.querySelectorAll('#rpe-row .rpe-pill').forEach(p => p.classList.remove('selected'));
   const note = document.getElementById('d-note');
   if (note) note.value = '';
-  const saveToggle = document.getElementById('save-workout-toggle');
-  if (saveToggle) { saveToggle.textContent = 'Off'; saveToggle.classList.remove('on'); }
-  const starRow = document.getElementById('save-star-row');
-  if (starRow) starRow.style.display = 'none';
 }
 
 function selectRpe(el) {
@@ -4713,59 +4795,45 @@ function selectRpe(el) {
   pendingRpe = parseInt(el.dataset.value, 10);
 }
 
-function saveAndFinish() {
+function captureDoneData() {
   const noteEl = document.getElementById('d-note');
   const note = noteEl && noteEl.value.trim() ? noteEl.value.trim().slice(0, 200) : null;
   if (pendingSessionId && (pendingRpe !== null || note !== null)) {
     try { window.storage.updateSession(pendingSessionId, { rpe: pendingRpe, note }); } catch (e) {}
   }
-  if (pendingSaveWorkout) {
-    saveWorkoutToLibrary();
-  }
+}
+
+function doneActionSave() {
+  captureDoneData();
+  saveWorkoutToLibrary();
   pendingSessionId = null;
   showScreen('setup');
-  // Surface 5: soft paywall after every 5th workout (weekly cap)
   if (window.Paywall) Paywall.maybeShowCompletionPaywall();
 }
 
-function skipFinish() {
+function doneActionRecord() {
+  captureDoneData();
   pendingSessionId = null;
   showScreen('setup');
   if (window.Paywall) Paywall.maybeShowCompletionPaywall();
+}
+
+function doneActionModify() {
+  captureDoneData();
+  pendingSessionId = null;
+  showScreen('preview');
 }
 
 // ═══════════════════════════════════════════════════
 // SAVED WORKOUTS (Library)
 // ═══════════════════════════════════════════════════
 
-function toggleSaveWorkout() {
-  pendingSaveWorkout = !pendingSaveWorkout;
-  const btn = document.getElementById('save-workout-toggle');
-  if (btn) { btn.textContent = pendingSaveWorkout ? 'On' : 'Off'; btn.classList.toggle('on', pendingSaveWorkout); }
-  const starRow = document.getElementById('save-star-row');
-  if (starRow) {
-    starRow.style.display = pendingSaveWorkout ? 'flex' : 'none';
-    if (pendingSaveWorkout) renderSaveStars(pendingSaveRating);
-  }
-}
-
-function selectSaveStar(n) {
-  pendingSaveRating = n;
-  renderSaveStars(n);
-}
-
-function renderSaveStars(n) {
-  document.querySelectorAll('#save-star-row .done-star').forEach(s => {
-    s.classList.toggle('filled', parseInt(s.dataset.star) <= n);
-  });
-}
-
 function saveWorkoutToLibrary() {
   if (!workout.length) return;
   const entry = {
     id: crypto.randomUUID(),
     name: config.type.charAt(0).toUpperCase() + config.type.slice(1) + ' ' + config.duration + 'min',
-    rating: pendingSaveRating,
+    rating: 3,
     created: new Date().toISOString(),
     config: { ...config },
     workout: workout.map(w => ({ exercise: { name: w.exercise.name, cat: w.exercise.cat }, workSec: w.workSec, restSec: w.restSec, section: w.section })),

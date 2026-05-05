@@ -1148,6 +1148,46 @@ html.is-native .settings-row.is-native-only { display: flex; }
   pointer-events: auto;
 }
 
+/* Done screen — action buttons */
+.done-actions {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-top: 20px; width: 100%;
+}
+
+/* Strength set entry overlay */
+.strength-set-overlay {
+  display: none; position: fixed; inset: 0; z-index: 95;
+  background: rgba(0,0,0,0.82); align-items: center; justify-content: center;
+  padding: 20px;
+}
+.strength-set-overlay.active { display: flex; }
+.strength-set-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px; max-width: 360px; width: 100%;
+}
+.strength-set-title {
+  font-size: 1.1rem; font-weight: 700; color: var(--text);
+  margin-bottom: 16px; text-align: center;
+}
+.strength-set-field {
+  margin-bottom: 14px;
+}
+.strength-set-field label {
+  display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;
+}
+.strength-set-field input {
+  width: 100%; padding: 10px 14px; border-radius: 10px;
+  background: var(--surface2); border: 2px solid var(--border);
+  color: var(--text); font-size: 1.1rem; font-weight: 600;
+  text-align: center; -webkit-appearance: none; outline: none;
+  font-family: inherit;
+}
+.strength-set-field input:focus { border-color: var(--accent); }
+.strength-set-unit {
+  font-size: 0.85rem; color: var(--text-dim); font-weight: 600; min-width: 24px;
+}
+
 /* Music expanded card — clean shadow, proper border-radius (visual polish) */
 .music-expanded {
   box-shadow: 0 12px 40px rgba(0,0,0,0.6);
