@@ -53,6 +53,17 @@
     updateVisibility();
     var upgradeRow = document.getElementById('settings-upgrade-row');
     if (upgradeRow) upgradeRow.style.display = 'none';
+
+    // Force full UI refresh so all Pro-gated elements update immediately
+    setTimeout(function () {
+      // Re-trigger entitlement change listeners
+      if (typeof Entitlement !== 'undefined' && typeof Entitlement.set === 'function') {
+        Entitlement.set(Entitlement.get());
+      }
+      // Refresh settings UI if available
+      if (typeof syncVoiceEngineUI === 'function') syncVoiceEngineUI();
+      if (typeof rebuildBuildEquipment === 'function') rebuildBuildEquipment();
+    }, 100);
   }
 
   // ── Toast (self-contained) ────────────────────────

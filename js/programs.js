@@ -9,7 +9,7 @@
     {
       id: 'prog_first_move_v1',
       slug: 'first-move-foundation',
-      name: 'First Move \u2014 4-Week Foundation',
+      name: 'First Move  - 4-Week Foundation',
       short_name: 'First Move',
       cover_color: '#4CAF50',
       badge: 'TRIAL',
@@ -20,7 +20,7 @@
       est_minutes_per_session: 28,
       primary_goal: 'foundation',
       secondary_goals: ['mobility', 'habit'],
-      why_it_works: 'Three sessions a week is the minimum effective dose. Below that you don\u2019t adapt; above that you don\u2019t stick with it as a beginner. We rotate three full-body templates (A: squat-push, B: hinge-pull, C: full-body flow) so you see every pattern twice a week and never get redundant. Reps go up by one each week \u2014 your nervous system catches up before the muscles complain.',
+      why_it_works: 'Three sessions a week is the minimum effective dose. Below that you don\'t adapt; above that you don\'t stick with it as a beginner. We rotate three full-body templates (A: squat-push, B: hinge-pull, C: full-body flow) so you see every pattern twice a week and never get redundant. Reps go up by one each week  - your nervous system catches up before the muscles complain.',
       audience: {
         fitness_level_min: 'untrained',
         fitness_level_max: 'beginner',
@@ -63,7 +63,7 @@
         // ── Week 1 ───────────────────────────────────────
         {
           week: 1,
-          theme: 'Foundation \u2014 learn the patterns',
+          theme: 'Foundation  - learn the patterns',
           intent: 'Establish technique and build a 3\u00d7/week rhythm.',
           rpe_target: 6,
           deload: false,
@@ -80,14 +80,14 @@
                   { id: 'sit_reach', name: 'Sit-and-Reach', record: 'cm' }
                 ]
               },
-              coaching_note: 'Go all-out on each test. This is your baseline \u2014 we\u2019ll retest in 4 weeks.'
+              coaching_note: 'Go all-out on each test. This is your baseline  - we\'ll retest in 4 weeks.'
             },
             { day: 2, kind: 'rest' },
             {
               day: 3, kind: 'workout',
               slot: {
                 type: 'inline',
-                title: 'Foundation A \u2014 Squat & Push',
+                title: 'Foundation A  - Squat & Push',
                 duration_min: 28,
                 exercises: [
                   { name: 'Air Squat', sets: 3, reps: '8-10', rest_sec: 60, swap_alternatives: ['Goblet Squat', 'Box Squat', 'Wall Sits'] },
@@ -104,7 +104,7 @@
               day: 5, kind: 'workout',
               slot: {
                 type: 'inline',
-                title: 'Foundation B \u2014 Hinge & Pull',
+                title: 'Foundation B  - Hinge & Pull',
                 duration_min: 28,
                 exercises: [
                   { name: 'Romanian Deadlift', sets: 3, reps: '8-12', rest_sec: 60, swap_alternatives: ['Glute Bridge', 'Single-Leg RDL'] },
@@ -114,7 +114,7 @@
                   { name: 'Side-Lying T-Spine Rotation', sets: 2, reps: '8/side', rest_sec: 15, swap_alternatives: ['Cat-Cow'] }
                 ]
               },
-              coaching_note: 'On the RDL, think about pushing your hips back like you\u2019re closing a car door. Feel the hamstrings stretch.'
+              coaching_note: 'On the RDL, think about pushing your hips back like you\'re closing a car door. Feel the hamstrings stretch.'
             },
             { day: 6, kind: 'walk', target_minutes: 20, coaching_note: 'Easy pace, conversational.' },
             { day: 7, kind: 'rest' }
@@ -132,7 +132,7 @@
               day: 1, kind: 'workout',
               slot: {
                 type: 'inline',
-                title: 'Foundation A \u2014 Squat & Push',
+                title: 'Foundation A  - Squat & Push',
                 duration_min: 28,
                 exercises: [
                   { name: 'Air Squat', sets: 3, reps: '9-11', rest_sec: 60, swap_alternatives: ['Goblet Squat', 'Box Squat', 'Wall Sits'] },
@@ -142,14 +142,14 @@
                   { name: 'Cat-Cow', sets: 2, reps: '30s', rest_sec: 15, swap_alternatives: [] }
                 ]
               },
-              coaching_note: 'Same movements as week 1, one more rep. You\u2019ll feel the difference.'
+              coaching_note: 'Same movements as week 1, one more rep. You\'ll feel the difference.'
             },
             { day: 2, kind: 'rest' },
             {
               day: 3, kind: 'workout',
               slot: {
                 type: 'inline',
-                title: 'Foundation B \u2014 Hinge & Pull',
+                title: 'Foundation B  - Hinge & Pull',
                 duration_min: 28,
                 exercises: [
                   { name: 'Romanian Deadlift', sets: 3, reps: '9-13', rest_sec: 60, swap_alternatives: ['Glute Bridge', 'Single-Leg RDL'] },
@@ -166,7 +166,7 @@
               day: 5, kind: 'workout',
               slot: {
                 type: 'inline',
-                title: 'Foundation C \u2014 Full-Body Flow',
+                title: 'Foundation C  - Full-Body Flow',
                 duration_min: 28,
                 exercises: [
                   { name: 'Goblet Squat', sets: 2, reps: '10', rest_sec: 60, swap_alternatives: ['Air Squat'] },
@@ -178,7 +178,7 @@
                   { name: 'World\'s Greatest Stretch', sets: 2, reps: '30s/side', rest_sec: 15, swap_alternatives: ['Cat-Cow'] }
                 ]
               },
-              coaching_note: 'This is a flow \u2014 keep rest short and move with purpose.'
+              coaching_note: 'This is a flow  - keep rest short and move with purpose.'
             },
             { day: 6, kind: 'walk', target_minutes: 25, coaching_note: 'Easy pace, conversational.' },
             { day: 7, kind: 'rest' }
@@ -196,7 +196,7 @@
               day: 1, kind: 'workout',
               slot: {
                 type: 'inline',
-                title: 'Foundation A \u2014 Squat & Push',
+                title: 'Foundation A  - Squat & Push',
                 duration_min: 28,
                 exercises: [
                   { name: 'Air Squat', sets: 3, reps: '10-12', rest_sec: 60, swap_alternatives: ['Goblet Squat', 'Box Squat', 'Wall Sits'] },
@@ -206,14 +206,14 @@
                   { name: 'Cat-Cow', sets: 2, reps: '30s', rest_sec: 15, swap_alternatives: [] }
                 ]
               },
-              coaching_note: 'You\u2019re at week 3 \u2014 reps are higher now. Maintain form even when fatigued.'
+              coaching_note: 'You\'re at week 3  - reps are higher now. Maintain form even when fatigued.'
             },
             { day: 2, kind: 'rest' },
             {
               day: 3, kind: 'workout',
               slot: {
                 type: 'inline',
-                title: 'Foundation B \u2014 Hinge & Pull',
+                title: 'Foundation B  - Hinge & Pull',
                 duration_min: 28,
                 exercises: [
                   { name: 'Romanian Deadlift', sets: 3, reps: '10-14', rest_sec: 60, swap_alternatives: ['Glute Bridge', 'Single-Leg RDL'] },
@@ -230,7 +230,7 @@
               day: 5, kind: 'workout',
               slot: {
                 type: 'inline',
-                title: 'Foundation C \u2014 Full-Body Flow',
+                title: 'Foundation C  - Full-Body Flow',
                 duration_min: 28,
                 exercises: [
                   { name: 'Goblet Squat', sets: 2, reps: '11', rest_sec: 60, swap_alternatives: ['Air Squat'] },
@@ -242,7 +242,7 @@
                   { name: 'World\'s Greatest Stretch', sets: 2, reps: '30s/side', rest_sec: 15, swap_alternatives: ['Cat-Cow'] }
                 ]
               },
-              coaching_note: 'Smooth transitions. You know these movements now \u2014 own them.'
+              coaching_note: 'Smooth transitions. You know these movements now  - own them.'
             },
             { day: 6, kind: 'walk', target_minutes: 30, coaching_note: 'Easy pace, conversational.' },
             { day: 7, kind: 'rest' }
@@ -260,7 +260,7 @@
               day: 1, kind: 'workout',
               slot: {
                 type: 'inline',
-                title: 'Foundation A \u2014 Squat & Push',
+                title: 'Foundation A  - Squat & Push',
                 duration_min: 28,
                 exercises: [
                   { name: 'Air Squat', sets: 3, reps: '11-13', rest_sec: 60, swap_alternatives: ['Goblet Squat', 'Box Squat', 'Wall Sits'] },
@@ -270,7 +270,7 @@
                   { name: 'Cat-Cow', sets: 2, reps: '30s', rest_sec: 15, swap_alternatives: [] }
                 ]
               },
-              coaching_note: 'Final push on reps. You\u2019re stronger than week 1 \u2014 prove it.'
+              coaching_note: 'Final push on reps. You\'re stronger than week 1  - prove it.'
             },
             { day: 2, kind: 'rest' },
             {
@@ -292,7 +292,7 @@
               day: 5, kind: 'workout',
               slot: {
                 type: 'inline',
-                title: 'Foundation C \u2014 Full-Body Flow (Victory Lap)',
+                title: 'Foundation C  - Full-Body Flow (Victory Lap)',
                 duration_min: 28,
                 exercises: [
                   { name: 'Goblet Squat', sets: 2, reps: '12', rest_sec: 60, swap_alternatives: ['Air Squat'] },
@@ -312,7 +312,7 @@
         }
       ],
       outro: {
-        completion_message: 'You\u2019ve built the habit and the foundation. Three sessions a week for four weeks \u2014 that\u2019s 12 workouts and real, measurable progress. You\u2019re ready for more.',
+        completion_message: 'You\'ve built the habit and the foundation. Three sessions a week for four weeks  - that\'s 12 workouts and real, measurable progress. You\'re ready for more.',
         recommended_next: ['prog_lean_strong_v1', 'prog_calisthenics_v1', 'prog_fat_burn_v1']
       },
       meta: {

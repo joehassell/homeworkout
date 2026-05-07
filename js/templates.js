@@ -93,7 +93,7 @@
       min_fitness:'beginner', min_equipment:['bodyweight'],
       description:'20s on / 10s off, 8 rounds per exercise. The original protocol.',
       exercises:[
-        { name:'Squat Jumps', sets:1, reps:'20s', rest_sec:10 },
+        { name:'180 Degree Squat Jumps', sets:1, reps:'20s', rest_sec:10 },
         { name:'Push-Ups', sets:1, reps:'20s', rest_sec:10 },
         { name:'High Knees', sets:1, reps:'20s', rest_sec:10 },
         { name:'Mountain Climbers', sets:1, reps:'20s', rest_sec:10 },
@@ -114,7 +114,7 @@
       exercises:[
         { name:'Thrusters', sets:4, reps:'10', rest_sec:20 },
         { name:'Renegade Row', sets:4, reps:'30s', rest_sec:20 },
-        { name:'Squat Jumps', sets:4, reps:'12', rest_sec:20 },
+        { name:'180 Degree Squat Jumps', sets:4, reps:'12', rest_sec:20 },
         { name:'Burpees', sets:4, reps:'8', rest_sec:20 },
         { name:'Dumbbell Snatch', sets:4, reps:'10', rest_sec:20 },
       ]},
@@ -133,7 +133,7 @@
       exercises:[
         { name:'Thrusters', sets:3, reps:'30s', rest_sec:20 },
         { name:'Push-Ups', sets:3, reps:'30s', rest_sec:20 },
-        { name:'Squat Jumps', sets:3, reps:'30s', rest_sec:20 },
+        { name:'180 Degree Squat Jumps', sets:3, reps:'30s', rest_sec:20 },
         { name:'Renegade Row', sets:3, reps:'30s', rest_sec:20 },
         { name:'Skaters', sets:3, reps:'30s', rest_sec:20 },
         { name:'Mountain Climbers', sets:3, reps:'30s', rest_sec:20 },
@@ -259,7 +259,7 @@
       description:'Fast-paced bodyweight circuit mixing cardio, plyo, strength, and isometric holds.',
       exercises:[
         { name:'Jumping Jacks', sets:3, reps:'30s', rest_sec:15 },
-        { name:'Squat Jumps', sets:3, reps:'20s', rest_sec:20 },
+        { name:'180 Degree Squat Jumps', sets:3, reps:'20s', rest_sec:20 },
         { name:'Push-Ups', sets:3, reps:'30s', rest_sec:15 },
         { name:'Mountain Climbers', sets:3, reps:'30s', rest_sec:15 },
         { name:'Wall Sits', sets:3, reps:'30s', rest_sec:15 },
@@ -316,7 +316,7 @@
         { name:'Sumo Squats', sets:3, reps:'30s', rest_sec:15 },
         { name:'Reverse Lunges', sets:3, reps:'30s', rest_sec:15 },
         { name:'Lateral Band Walks', sets:3, reps:'30s', rest_sec:15 },
-        { name:'Squat Jumps', sets:3, reps:'20s', rest_sec:20 },
+        { name:'180 Degree Squat Jumps', sets:3, reps:'20s', rest_sec:20 },
         { name:'Curtsy Lunges', sets:3, reps:'30s', rest_sec:15 },
         { name:'Fire Hydrants', sets:3, reps:'30s', rest_sec:15 },
         { name:'Single-Leg Glute Bridge', sets:3, reps:'30s', rest_sec:15 },

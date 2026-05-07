@@ -9,7 +9,7 @@ struct ActiveWorkoutView: View {
             WatchMusicView()
             HeartRateZoneView()
         }
-        .tabViewStyle(.verticalPage)
+        .tabViewStyle(.page)
         .environmentObject(manager)
     }
 }
