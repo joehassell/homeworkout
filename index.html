@@ -847,7 +847,7 @@ function cacheTimerEls() {
   };
 }
 const YOGA_PHASE_LABELS = { centering:'CENTERING', 'sun-sal':'SUN SALUTATION', standing:'STANDING', balance:'BALANCE', floor:'FLOOR', seated:'SEATED', 'core-flow':'CORE FLOW', supported:'SUPPORTED', savasana:'SAVASANA' };
-const POST_WARMUP_LABEL = 'Rest \u2014 get ready';
+const POST_WARMUP_LABEL = 'Rest  - get ready';
 let currentSetType = 'normal';          // set type for strength mode
 let pendingSetRpeResolve = null;        // resolve callback for per-set RPE overlay
 let strengthSetLog = [];                // per-set log for current workout [{name, type, reps, weight_kg, rpe}]
@@ -3434,6 +3434,14 @@ function generateWorkout() {
 
   // Apply the intra/inter-set rest pattern based on position.
   applyInterSetRest();
+  // Clamp: intra-set rest should not exceed the exercise's work time (end-of-set rests exempt)
+  if (config.type !== 'strength') {
+    workout.forEach(e => {
+      if (e.section === 'main' && !e.restReason && e.workSec > 0 && e.restSec > e.workSec) {
+        e.restSec = e.workSec;
+      }
+    });
+  }
   // Reconcile total time so it matches the user-selected duration.
   reconcileTotalTime(totalSec);
 
@@ -4361,7 +4369,7 @@ function advanceYogaPhase() {
   }
   // Advance to next pose
   timerState.idx++;
-  if (timerState.idx >= workout.length) { finishWorkout(); return; }
+  if (timerState.idx >= workout.length) { showWorkoutFinished(); return; }
   const next = workout[timerState.idx];
   timerState.phase = 'work';
   timerState.remaining = next.workSec;
@@ -4380,7 +4388,7 @@ function advanceYogaPhase() {
 
 function advanceExercise() {
   timerState.idx++;
-  if (timerState.idx >= workout.length) { finishWorkout(); return; }
+  if (timerState.idx >= workout.length) { showWorkoutFinished(); return; }
   timerState.phase = 'work';
   const w = workout[timerState.idx];
   timerState.remaining = w.workSec;
@@ -4513,7 +4521,12 @@ function updateTimerUI() {
 
   const nextIdx = timerState.idx + 1;
   const nextEntry = workout[nextIdx];
-  timerEls.next.textContent = nextEntry ? nextEntry.exercise.name : 'Finish';
+  if (nextEntry) {
+    var nextDur = nextEntry.workSec > 0 ? ' (' + nextEntry.workSec + 's)' : (config.type === 'strength' ? ' (' + window.builder.repTarget(nextEntry.exercise.diff) + ')' : '');
+    timerEls.next.textContent = nextEntry.exercise.name + nextDur;
+  } else {
+    timerEls.next.textContent = 'Finish';
+  }
 
   // Show the next exercise's description during rest only — gives the user a moment to read up.
   // Strength ramp-up prompt overrides during the post-warmup rest if the first main is loaded.
@@ -4733,6 +4746,27 @@ function stopWorkout() {
   exitFullscreen();
   hkDiscardWorkout();
   showScreen('setup');
+}
+
+function showWorkoutFinished() {
+  timerState.running = false;
+  clearInterval(timerState.intervalId);
+  timerState.phase = 'done';
+  beepDone();
+  // Show "Workout Finished" in the timer screen
+  if (timerEls.phase) { timerEls.phase.textContent = 'WORKOUT FINISHED'; timerEls.phase.className = 'timer-phase done'; }
+  if (timerEls.display) timerEls.display.textContent = '';
+  if (timerEls.exercise) timerEls.exercise.textContent = 'Great work!';
+  if (timerEls.next) timerEls.next.textContent = '';
+  if (timerEls.nextInfo) timerEls.nextInfo.textContent = '';
+  // Replace timer controls with a Save button
+  var controlsEl = document.querySelector('.timer-controls');
+  if (controlsEl) {
+    controlsEl.innerHTML = '<button class="btn btn-primary btn-full" onclick="finishWorkout()" style="margin:12px 0;font-size:1.1rem;">Save Workout</button>';
+  }
+  speak('Workout finished. Great work!');
+  releaseWakeLock();
+  exitFullscreen();
 }
 
 function finishWorkout() {
@@ -5581,9 +5615,9 @@ function syncTierUI() {
   var hint = document.getElementById('settings-tier-hint');
   if (hint) {
     if (ent.tier === 'pro') {
-      hint.textContent = 'Pro' + (ent.isFounder ? ' (Founder)' : '') + ' \u2014 ' + (ent.source || 'active');
+      hint.textContent = 'Pro' + (ent.isFounder ? ' (Founder)' : '') + '  - ' + (ent.source || 'active');
     } else {
-      hint.textContent = 'Free tier \u2014 bodyweight & mat workouts';
+      hint.textContent = 'Free tier  - bodyweight & mat workouts';
     }
   }
   var focusHint = document.getElementById('focus-hint');

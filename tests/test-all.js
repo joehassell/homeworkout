@@ -156,8 +156,8 @@ describe('Capability — isAllowed', () => {
   const settings = window.capability.DEFAULT_EXERCISE_SETTINGS;
 
   it('advanced user sees plyo exercises', () => {
-    const jumpSquat = DB.find(e => e.name === 'Squat Jumps');
-    assert(jumpSquat, 'Squat Jumps should exist in DB');
+    const jumpSquat = DB.find(e => e.name === '180 Degree Squat Jumps');
+    assert(jumpSquat, '180 Degree Squat Jumps should exist in DB');
     assert(window.capability.isAllowed(jumpSquat, advancedCaps, advancedProfile, settings));
   });
 
@@ -167,9 +167,9 @@ describe('Capability — isAllowed', () => {
       floor_work_ok: false, mobility_limits: ['knees'], pregnancy_safe_only: false,
     };
     const caps = window.capability.deriveCaps(restrictiveProfile);
-    const jumpSquat = DB.find(e => e.name === 'Squat Jumps');
+    const jumpSquat = DB.find(e => e.name === '180 Degree Squat Jumps');
     assert(!window.capability.isAllowed(jumpSquat, caps, restrictiveProfile, settings),
-      'Squat Jumps should be filtered for 70+ untrained');
+      '180 Degree Squat Jumps should be filtered for 70+ untrained');
   });
 
   it('blacklisted exercise is filtered', () => {
@@ -192,7 +192,7 @@ describe('Capability — isAllowed', () => {
       floor_work_ok: true, mobility_limits: ['knees'], pregnancy_safe_only: false,
     };
     const caps = window.capability.deriveCaps(kneeProfile);
-    const jumpSquat = DB.find(e => e.name === 'Squat Jumps');
+    const jumpSquat = DB.find(e => e.name === '180 Degree Squat Jumps');
     if (jumpSquat && jumpSquat.contraindicated_for && jumpSquat.contraindicated_for.includes('knees')) {
       assert(!window.capability.isAllowed(jumpSquat, caps, kneeProfile, settings));
     }
