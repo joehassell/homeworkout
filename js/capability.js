@@ -125,6 +125,31 @@
     return true;
   }
 
+  // ── Equipment matching ─────────────────────────────
+  // Supports the new equip_required (AND) + equip_one_of (OR) schema.
+  // Falls back to legacy equip (AND) when neither new field is present.
+  function equipmentMatches(ex, set) {
+    var req = ex.equip_required || [];
+    var oneOf = ex.equip_one_of || [];
+    for (var i = 0; i < req.length; i++) {
+      if (!set.has(req[i])) return false;
+    }
+    if (oneOf.length > 0) {
+      var found = false;
+      for (var j = 0; j < oneOf.length; j++) {
+        if (set.has(oneOf[j])) { found = true; break; }
+      }
+      if (!found) return false;
+    }
+    // Legacy fallback: if no new fields, use old equip array as AND
+    if (req.length === 0 && oneOf.length === 0 && ex.equip) {
+      for (var k = 0; k < ex.equip.length; k++) {
+        if (!set.has(ex.equip[k])) return false;
+      }
+    }
+    return true;
+  }
+
   // ── Defaults ───────────────────────────────────────
 
   // Default profile assumes a capable user until they set up their profile.
@@ -149,6 +174,7 @@
   window.capability = {
     deriveCaps:                deriveCaps,
     isAllowed:                 isAllowed,
+    equipmentMatches:          equipmentMatches,
     DEFAULT_PROFILE:           DEFAULT_PROFILE,
     DEFAULT_EXERCISE_SETTINGS: DEFAULT_EXERCISE_SETTINGS,
     computeBmi:                computeBmi,

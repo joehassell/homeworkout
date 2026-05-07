@@ -155,8 +155,12 @@
 
   // ── Helpers ────────────────────────────────────────────
   function _equipOk(def, equipmentSet) {
-    if (!def.equip || def.equip.length === 0) return true;
     if (!equipmentSet) return true;
+    if (window.capability && window.capability.equipmentMatches) {
+      return window.capability.equipmentMatches(def, equipmentSet);
+    }
+    // Fallback if capability not loaded
+    if (!def.equip || def.equip.length === 0) return true;
     return def.equip.every(function (eq) { return equipmentSet.has(eq); });
   }
 
