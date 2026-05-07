@@ -4,7 +4,7 @@
   // Base work/rest seconds per exercise category. Tuned for moderate intensity,
   // diff 1, no workout-type modifier — modifiers compose on top.
   const BASE = {
-    'lower-squat':  { work: 40, rest: 20 },
+    'lower-squat':  { work: 40, rest: 25 },
     'lower-hinge':  { work: 40, rest: 20 },
     'push-h':       { work: 40, rest: 20 },
     'push-v':       { work: 35, rest: 25 },   // overhead is more demanding
@@ -12,9 +12,9 @@
     'pull-v':       { work: 30, rest: 30 },   // strict pulls are short bursts
     'core':         { work: 35, rest: 15 },
     'isometric':    { work: 40, rest: 20 },
-    'plyo':         { work: 20, rest: 40 },   // explosive sets should be shorter
-    'cardio':       { work: 40, rest: 20 },
-    'carry':        { work: 45, rest: 25 },   // carries benefit from longer TUT
+    'plyo':         { work: 25, rest: 60 },   // explosive sets need longer recovery
+    'cardio':       { work: 40, rest: 15 },
+    'carry':        { work: 60, rest: 25 },   // carries benefit from 60s TUT minimum
     'animal':       { work: 35, rest: 25 },
     'full-body':    { work: 40, rest: 25 },
     'mobility':     { work: 30, rest: 5 },    // overridden for cooldown below
@@ -31,16 +31,16 @@
 
   const TYPE_MOD = {
     strength:     { work: 1.2, rest: 1.4 },
-    hiit:         { work: 0.85, rest: 0.55 },  // punchier
+    hiit:         { work: 0.85, rest: 0.45 },  // punchier — near 1:1 work:rest target
     conditioning: { work: 1.0, rest: 1.0 },
-    functional:   { work: 1.05, rest: 1.0 },   // slightly longer TUT
+    functional:   { work: 1.10, rest: 1.0 },   // more TUT for functional movements
     isohiit:      { work: 0.85, rest: 0.8 },
   };
 
   const DIFF_MOD = {
     1: { work: 1.0,  rest: 1.0 },
     2: { work: 1.0,  rest: 1.25 },
-    3: { work: 0.85, rest: 1.7 },   // d3 needs more recovery
+    3: { work: 0.85, rest: 1.5 },   // d3 needs more recovery (1.7 was too long for HIIT)
   };
 
   // Legacy global intensity mod — used as fallback when per-type table has no entry.
@@ -52,14 +52,14 @@
 
   // Per-type intensity modifiers — each modality has different high-intensity targets.
   const INTENSITY_MOD_BY_TYPE = {
-    hiit:         { light: {work:1.0,rest:1.4}, moderate: {work:0.95,rest:0.85}, high: {work:0.85,rest:0.45} },
+    hiit:         { light: {work:1.0,rest:1.4}, moderate: {work:0.95,rest:0.85}, high: {work:0.85,rest:0.40} },
     strength:     { light: {work:1.0,rest:1.5}, moderate: {work:1.0,rest:1.0},   high: {work:0.85,rest:0.7}  },
     conditioning: { light: {work:1.0,rest:1.4}, moderate: {work:1.0,rest:1.0},   high: {work:0.95,rest:0.7}  },
     functional:   { light: {work:1.0,rest:1.3}, moderate: {work:1.0,rest:1.0},   high: {work:0.95,rest:0.75} },
   };
 
   const INTER_SET_REST = {
-    light: 90,
+    light: 75,
     moderate: 60,
     high: 45,
   };
