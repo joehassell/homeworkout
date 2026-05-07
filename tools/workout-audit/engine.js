@@ -27,7 +27,7 @@ function loadAppModules(rootDir) {
     // Hoist top-level const/let declarations to the sandbox by wrapping in a function
     // that assigns to the sandbox. For exercises.js, DB is a top-level const.
     // We wrap each file so its top-level declarations are captured.
-    code = `(function(__sandbox) { ${code}\n; if (typeof DB !== 'undefined') __sandbox.DB = DB; if (typeof TEMPLATES !== 'undefined') __sandbox.TEMPLATES = TEMPLATES; })(this);`;
+    code = `(function(__sandbox) { ${code}\n; if (typeof DB !== 'undefined') { __sandbox.DB = DB; __sandbox.window.DB = DB; } if (typeof TEMPLATES !== 'undefined') __sandbox.TEMPLATES = TEMPLATES; })(this);`;
     vm.runInContext(code, sandbox, { filename: f });
   }
 
@@ -56,7 +56,7 @@ const REGIONS = {
 const DEFAULT_FOCUS = { upper: 'include', upper_push: 'include', upper_pull: 'include', lower: 'include', core: 'include', full_body: 'include', posterior: 'include' };
 
 const WARMUP_POOL_BY_TYPE = {
-  strength: ['cardio', 'mobility', 'lower-squat', 'lower-hinge', 'core', 'push-h', 'pull-h'],
+  strength: ['cardio', 'mobility', 'pull-h', 'push-h', 'lower-squat', 'lower-hinge', 'core'],
   hiit: ['cardio', 'mobility', 'lower-squat', 'core'],
   conditioning: ['cardio', 'mobility', 'lower-squat', 'core'],
   functional: ['cardio', 'mobility', 'lower-squat', 'core', 'lower-hinge'],
@@ -66,7 +66,7 @@ const COOLDOWN_CATS_BY_TYPE = {
   hiit: ['cardio', 'mobility'],
   conditioning: ['cardio', 'mobility'],
   strength: ['mobility'],
-  functional: ['mobility'],
+  functional: ['mobility', 'cardio'],
 };
 
 const TYPE_EQUIPMENT = {
@@ -226,7 +226,7 @@ function createEngine(app, seed) {
   function buildCooldown(type, equipment, mainMuscles, usedNames, caps, profile, settings, cdDur) {
     const cdCats = COOLDOWN_CATS_BY_TYPE[type] || ['mobility'];
     const pool = DB.filter(e => cdCats.includes(e.cat) && capability.equipmentMatches(e, equipment) && !usedNames.has(e.name) && capability.isAllowed(e, caps, profile, settings));
-    const score = e => { let s = 0; e.muscles.forEach(m => { if (mainMuscles.has(m)) s += 2; }); return s + rng() * 0.5; };
+    const score = e => { let s = 0; e.muscles.forEach(m => { if (mainMuscles.has(m)) s += 3; }); return s + rng() * 0.05; };
     const ranked = [...pool].sort((a, b) => score(b) - score(a));
     const out = [];
     let remaining = cdDur;
@@ -250,7 +250,7 @@ function createEngine(app, seed) {
   function buildMainEntry(exercise, type, intensitySetting, setIdx) {
     const intensity = deriveIntensity(exercise, type, intensitySetting);
     let workSec, intraRest;
-    if (type === 'strength') { workSec = 0; intraRest = 60; }
+    if (type === 'strength') { workSec = builder.estimatedWorkSec(exercise.diff, exercise.single_sided); intraRest = 60; }
     else {
       const r = builder.pickIntervals(exercise.cat, exercise.diff, type, intensitySetting, 'main');
       workSec = exercise.single_sided ? r.workSec * 2 : r.workSec;
@@ -305,12 +305,13 @@ function createEngine(app, seed) {
     );
     if (typePool.length === 0) return null;
 
-    // HIIT viability check — mirrors index.html
+    // HIIT viability check — mirrors index.html (requires pull for balance)
     if (type === 'hiit') {
       const distinctCats = new Set(typePool.map(e => e.cat));
       const REQUIRED_HIIT_CATS = ['cardio', 'plyo', 'full-body'];
       const hits = REQUIRED_HIIT_CATS.filter(c => distinctCats.has(c)).length;
-      if (typePool.length < 6 || hits < 2) return null;
+      const hasPull = ['pull-h', 'pull-v'].some(c => distinctCats.has(c));
+      if (typePool.length < 8 || hits < 2 || !hasPull) return null;
     }
 
     // Goal weighting first, then compound priority (mirrors index.html Fix 9)
@@ -333,7 +334,22 @@ function createEngine(app, seed) {
       goalDeduped.forEach(e => typePool.push(e));
     }
 
-    // Strength: compound priority AFTER goal weighting (mirrors index.html)
+    // Difficulty weighting — tighter Gaussian (σ²=0.35), floor=0 (mirrors index.html)
+    const targetDiff = ({advanced: 2.9, intermediate: 2.0, beginner: 1.2, untrained: 1.0})[profileForFilter.fitness_level] || 1.5;
+    const SIGMA2 = 0.35;
+    const diffWeighted = [];
+    typePool.forEach(e => {
+      const distance = Math.abs(e.diff - targetDiff);
+      const w = Math.max(1, Math.round(5 * Math.exp(-(distance * distance) / SIGMA2)));
+      for (let i = 0; i < w; i++) diffWeighted.push(e);
+    });
+    shuffle(diffWeighted);
+    const seenDW = new Set();
+    const dwDeduped = diffWeighted.filter(e => !seenDW.has(e.name) && seenDW.add(e.name));
+    typePool.length = 0;
+    dwDeduped.forEach(e => typePool.push(e));
+
+    // Strength compound priority AFTER diff weighting (mirrors index.html)
     if (type === 'strength') {
       const COMPOUND_PRIORITY = {
         'lower-squat': 5, 'lower-hinge': 5,
@@ -346,7 +362,7 @@ function createEngine(app, seed) {
       typePool.forEach(e => {
         let mult = COMPOUND_PRIORITY[e.cat] || 1;
         const eqList = [].concat(e.equip || [], e.equip_one_of || [], e.equip_required || []);
-        if (eqList.some(eq => HEAVY_EQUIP.has(eq))) mult *= 2;
+        if (eqList.some(eq => HEAVY_EQUIP.has(eq))) mult *= 3;
         if (e.equip && e.equip.length === 1 && e.equip[0] === 'resistance band' &&
             [...effectiveEquipment].some(eq => HEAVY_EQUIP.has(eq))) { mult *= 0.4; }
         const copies = Math.max(1, Math.round(mult));
@@ -358,20 +374,6 @@ function createEngine(app, seed) {
       typePool.length = 0;
       dedupedC.forEach(e => typePool.push(e));
     }
-
-    // Difficulty weighting (mirrors index.html exponential bias)
-    const targetDiff = ({advanced: 2.7, intermediate: 1.9, beginner: 1.3, untrained: 1.0})[profileForFilter.fitness_level] || 1.5;
-    const diffWeighted = [];
-    typePool.forEach(e => {
-      const distance = Math.abs(e.diff - targetDiff);
-      const weight = Math.max(1, Math.round(10 * Math.exp(-(distance * distance) / 0.5)));
-      for (let i = 0; i < weight; i++) diffWeighted.push(e);
-    });
-    shuffle(diffWeighted);
-    const seenDW = new Set();
-    const dwDeduped = diffWeighted.filter(e => !seenDW.has(e.name) && seenDW.add(e.name));
-    typePool.length = 0;
-    dwDeduped.forEach(e => typePool.push(e));
 
     // Main count — strength uses fixed 95s entry baseline
     const STRENGTH_AVG_ENTRY = 95;
@@ -393,13 +395,29 @@ function createEngine(app, seed) {
     let mainCount = Math.max(1, Math.round(remainingForMain / (sets * avgEntry)));
     mainCount = Math.min(mainCount, sets <= 2 ? Math.min(typePool.length, 20) : 10);
 
-    // Pick main exercises round-robin
+    // Pick main exercises: Phase 1 = min coverage, Phase 2 = round-robin fill (mirrors index.html)
     const ordered = focusOrderedPool(typePool, focusState);
     const buckets = new Map();
     ordered.forEach(e => { if (!buckets.has(e.cat)) buckets.set(e.cat, []); buckets.get(e.cat).push(e); });
+
+    const REQUIRED_FOR_TYPE = {
+      strength:     [['lower-squat','lower-hinge'], ['push-h','push-v'], ['pull-h','pull-v']],
+      conditioning: [['lower-squat','lower-hinge','plyo'], ['push-h','push-v','full-body'], ['pull-h','pull-v']],
+      functional:   [['lower-squat','lower-hinge'], ['push-h','push-v','full-body'], ['pull-h','pull-v','carry']],
+      hiit:         [['plyo','cardio','full-body'], ['push-h','push-v','full-body'], ['pull-h','pull-v']],
+    };
+    const mainExercises = [];
+    const required = REQUIRED_FOR_TYPE[type] || [];
+    for (const altCats of required) {
+      if (mainExercises.length >= mainCount) break;
+      for (const cat of altCats) {
+        const arr = buckets.get(cat);
+        if (arr && arr.length) { mainExercises.push(arr.shift()); usedNames.add(mainExercises[mainExercises.length - 1].name); break; }
+      }
+    }
+
     const catList = [...buckets.keys()];
     shuffle(catList);
-    const mainExercises = [];
     let added = true;
     while (added && mainExercises.length < mainCount) {
       added = false;
