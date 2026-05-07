@@ -35,3 +35,5 @@ tools/workout-audit/audit-results/
 vendor/bundle/
 .bundle/
 tmp/
+test-results/
+tests/e2e/test-results/

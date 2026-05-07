@@ -9,6 +9,9 @@
     "sync:ios": "npm run build && npx cap sync ios",
     "open:ios": "npx cap open ios",
     "test": "node tests/test-all.js",
+    "test:e2e": "npx playwright test --config=tests/e2e/playwright.config.js",
+    "test:e2e:headed": "npx playwright test --config=tests/e2e/playwright.config.js --headed",
+    "test:e2e:debug": "npx playwright test --config=tests/e2e/playwright.config.js --debug",
     "serve": "python3 -m http.server 8080",
     "release": "./scripts/release.sh release",
     "release:setup": "./scripts/release.sh setup",
@@ -25,7 +28,9 @@
     "@capacitor/ios": "^8.3.1",
     "@capacitor/keyboard": "^8.0.3",
     "@capacitor/status-bar": "^8.0.2",
+    "@playwright/test": "^1.59.1",
     "node-fetch": "^2.7.0",
+    "serve": "^14.2.6",
     "sharp": "^0.34.5"
   }
 }

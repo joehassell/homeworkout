@@ -1,0 +1,30 @@
+{
+  "wk_settings": {
+    "soundEnabled": false,
+    "voiceEnabled": false,
+    "musicEnabled": false,
+    "theme": "dark",
+    "fontIdx": 1,
+    "weightKg": 75,
+    "userProfile": {
+      "age_band": "18-39",
+      "fitness_level": "intermediate",
+      "floor_work_ok": true,
+      "mobility_limits": [],
+      "pregnancy_safe_only": false,
+      "height_cm": 175
+    },
+    "exerciseSettings": {
+      "exercise_blacklist": [],
+      "exercise_whitelist": [],
+      "use_whitelist_exclusively": false
+    },
+    "userGoals": ["general"],
+    "yogaExperience": "some",
+    "yogaEquipment": ["mat"],
+    "yogaVoiceGender": "female",
+    "voiceEngine": "standard",
+    "units": "metric"
+  },
+  "wk_equipment": ["bodyweight", "mat", "dumbbell", "kettlebell", "bench"]
+}
