@@ -589,13 +589,9 @@ describe('Workout quality — equipment compliance', () => {
     config = { type: 'strength', duration: 30, intensity: 'moderate', sets: 3, yogaStyle: 'vinyasa' };
     generateWorkout();
     if (workout.length === 0) return;
-    const forbidden = ['barbell', 'bench', 'chinup bar', 'kettlebell', 'cable column', 'leg press',
-      'smith machine', 'power rack', 'lat pulldown', 'seated cable row'];
     for (const w of workout) {
-      for (const eq of w.exercise.equip) {
-        assert(!forbidden.includes(eq),
-          `"${w.exercise.name}" uses "${eq}" which is not selected`);
-      }
+      assert(window.capability.equipmentMatches(w.exercise, selectedEquipment),
+        `"${w.exercise.name}" does not match selected equipment (bodyweight+mat+dumbbell)`);
     }
   });
 
@@ -881,14 +877,14 @@ describe('Audit — strength duration accuracy', () => {
 // ═══════════════════════════════════════════════════
 
 describe('Audit — HIIT bodyweight pull', () => {
-  it('bodyweight HIIT pool includes at least one pull exercise', () => {
+  it('bodyweight pull exercises should NOT be tagged as HIIT (audit fix)', () => {
     const bwEquip = new Set(['bodyweight', 'mat']);
     const hiitPull = DB.filter(e =>
       e.types.includes('hiit') &&
       (e.cat === 'pull-h' || e.cat === 'pull-v') &&
       e.equip.every(eq => bwEquip.has(eq))
     );
-    assert(hiitPull.length >= 1, `No bodyweight HIIT pull exercises in DB (found ${hiitPull.length})`);
+    assertEqual(hiitPull.length, 0, `Pull rows should not be tagged as HIIT (found ${hiitPull.length}): ${hiitPull.map(e => e.name).join(', ')}`);
   });
 });
 
@@ -1117,16 +1113,16 @@ describe('Audit — DB metadata corrections', () => {
     assert(bp, 'Banded Pull-Aparts should exist');
   });
 
-  it('Inverted Row has hiit type', () => {
+  it('Inverted Row does not have hiit type (audit fix: rows are not HIIT)', () => {
     const ir = DB.find(e => e.name === 'Inverted Row');
-    assert(ir.types.includes('hiit'), 'Inverted Row should have hiit type');
+    assert(!ir.types.includes('hiit'), 'Inverted Row should not have hiit type');
   });
 
   it('Doorframe Row exists with bodyweight equip', () => {
     const dr = DB.find(e => e.name === 'Doorframe Row');
     assert(dr, 'Doorframe Row should exist');
     assert(dr.equip.includes('bodyweight'), 'Doorframe Row should be bodyweight');
-    assert(dr.types.includes('hiit'), 'Doorframe Row should have hiit type');
+    assert(!dr.types.includes('hiit'), 'Doorframe Row should not have hiit type (audit fix)');
   });
 
   it('Marching in Place exists with low cv_demand', () => {
