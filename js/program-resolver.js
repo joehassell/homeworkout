@@ -13,16 +13,17 @@
    * @param {object} progressionOverrides - Computed overrides { exerciseName: { reps, load } }
    * @returns {object} Resolved workout: { type, title, exercises[], tests[] }
    */
-  function resolveSlot(slot, profileSnapshot, swaps, progressionOverrides) {
+  function resolveSlot(slot, profileSnapshot, swaps, progressionOverrides, equipmentSet) {
     if (!slot) return null;
     swaps = swaps || {};
     progressionOverrides = progressionOverrides || {};
+    equipmentSet = equipmentSet || new Set(['bodyweight']);
 
     switch (slot.type) {
       case 'inline':
-        return _resolveInline(slot, profileSnapshot, swaps, progressionOverrides);
+        return _resolveInline(slot, profileSnapshot, swaps, progressionOverrides, equipmentSet);
       case 'template':
-        return _resolveTemplate(slot, profileSnapshot, swaps, progressionOverrides);
+        return _resolveTemplate(slot, profileSnapshot, swaps, progressionOverrides, equipmentSet);
       case 'generator':
         return { type: 'generator', brief: slot.brief };
       case 'assessment':
@@ -32,13 +33,13 @@
     }
   }
 
-  function _resolveInline(slot, profile, swaps, overrides) {
+  function _resolveInline(slot, profile, swaps, overrides, equipmentSet) {
     var caps = _deriveCaps(profile);
     var resolved = [];
 
     for (var i = 0; i < slot.exercises.length; i++) {
       var ex = slot.exercises[i];
-      var result = _resolveExercise(ex, caps, profile, swaps, overrides);
+      var result = _resolveExercise(ex, caps, profile, swaps, overrides, equipmentSet);
       resolved.push(result);
     }
 
@@ -50,7 +51,7 @@
     };
   }
 
-  function _resolveExercise(ex, caps, profile, swaps, overrides) {
+  function _resolveExercise(ex, caps, profile, swaps, overrides, equipmentSet) {
     var name = ex.name;
 
     // 1. Pinned swap?
@@ -58,18 +59,18 @@
       name = swaps[name];
     }
 
-    // 2. Check if allowed
+    // 2. Check if allowed (capability AND equipment)
     var def = _findExercise(name);
-    if (def && _isAllowed(def, caps, profile)) {
+    if (def && _isAllowed(def, caps, profile) && _equipOk(def, equipmentSet)) {
       return _buildResult(name, ex, def, overrides);
     }
 
-    // 3. Try swap_alternatives
+    // 3. Try swap_alternatives — each candidate must satisfy capability AND equipment
     if (ex.swap_alternatives && ex.swap_alternatives.length > 0) {
       for (var i = 0; i < ex.swap_alternatives.length; i++) {
         var altName = ex.swap_alternatives[i];
         var altDef = _findExercise(altName);
-        if (altDef && _isAllowed(altDef, caps, profile)) {
+        if (altDef && _isAllowed(altDef, caps, profile) && _equipOk(altDef, equipmentSet)) {
           return _buildResult(altName, ex, altDef, overrides);
         }
       }
@@ -106,7 +107,7 @@
     return result;
   }
 
-  function _resolveTemplate(slot, profile, swaps, overrides) {
+  function _resolveTemplate(slot, profile, swaps, overrides, equipmentSet) {
     // Look up template from templates.js
     var templates = window.TEMPLATES || [];
     var tpl = null;
@@ -149,10 +150,16 @@
       }
     }
 
-    return _resolveInline(inlineSlot, profile, swaps, overrides);
+    return _resolveInline(inlineSlot, profile, swaps, overrides, equipmentSet);
   }
 
   // ── Helpers ────────────────────────────────────────────
+  function _equipOk(def, equipmentSet) {
+    if (!def.equip || def.equip.length === 0) return true;
+    if (!equipmentSet) return true;
+    return def.equip.every(function (eq) { return equipmentSet.has(eq); });
+  }
+
   function _findExercise(name) {
     if (!window.DB) return null;
     for (var i = 0; i < window.DB.length; i++) {

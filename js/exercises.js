@@ -3,7 +3,7 @@
 
 const DB = [
   // Lower Body: Squat
-  {name:"Air Squat",image:"strength-air-squat.webp",cat:"lower-squat",equip:["bodyweight","resistance band"],muscles:["quads","glutes"],types:["strength","hiit","conditioning","functional","isohiit"],diff:1,
+  {name:"Air Squat",image:"strength-air-squat.webp",cat:"lower-squat",equip:["bodyweight"],muscles:["quads","glutes"],types:["strength","conditioning","functional","isohiit"],diff:1,
    impact:'low',complexity:1,joint_load:'low',cv_demand:'medium',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['knees'],pregnancy_safe:'yes',
    info:"Stand with feet shoulder-width apart, toes slightly out. Push hips back and bend knees to lower until thighs are parallel to the floor. Keep chest up, weight in heels. Drive through heels to stand. Keep knees tracking over toes throughout."},
   {name:"Goblet Squat",image:"strength-goblet-squat.webp",cat:"lower-squat",equip:["kettlebell","dumbbell"],muscles:["quads","glutes"],types:["strength","functional","conditioning"],diff:2,
@@ -66,7 +66,7 @@ const DB = [
   {name:"Hip Thrust",image:"strength-hip-thrust.webp",cat:"lower-hinge",equip:["bodyweight","bench","barbell","resistance band"],muscles:["glutes","hamstrings"],types:["strength","isohiit"],diff:2,
    impact:'none',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:true,min_fitness:'beginner',contraindicated_for:['hips'],pregnancy_safe:'early_only',
    info:"Sit on the floor with upper back against a bench, barbell across your hips. Feet flat, hip-width apart. Drive through heels and squeeze glutes to lift hips until your body forms a straight line from shoulders to knees. Pause at the top. Lower with control."},
-  {name:"Glute Bridge",image:"strength-glute-bridge.webp",cat:"lower-hinge",equip:["bodyweight","barbell","mat","resistance band"],muscles:["glutes","hamstrings"],types:["strength","conditioning","isohiit"],diff:1,
+  {name:"Glute Bridge",image:"strength-glute-bridge.webp",cat:"lower-hinge",equip:["bodyweight","mat"],muscles:["glutes","hamstrings"],types:["strength","conditioning","isohiit"],diff:1,
    impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:true,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'early_only',
    info:"Lie on your back, knees bent, feet flat on the floor. Drive through heels and squeeze glutes to lift hips toward the ceiling. Your body should form a straight line from shoulders to knees. Pause at the top. Lower with control. Add weight across hips to progress."},
   {name:"Nordic Hamstring Curl",image:"strength-nordic-hamstring-curl.webp",cat:"lower-hinge",equip:["bodyweight","mat"],muscles:["hamstrings"],types:["strength"],diff:3,
@@ -77,7 +77,7 @@ const DB = [
    info:"Rest the barbell across your upper back. Feet hip-width, slight knee bend. Hinge forward at the hips, pushing your butt back until your torso is near parallel. Keep your back flat and core braced. Drive hips forward to stand. Use moderate weight - this is a technique lift."},
 
   // Upper Push Horizontal
-  {name:"Push-Ups",image:"strength-push-ups.webp",cat:"push-h",equip:["bodyweight","mat"],muscles:["chest","triceps","shoulders"],types:["strength","hiit","conditioning","functional","isohiit"],diff:1,
+  {name:"Push-Ups",image:"strength-push-ups.webp",cat:"push-h",equip:["bodyweight","mat"],muscles:["chest","triceps","shoulders"],types:["strength","conditioning","functional","isohiit"],diff:1,
    impact:'low',complexity:1,joint_load:'low',cv_demand:'medium',requires_balance:false,requires_floor:true,min_fitness:'untrained',contraindicated_for:['wrists'],pregnancy_safe:'early_only',
    info:"Hands slightly wider than shoulders, body in a straight line from head to heels. Lower your chest to the floor by bending elbows (keep them at roughly 45 degrees, not flared). Push back up to full extension. Engage your core throughout - don't let hips sag or pike up."},
   {name:"Incline Push-Ups",image:"strength-incline-push-ups.webp",cat:"push-h",equip:["bench","bodyweight"],muscles:["chest","triceps"],types:["strength","conditioning","functional","isohiit"],diff:1,
@@ -126,13 +126,13 @@ const DB = [
   {name:"Bent-Over Row",image:"strength-bent-over-row.webp",cat:"pull-h",equip:["barbell"],muscles:["back","biceps"],types:["strength"],diff:2,
    impact:'none',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['lower_back'],pregnancy_safe:'early_only',
    info:"Stand with feet hip-width, hinge forward about 45 degrees. Grip the barbell with arms hanging straight down. Pull the bar to your lower ribcage, squeezing your shoulder blades together. Lower with control. Keep your back flat and core braced throughout. Don't jerk the weight."},
-  {name:"Dumbbell Row",image:"strength-dumbbell-row.webp",cat:"pull-h",equip:["dumbbell","bench"],muscles:["back","biceps"],types:["strength","functional"],diff:2,single_sided:true,
+  {name:"Dumbbell Row",image:"strength-dumbbell-row.webp",cat:"pull-h",equip:["dumbbell","bench"],muscles:["back","biceps"],types:["strength","hiit","functional"],diff:2,single_sided:true,
    impact:'none',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['lower_back'],pregnancy_safe:'yes',
    info:"Place one hand and knee on a bench, other foot on the floor. Hold a dumbbell in the free hand, arm hanging straight down. Pull the dumbbell to your hip, driving your elbow past your torso. Squeeze your shoulder blade at the top. Lower with control. Keep your back flat."},
-  {name:"Renegade Row",image:"strength-renegade-row.webp",cat:"pull-h",equip:["dumbbell"],muscles:["back","biceps","core"],types:["strength","conditioning","functional"],diff:2,
+  {name:"Renegade Row",image:"strength-renegade-row.webp",cat:"pull-h",equip:["dumbbell"],muscles:["back","biceps","core"],types:["strength","hiit","conditioning","functional"],diff:2,
    impact:'low',complexity:2,joint_load:'medium',cv_demand:'medium',requires_balance:false,requires_floor:true,min_fitness:'beginner',contraindicated_for:['wrists','lower_back'],pregnancy_safe:'no',
    info:"Start in push-up position with hands on dumbbells. Row one dumbbell to your hip while stabilising with the other arm. Place it down and row the other side. Keep hips square to the floor - resist rotation. This is as much a core exercise as it is a back exercise."},
-  {name:"Inverted Row",image:"strength-inverted-row.webp",cat:"pull-h",equip:["chinup bar"],muscles:["back","biceps"],types:["strength","conditioning"],diff:2,
+  {name:"Inverted Row",image:"strength-inverted-row.webp",cat:"pull-h",equip:["chinup bar"],muscles:["back","biceps"],types:["strength","hiit","conditioning","functional"],diff:2,
    impact:'none',complexity:2,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:[],pregnancy_safe:'early_only',
    info:"Set a bar at waist height. Hang underneath it with arms extended, body in a straight line, heels on the floor. Pull your chest to the bar by squeezing your shoulder blades together. Lower with control. Walk feet further under the bar to make it harder."},
   {name:"Medicine Ball Row",image:"strength-medicine-ball-row.webp",cat:"pull-h",equip:["medicine ball"],muscles:["back","biceps"],types:["conditioning","functional"],diff:1,
@@ -149,10 +149,10 @@ const DB = [
   {name:"Neutral Grip Pull-Ups",image:"strength-neutral-grip-pull-ups.webp",cat:"pull-v",equip:["chinup bar"],muscles:["back","biceps"],types:["strength"],diff:3,
    impact:'none',complexity:3,joint_load:'medium',cv_demand:'medium',requires_balance:false,requires_floor:false,min_fitness:'intermediate',contraindicated_for:[],pregnancy_safe:'early_only',
    info:"Hang from parallel handles (palms facing each other). Pull yourself up until your chin clears the bar. Lower with control. The neutral grip is generally the most shoulder-friendly pull-up variation and works the brachialis along with the back."},
-  {name:"Negative Pull-Ups",image:"strength-negative-pull-ups.webp",cat:"pull-v",equip:["chinup bar"],muscles:["back","biceps"],types:["strength","conditioning"],diff:2,
+  {name:"Negative Pull-Ups",image:"strength-negative-pull-ups.webp",cat:"pull-v",equip:["chinup bar"],muscles:["back","biceps"],types:["strength","hiit","conditioning"],diff:2,
    impact:'none',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['shoulders'],pregnancy_safe:'early_only',
    info:"Jump or step up to the top position of a pull-up (chin above bar). Lower yourself as slowly as possible - aim for 5-10 seconds down. Release at the bottom and repeat. This eccentric training builds the strength needed for full pull-ups. One of the best progressions."},
-  {name:"Hanging Scapular Pulls",image:"strength-hanging-scapular-pulls.webp",cat:"pull-v",equip:["chinup bar"],muscles:["back","shoulders"],types:["strength","functional"],diff:1,
+  {name:"Hanging Scapular Pulls",image:"strength-hanging-scapular-pulls.webp",cat:"pull-v",equip:["chinup bar"],muscles:["back","shoulders"],types:["strength","hiit","functional"],diff:1,
    impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['shoulders'],pregnancy_safe:'yes',
    info:"Hang from the bar with arms fully extended. Without bending your elbows, pull your shoulder blades down and together, lifting your body slightly. Hold briefly, then release. This activates the muscles that initiate a pull-up and builds scapular control and shoulder health."},
 
@@ -169,7 +169,7 @@ const DB = [
   {name:"Hollow Hold",image:"strength-hollow-body-hold.webp",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["strength","isohiit"],diff:2,
    impact:'none',complexity:2,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:true,min_fitness:'beginner',contraindicated_for:['lower_back'],pregnancy_safe:'early_only',
    info:"Lie on your back. Lift your shoulders and legs off the ground, arms extended overhead. Press your lower back firmly into the floor - this is essential. Your body should form a banana shape. Hold this position. If it's too hard, bend your knees or bring arms to your sides."},
-  {name:"Sit-Ups",image:"strength-sit-ups.webp",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["conditioning","hiit"],diff:1,
+  {name:"Sit-Ups",image:"strength-sit-ups.webp",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["conditioning"],diff:1,
    impact:'none',complexity:1,joint_load:'low',cv_demand:'medium',requires_balance:false,requires_floor:true,min_fitness:'untrained',contraindicated_for:['lower_back'],pregnancy_safe:'early_only',
    info:"Lie on your back, knees bent, feet flat (anchor them if needed). Cross arms over chest or place hands by ears. Curl your torso up to a seated position. Lower with control. Avoid pulling on your neck. Exhale on the way up, inhale on the way down."},
   {name:"Crunches",image:"strength-crunches.webp",cat:"core",equip:["mat","bodyweight"],muscles:["core"],types:["conditioning","isohiit"],diff:1,
@@ -178,13 +178,13 @@ const DB = [
   {name:"Russian Twists",image:"strength-russian-twists.webp",cat:"core",equip:["bodyweight","medicine ball","dumbbell","mat"],muscles:["core","obliques"],types:["hiit","conditioning","functional","isohiit"],diff:1,
    impact:'none',complexity:1,joint_load:'low',cv_demand:'medium',requires_balance:false,requires_floor:true,min_fitness:'untrained',contraindicated_for:['lower_back'],pregnancy_safe:'early_only',
    info:"Sit with knees bent, feet off the floor, torso leaned back at 45 degrees. Hold a weight at chest height. Rotate your torso to touch the weight to the floor on one side, then the other. Keep your chest up and move from your ribcage, not just your arms. Feet stay still."},
-  {name:"Bicycle Crunch",image:"strength-bicycle-crunch.webp",cat:"core",equip:["mat","bodyweight"],muscles:["core","obliques"],types:["hiit","conditioning","isohiit"],diff:1,
+  {name:"Bicycle Crunch",image:"strength-bicycle-crunch.webp",cat:"core",equip:["mat","bodyweight"],muscles:["core","obliques"],types:["conditioning","isohiit"],diff:1,
    impact:'none',complexity:1,joint_load:'low',cv_demand:'medium',requires_balance:false,requires_floor:true,min_fitness:'untrained',contraindicated_for:['lower_back'],pregnancy_safe:'early_only',
    info:"Lie on your back, hands by ears. Lift shoulders off the floor. Bring one knee toward your chest while rotating to touch the opposite elbow to that knee. Extend the other leg straight. Alternate sides in a pedalling motion. Move with control - don't rush through reps."},
   {name:"Hanging Leg Raises",image:"strength-hanging-leg-raises.webp",cat:"core",equip:["chinup bar"],muscles:["core"],types:["strength"],diff:3,
    impact:'none',complexity:3,joint_load:'medium',cv_demand:'medium',requires_balance:false,requires_floor:false,min_fitness:'intermediate',contraindicated_for:['lower_back','shoulders'],pregnancy_safe:'no',
    info:"Hang from a bar with arms fully extended. Keeping legs straight, raise them until they're parallel to the floor (or higher). Lower with control - don't swing. If straight legs are too hard, bend your knees. Avoid swinging momentum. This is a serious core exercise."},
-  {name:"Hanging Knee Raises",image:"strength-hanging-knee-raises.webp",cat:"core",equip:["chinup bar"],muscles:["core"],types:["strength","conditioning"],diff:2,
+  {name:"Hanging Knee Raises",image:"strength-hanging-knee-raises.webp",cat:"core",equip:["chinup bar"],muscles:["core"],types:["strength","hiit","conditioning"],diff:2,
    impact:'none',complexity:2,joint_load:'low',cv_demand:'medium',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['shoulders'],pregnancy_safe:'no',
    info:"Hang from a bar with arms extended. Draw your knees up toward your chest by curling your pelvis. Lower with control. Avoid swinging. The key is to curl your pelvis up - don't just lift your knees with hip flexors. Pause briefly at the top."},
   {name:"Toes-to-Bar",image:"strength-toes-to-bar.webp",cat:"core",equip:["chinup bar"],muscles:["core"],types:["strength","functional"],diff:3,
@@ -334,7 +334,7 @@ const DB = [
    info:"Kneel on the floor. Sit your hips back onto your heels and reach your arms forward along the floor. Rest your forehead on the mat. Breathe deeply and let your whole body relax. Hold for 30-60 seconds. A gentle, restorative stretch for the entire posterior chain."},
 
   // Isometric / Stability
-  {name:"Wall Sits",image:"strength-wall-sits.webp",cat:"isometric",equip:["bodyweight"],muscles:["quads"],types:["strength","conditioning","isohiit"],diff:1,
+  {name:"Wall Sits",image:"strength-wall-sits.webp",cat:"isometric",equip:["bodyweight"],muscles:["quads"],types:["strength","isohiit"],diff:1,
    impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:['knees'],pregnancy_safe:'yes',
    info:"Stand with your back flat against a wall. Slide down until your thighs are parallel to the floor, knees at 90 degrees. Hold this position. Keep your back pressed into the wall and weight in your heels. Don't rest your hands on your thighs. Breathe steadily. Your quads will burn."},
   {name:"Plank Shoulder Taps",image:"strength-plank-shoulder-taps.webp",cat:"isometric",equip:["bodyweight","mat"],muscles:["core","shoulders"],types:["conditioning","functional","isohiit"],diff:2,
@@ -624,7 +624,7 @@ const DB = [
   {name:"BOSU Reverse Lunge",image:"strength-bosu-reverse-lunge.webp",cat:"lower-squat",equip:["bosu ball"],muscles:["quads","glutes","core"],types:["strength","functional"],diff:2,single_sided:true,
    impact:'low',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:true,requires_floor:false,min_fitness:'beginner',contraindicated_for:['ankles','knees'],pregnancy_safe:'no',
    info:"Stand with the arch of one foot over the centre of the BOSU dome. Step the other foot back into a reverse lunge, lowering your back knee toward the floor. Push through the foot on the BOSU to return to standing. The unstable surface challenges ankle stability and proprioception. No weights needed."},
-  {name:"Single-Leg Glute Bridge",image:"strength-single-leg-glute-bridge.webp",cat:"lower-hinge",equip:["mat","resistance band"],muscles:["glutes","hamstrings","core"],types:["strength","functional","isohiit"],diff:2,single_sided:true,
+  {name:"Single-Leg Glute Bridge",image:"strength-single-leg-glute-bridge.webp",cat:"lower-hinge",equip:["bodyweight","mat"],muscles:["glutes","hamstrings","core"],types:["strength","functional","isohiit"],diff:2,single_sided:true,
    impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:true,min_fitness:'beginner',contraindicated_for:[],pregnancy_safe:'early_only',
    info:"Lie on your back with one foot flat on the floor and the other leg extended or held at the knee. Push through the heel of the grounded foot to lift your hips until your body forms a straight line from shoulders to knee. Squeeze your glute hard at the top. Lower with control. Keep your hips level — don't let them rotate."},
 
@@ -721,6 +721,9 @@ const DB = [
   {name:"Knee Push-Ups",cat:"push-h",equip:["bodyweight","mat"],muscles:["chest","triceps"],types:["strength","isohiit"],diff:1,
    impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:true,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
    info:"Start in a push-up position but with knees on the floor. Keep a straight line from head to knees. Lower your chest to the floor then push back up. A great regression for building push-up strength. Keep core engaged — don't let hips sag."},
+  {name:"Wall Push-Ups",cat:"push-h",equip:["bodyweight"],muscles:["chest","triceps"],types:["strength","isohiit"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Stand an arm's length from a wall. Place hands on the wall at shoulder height and width. Bend elbows to lower chest toward the wall. Push back to start. The most accessible push-up regression — suitable for any fitness level."},
   {name:"Tricep Dips",cat:"push-h",equip:["bodyweight"],muscles:["triceps","chest","shoulders"],types:["strength","isohiit"],diff:2,
    impact:'none',complexity:2,joint_load:'medium',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['shoulders'],pregnancy_safe:'no',
    info:"Place hands behind you on a sturdy chair or bench, fingers forward. Extend legs out or keep knees bent for easier version. Lower your body by bending elbows to about 90 degrees. Push back up. Keep back close to the bench throughout."},
@@ -761,10 +764,34 @@ const DB = [
    impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:true,min_fitness:'untrained',contraindicated_for:['lower_back'],pregnancy_safe:'no',
    info:"Lie face down with arms extended overhead. Simultaneously lift arms, chest, and legs off the floor. Hold this position, squeezing your glutes and back muscles. Keep neck neutral — look at the floor. Strengthens the entire posterior chain."},
 
-  // Programs: additional exercises
-  {name:"Band Pull-Apart",cat:"upper-pull",equip:["resistance band"],muscles:["back","shoulders"],types:["strength","functional","isohiit"],diff:1,
+  // ── Bodyweight Pulse Raisers (low CV demand — universally accessible warmup) ──
+  {name:"Marching in Place",cat:"cardio",equip:["bodyweight"],muscles:["cardio","quads"],types:["hiit","conditioning","functional","strength"],diff:1,
+   impact:'low',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"March in place lifting knees comfortably. Pump arms in opposition. A gentle pulse raiser appropriate for every fitness level."},
+  {name:"Easy Step Touch",cat:"cardio",equip:["bodyweight"],muscles:["cardio","quads"],types:["hiit","conditioning","functional","strength"],diff:1,
+   impact:'low',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Step to one side and tap the other foot in. Step the other direction. Add arm sweeps. Suits anyone."},
+
+  // ── Bodyweight Pulls (closes HIIT bodyweight pull gap) ──
+  {name:"Doorframe Row",cat:"pull-h",equip:["bodyweight"],muscles:["back","biceps"],types:["strength","hiit","conditioning","functional"],diff:1,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'medium',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Stand facing a doorframe. Grip the frame with both hands at chest height. Lean back, arms extended. Pull your chest to the frame, squeezing your shoulder blades. Lower with control. Walk feet further forward to make harder."},
+  {name:"Towel Row",cat:"pull-h",equip:["bodyweight"],muscles:["back","biceps","grip"],types:["strength","hiit","functional"],diff:1,
    impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
-   info:"Hold a resistance band at shoulder height with arms extended, hands shoulder-width apart. Pull the band apart by squeezing your shoulder blades together until the band touches your chest. Control the return. Builds rear delt and upper back endurance."},
+   info:"Loop a towel around a sturdy post. Hold both ends, lean back arms extended. Pull to your chest, squeezing your shoulder blades. Control the return."},
+
+  // ── Additional HIIT / Pregnancy-safe movements ──
+  {name:"Bodyweight Pull-Up Iso Hang",cat:"pull-v",equip:["chinup bar"],muscles:["back","biceps","grip"],types:["strength","hiit","functional"],diff:2,
+   impact:'none',complexity:1,joint_load:'low',cv_demand:'medium',requires_balance:false,requires_floor:false,min_fitness:'beginner',contraindicated_for:['shoulders'],pregnancy_safe:'early_only',
+   info:"Hang from the bar with chin above the bar. Hold the top position as long as possible. Lower with control. Builds the strength to do full pull-ups."},
+  {name:"Modified Burpee",cat:"full-body",equip:["bodyweight"],muscles:["full body"],types:["hiit","conditioning","functional"],diff:1,
+   impact:'low',complexity:2,joint_load:'low',cv_demand:'high',requires_balance:false,requires_floor:true,min_fitness:'beginner',contraindicated_for:['wrists'],pregnancy_safe:'yes',
+   info:"From standing, step (don't jump) one foot back to plank, then the other. Step (don't jump) feet forward and stand. Step instead of jump throughout for a low-impact, pregnancy-friendly conditioning move."},
+  {name:"Standing Mountain Climbers",cat:"cardio",equip:["bodyweight"],muscles:["core","cardio","hip flexors"],types:["hiit","conditioning"],diff:1,
+   impact:'low',complexity:1,joint_load:'low',cv_demand:'high',requires_balance:true,requires_floor:false,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
+   info:"Standing tall, drive each knee toward the opposite elbow alternately at speed. Pumps the heart rate without supine or push-up positions."},
+
+  // Programs: additional exercises
   {name:"Side-Lying T-Spine Rotation",cat:"mobility",equip:["mat","bodyweight"],muscles:["spine","shoulders"],types:["functional"],diff:1,
    impact:'none',complexity:1,joint_load:'low',cv_demand:'low',requires_balance:false,requires_floor:true,min_fitness:'untrained',contraindicated_for:[],pregnancy_safe:'yes',
    info:"Lie on your side with knees bent at 90 degrees, arms extended in front of you. Rotate your top arm up and over, following it with your gaze, opening your chest toward the ceiling. Return with control. Improves thoracic rotation and reduces upper-back stiffness."},

@@ -3023,7 +3023,7 @@ function getCooldownCats() {
 }
 
 // Per-set rest seconds keyed by derived intensity (PDR §6.4 mapping).
-const SET_REST = { light: 60, moderate: 90, high: 120, very_high: 180 };
+const SET_REST = { light: 60, moderate: 90, high: 120, very_high: 150 };
 const SET_REST_REASON = {
   light: 'Light set — 1 min',
   moderate: 'Moderate set — 90 s',
@@ -3119,12 +3119,18 @@ function focusOrderedPool(pool) {
 }
 
 function pickPulseRaiser(equipment, capCaps, capProfile, capSettings) {
+  // Pulse raiser is a gentle 60s ramp — relax cv-demand by one step for warmup screening.
+  // We still respect impact / joint / floor / pregnancy constraints.
+  const CV_RELAX = { low: 'medium', medium: 'high', high: 'high' };
+  const relaxedCaps = capCaps ? { ...capCaps, cv_cap: CV_RELAX[capCaps.cv_cap] || capCaps.cv_cap } : null;
+  const allowed = e => !relaxedCaps || window.capability.isAllowed(e, relaxedCaps, capProfile, capSettings);
   // Prefer skipping rope when available; else any cardio.
-  const allowed = e => !capCaps || window.capability.isAllowed(e, capCaps, capProfile, capSettings);
   const skip = DB.find(e => e.name === 'Skipping Rope' && e.equip.every(eq => equipment.has(eq)) && allowed(e));
   if (skip) return skip;
   const cardio = DB.filter(e => e.cat === 'cardio' && e.equip.every(eq => equipment.has(eq)) && allowed(e));
-  return cardio[Math.floor(Math.random() * cardio.length)] || null;
+  // Prefer low-cv cardio for universally accessible pulse raisers
+  cardio.sort((a, b) => (a.cv_demand === 'low' ? -1 : 0) - (b.cv_demand === 'low' ? -1 : 0));
+  return cardio[0] || null;
 }
 
 function buildWarmup(type, equipment, totalSec, usedNames, capCaps, capProfile, capSettings) {
@@ -3229,7 +3235,9 @@ function buildMainEntry(exercise, type, intensitySetting, setIdx) {
   // and the eventual inter-set rest (filled per-position by applyInterSetRest).
   let workSec, intraRest;
   if (type === 'strength') {
-    workSec = 0;
+    // Use estimated work time so reconcileTotalTime / workoutScheduledSec
+    // can accurately budget strength sessions against the time target.
+    workSec = window.builder.estimatedWorkSec(exercise.diff, exercise.single_sided);
     intraRest = 60; // light recovery between different lifts within a set
   } else {
     const r = window.builder.pickIntervals(exercise.cat, exercise.diff, type, intensitySetting, 'main');
@@ -3275,6 +3283,15 @@ function generateWorkout() {
     return;
   }
 
+  // Pregnancy + HIIT is not a recommended combination — the available pool is
+  // heavily restricted and the workouts become degenerate. Refuse cleanly.
+  const profileForPreCheck = { ...userProfile, bmi: window.capability.computeBmi(userWeightKg, userProfile.height_cm || 170) };
+  if (config.type === 'hiit' && profileForPreCheck.pregnancy_safe_only) {
+    showGenError('HIIT is not recommended during pregnancy. Try Conditioning, Functional, or a low-impact Yoga style instead.');
+    workout = [];
+    return;
+  }
+
   // Filter equipment to only type-relevant items (prevents using invisible equipment)
   const relevant = TYPE_EQUIPMENT[config.type] || TYPE_EQUIPMENT.hiit;
   const effectiveEquipment = new Set([...selectedEquipment].filter(eq => relevant.includes(eq)));
@@ -3316,16 +3333,52 @@ function generateWorkout() {
   Object.entries(focusState).forEach(([region, st]) => {
     if (st === 'exclude') (REGIONS[region] || []).forEach(c => excludedCats.add(c));
   });
+  // Mobility belongs in warmup/cooldown, not the main block.
+  const MAIN_BLOCK_EXCLUDED_CATS = new Set(['mobility']);
   const typePool = DB.filter(e =>
     e.types.includes(config.type) &&
     e.equip.every(eq => effectiveEquipment.has(eq)) &&
     !excludedCats.has(e.cat) &&
+    !MAIN_BLOCK_EXCLUDED_CATS.has(e.cat) &&
     !usedNames.has(e.name) &&
     window.capability.isAllowed(e, caps, profileForFilter, exerciseSettings)
   );
-  if (typePool.length === 0) {
-    showGenError('No exercises match this type, equipment, and focus combination. Try fewer exclusions.');
+  const MIN_POOL = 4;
+  if (typePool.length < MIN_POOL) {
+    showGenError(
+      typePool.length === 0
+        ? 'No exercises match this type, equipment, and focus combination. Try fewer exclusions.'
+        : 'Only ' + typePool.length + ' exercise' + (typePool.length === 1 ? '' : 's') +
+          ' match the selected type / equipment / focus combination — that is not enough for a balanced session. Try widening equipment or focus.'
+    );
     return;
+  }
+
+  // Strength preference: prioritise loaded compound lifts when available.
+  if (config.type === 'strength') {
+    const COMPOUND_PRIORITY = {
+      'lower-squat': 3, 'lower-hinge': 3,
+      'push-h': 2.5, 'push-v': 2.5,
+      'pull-h': 2.5, 'pull-v': 2.5,
+      'full-body': 2, 'isometric': 1, 'core': 1, 'carry': 1,
+    };
+    const HEAVY_EQUIP = new Set(['barbell','dumbbell','kettlebell']);
+    const compoundExpanded = [];
+    typePool.forEach(e => {
+      let mult = COMPOUND_PRIORITY[e.cat] || 1;
+      if (e.equip.some(eq => HEAVY_EQUIP.has(eq))) mult *= 1.5;
+      if (e.equip.length === 1 && e.equip[0] === 'resistance band' &&
+          [...effectiveEquipment].some(eq => HEAVY_EQUIP.has(eq))) {
+        mult *= 0.4;
+      }
+      const copies = Math.max(1, Math.round(mult));
+      for (let i = 0; i < copies; i++) compoundExpanded.push(e);
+    });
+    shuffle(compoundExpanded);
+    const seenC = new Set();
+    const dedupedC = compoundExpanded.filter(e => !seenC.has(e.name) && seenC.add(e.name));
+    typePool.length = 0;
+    dedupedC.forEach(e => typePool.push(e));
   }
 
   // Apply goal weighting: duplicate exercises from weighted categories.
@@ -3372,7 +3425,7 @@ function generateWorkout() {
   const avgEntry = sample.length
     ? sample.reduce((acc, ex) => {
         let work, intraRest;
-        if (config.type === 'strength') { work = 30; intraRest = 60; }
+        if (config.type === 'strength') { work = window.builder.estimatedWorkSec(ex.diff, ex.single_sided); intraRest = 60; }
         else {
           const r = window.builder.pickIntervals(ex.cat, ex.diff, config.type, config.intensity, 'main');
           work = ex.single_sided ? r.workSec * 2 : r.workSec;
@@ -3390,6 +3443,20 @@ function generateWorkout() {
   // Cap per-set exercises based on session length and set count
   const maxPerSet = sets <= 2 ? Math.min(typePool.length, 20) : 10;
   mainCount = Math.min(mainCount, maxPerSet);
+
+  // Bias toward higher difficulty for higher fitness levels.
+  const targetDiff = ({advanced: 2.5, intermediate: 1.8, beginner: 1.3, untrained: 1.0})[profileForFilter.fitness_level] || 1.5;
+  const diffWeighted = [];
+  typePool.forEach(e => {
+    const distance = Math.abs(e.diff - targetDiff);
+    const weight = Math.max(1, Math.round(3 - distance));
+    for (let i = 0; i < weight; i++) diffWeighted.push(e);
+  });
+  shuffle(diffWeighted);
+  const seenDW = new Set();
+  const dwDeduped = diffWeighted.filter(e => !seenDW.has(e.name) && seenDW.add(e.name));
+  typePool.length = 0;
+  dwDeduped.forEach(e => typePool.push(e));
 
   // Pick mainExercises distributed across body groups (region cats), focus-weighted.
   const ordered = focusOrderedPool(typePool);
@@ -3446,8 +3513,7 @@ function generateWorkout() {
   reconcileTotalTime(totalSec);
 
   // If we still can't fit the requested duration, refuse rather than silently overshoot.
-  // Strength sessions skip this check (count-up work has unknown duration).
-  if (config.type !== 'strength') {
+  {
     const final = workoutScheduledSec();
     const tolSec = 30;
     if (final > totalSec + tolSec) {
@@ -3511,18 +3577,19 @@ function startProgramWorkout(resolved) {
 }
 
 function workoutScheduledSec() {
-  // For strength count-up sets, work is unknown — exclude work from estimate but include rest.
-  return workout.reduce((acc, w) => {
-    const work = (w.section === 'main' && config.type === 'strength') ? 0 : (w.workSec || 0);
-    return acc + work + (w.restSec || 0);
-  }, 0);
+  // Strength entries now carry estimated workSec, so sum everything uniformly.
+  return workout.reduce((acc, w) => acc + (w.workSec || 0) + (w.restSec || 0), 0);
 }
 
 function reconcileTotalTime(targetSec) {
-  if (config.type === 'strength') return; // count-up sets have unknown duration
-
+  // Strength now has estimated work time; no skip needed.
   let delta = targetSec - workoutScheduledSec();
   if (delta === 0) return;
+
+  const sets = config.sets || 1;
+  // 1-set sessions have less rest budget — allow slightly longer caps.
+  const INTRA_REST_CAP = (sets === 1) ? 120 : 90;
+  const COOLDOWN_HOLD_CAP = 180;
 
   // First lever: inter-set rests (those with restReason set), kept inside the 60-180s band.
   for (let i = workout.length - 1; i >= 0; i--) {
@@ -3533,23 +3600,28 @@ function reconcileTotalTime(targetSec) {
     w.restSec = newRest;
     if (delta === 0) break;
   }
-  // Second lever: spread excess across ALL main exercise rests (no restReason)
+  // Second lever: spread excess across main exercise rests (no restReason),
+  // excluding the LAST main entry so we don't insert dead time before cooldown.
   if (delta > 0) {
-    const mainEntries = workout.filter(w => w.section === 'main' && !w.restReason);
-    if (mainEntries.length > 0) {
-      const perEx = Math.floor(delta / mainEntries.length);
-      for (const w of mainEntries) {
-        const add = Math.min(perEx, 90 - (w.restSec || 0)); // cap each rest at 90s
+    const lastMainIdx = (() => {
+      for (let i = workout.length - 1; i >= 0; i--) if (workout[i].section === 'main') return i;
+      return -1;
+    })();
+    const fillable = workout.filter((w, i) => w.section === 'main' && !w.restReason && i !== lastMainIdx);
+    if (fillable.length > 0) {
+      const perEx = Math.floor(delta / fillable.length);
+      for (const w of fillable) {
+        const add = Math.min(perEx, INTRA_REST_CAP - (w.restSec || 0));
         if (add > 0) { w.restSec = (w.restSec || 0) + add; delta -= add; }
       }
     }
   }
-  // Residual: distribute across cooldown movements (cap each at 120s to avoid absurd holds).
+  // Residual: distribute across cooldown movements.
   if (delta > 0) {
     const cdEntries = workout.filter(w => w.section === 'cooldown');
     for (const cd of cdEntries) {
       if (delta <= 0) break;
-      const room = 120 - (cd.workSec || 0);
+      const room = COOLDOWN_HOLD_CAP - (cd.workSec || 0);
       if (room > 0) {
         const add = Math.min(room, delta);
         cd.workSec = (cd.workSec || 0) + add;
@@ -3697,7 +3769,7 @@ function applyInterSetRest() {
       const intensity = deriveIntensity(entry.exercise, config.type, config.intensity);
       let workSec, intraRest;
       if (config.type === 'strength') {
-        workSec = 0;
+        workSec = window.builder.estimatedWorkSec(entry.exercise.diff, entry.exercise.single_sided);
         intraRest = 60;
       } else {
         const r = window.builder.pickIntervals(entry.exercise.cat, entry.exercise.diff, config.type, config.intensity, 'main');

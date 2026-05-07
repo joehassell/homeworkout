@@ -60,10 +60,20 @@
   // SUN SALUTATION SEQUENCE
   // ═══════════════════════════════════════════════════
 
-  const SUN_SAL_NAMES = [
+  const SUN_SAL_A = [
     'Mountain Pose', 'Standing Forward Fold', 'Halfway Lift',
     'Chaturanga', 'Upward-Facing Dog', 'Downward-Facing Dog',
   ];
+
+  const SUN_SAL_B = [
+    'Mountain Pose', 'Chair Pose', 'Standing Forward Fold', 'Halfway Lift',
+    'Chaturanga', 'Upward-Facing Dog', 'Downward-Facing Dog',
+    'Crescent Lunge', 'Warrior I',
+    'Chaturanga', 'Upward-Facing Dog', 'Downward-Facing Dog',
+  ];
+
+  // Legacy alias for external consumers
+  const SUN_SAL_NAMES = SUN_SAL_A;
 
   // ═══════════════════════════════════════════════════
   // YOGA POSE DATABASE
@@ -407,11 +417,12 @@
       if (remaining <= 0) break;
 
       if (phase === 'sun-sal') {
-        // Insert sun salutation block(s)
+        // Alternate Sun Sal A and B for variety
         const rounds = config.yogaStyle === 'power' ? 3 : 2;
-        const salSeq = SUN_SAL_NAMES;
+        const sequences = [SUN_SAL_A, SUN_SAL_B, SUN_SAL_A];
 
         for (let r = 0; r < rounds && remaining > 60; r++) {
+          const salSeq = sequences[r % sequences.length];
           for (const poseName of salSeq) {
             const pose = YOGA_DB.find(p => p.name === poseName);
             if (!pose) continue;

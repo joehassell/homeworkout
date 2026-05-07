@@ -115,7 +115,12 @@
     }
 
     // Pregnancy safety
-    if (p.pregnancy_safe_only && ex.pregnancy_safe === 'no') return false;
+    if (p.pregnancy_safe_only) {
+      if (ex.pregnancy_safe === 'no') return false;
+      // 'early_only' exercises (e.g. supine work) are only safe in T1.
+      // Default to T2 when no trimester is known (safer-by-default).
+      if (ex.pregnancy_safe === 'early_only' && (p.pregnancy_trimester || 'T2') !== 'T1') return false;
+    }
 
     return true;
   }

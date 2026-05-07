@@ -74,6 +74,10 @@ loadModule('js/builder.js');
 loadModule('js/yoga.js');
 loadModule('js/capability.js');
 loadModule('js/templates.js');
+loadModule('js/programs.js');
+// Expose DB as window.DB for program-resolver.js (const DB isn't auto-attached to global)
+if (typeof DB !== 'undefined' && !window.DB) window.DB = DB;
+loadModule('js/program-resolver.js');
 loadModule('js/storage.js');
 
 // Load inline script from index.html

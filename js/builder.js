@@ -31,7 +31,7 @@
 
   const TYPE_MOD = {
     strength:     { work: 1.2, rest: 1.4 },
-    hiit:         { work: 0.8, rest: 0.7 },
+    hiit:         { work: 0.8, rest: 0.6 },
     conditioning: { work: 1.0, rest: 1.0 },
     functional:   { work: 1.0, rest: 1.0 },
     isohiit:      { work: 0.85, rest: 0.8 },
@@ -40,13 +40,13 @@
   const DIFF_MOD = {
     1: { work: 1.0,  rest: 1.0 },
     2: { work: 1.0,  rest: 1.2 },
-    3: { work: 0.85, rest: 1.5 },
+    3: { work: 0.85, rest: 1.6 },
   };
 
   const INTENSITY_MOD = {
-    light:    { work: 1.0, rest: 1.4 },
+    light:    { work: 1.0, rest: 1.5 },
     moderate: { work: 1.0, rest: 1.0 },
-    high:     { work: 0.9, rest: 0.7 },
+    high:     { work: 0.85, rest: 0.65 },
   };
 
   const INTER_SET_REST = {
@@ -63,7 +63,7 @@
     let base = BASE[cat] || BASE['full-body'];
     // Cooldown mobility gets a shorter rest than warmup mobility.
     if (section === 'cooldown' && cat === 'mobility') {
-      base = { work: 30, rest: 5 };
+      base = { work: 45, rest: 5 };
     }
     if (section === 'warmup') {
       // Warmup ignores type/diff modifiers — gentle ramp-up.
@@ -90,8 +90,8 @@
     const work = base.work * t.work * d.work * i.work;
     const rest = base.rest * t.rest * d.rest * i.rest;
     return {
-      workSec: Math.min(60, Math.max(15, round5(work))),
-      restSec: Math.min(60, Math.max(5,  round5(rest))),
+      workSec: Math.min(90, Math.max(15, round5(work))),
+      restSec: Math.min(120, Math.max(5,  round5(rest))),
     };
   }
 
@@ -108,10 +108,21 @@
     return '10-12 reps';
   }
 
+  // Mean reps × tempo seconds for strength duration estimation.
+  // Tempo: diff 1 = 3s/rep, diff 2 = 4s/rep, diff 3 = 5s/rep (heavier loads → slower bar speed).
+  const REPS_BY_DIFF  = { 1: 11, 2: 7, 3: 4 };
+  const TEMPO_BY_DIFF = { 1: 3, 2: 4, 3: 5 };
+
+  function estimatedWorkSec(diff, single_sided) {
+    const t = REPS_BY_DIFF[diff] * TEMPO_BY_DIFF[diff];
+    return single_sided ? t * 2 : t;
+  }
+
   window.builder = {
     pickIntervals,
     pickInterSetRest,
     repTarget,
+    estimatedWorkSec,
     // exposed for tests / future tuning UI
     BASE, TYPE_MOD, DIFF_MOD, INTENSITY_MOD, INTER_SET_REST,
   };

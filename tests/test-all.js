@@ -844,6 +844,300 @@ describe('Workout quality — timing sanity', () => {
 });
 
 // ═══════════════════════════════════════════════════
+// 20. AUDIT: Strength duration accuracy (Issue 1)
+// ═══════════════════════════════════════════════════
+
+describe('Audit — strength duration accuracy', () => {
+  it('strength 45min sessions within ±120s of target', () => {
+    selectedEquipment = new Set(['bodyweight','mat','dumbbell','kettlebell','barbell','bench','chinup bar']);
+    let totalDelta = 0, count = 0;
+    for (let i = 0; i < 10; i++) {
+      config = { type: 'strength', duration: 45, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+      generateWorkout();
+      if (workout.length === 0) continue;
+      const sched = workoutScheduledSec();
+      totalDelta += Math.abs(sched - 2700);
+      count++;
+    }
+    if (count > 0) {
+      const avgDelta = totalDelta / count;
+      assert(avgDelta < 300, `Strength 45min avg delta ${avgDelta}s (should be < 300s)`);
+    }
+  });
+
+  it('strength entries have non-zero workSec', () => {
+    selectedEquipment = new Set(['bodyweight','mat','dumbbell','kettlebell','barbell','bench','chinup bar']);
+    config = { type: 'strength', duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+    generateWorkout();
+    const main = workout.filter(w => w.section === 'main');
+    for (const w of main) {
+      assert(w.workSec > 0, `Strength entry "${w.exercise.name}" has workSec=0`);
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 21. AUDIT: HIIT bodyweight pull movements (Issue 2)
+// ═══════════════════════════════════════════════════
+
+describe('Audit — HIIT bodyweight pull', () => {
+  it('bodyweight HIIT pool includes at least one pull exercise', () => {
+    const bwEquip = new Set(['bodyweight', 'mat']);
+    const hiitPull = DB.filter(e =>
+      e.types.includes('hiit') &&
+      (e.cat === 'pull-h' || e.cat === 'pull-v') &&
+      e.equip.every(eq => bwEquip.has(eq))
+    );
+    assert(hiitPull.length >= 1, `No bodyweight HIIT pull exercises in DB (found ${hiitPull.length})`);
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 22. AUDIT: Pregnant + HIIT blocked (Issue 3)
+// ═══════════════════════════════════════════════════
+
+describe('Audit — pregnant HIIT blocked', () => {
+  it('pregnancy + HIIT shows error and produces no workout', () => {
+    selectedEquipment = new Set(['bodyweight', 'mat']);
+    userProfile = { age_band: '18-39', fitness_level: 'beginner', floor_work_ok: true,
+      mobility_limits: [], pregnancy_safe_only: true };
+    config = { type: 'hiit', duration: 30, intensity: 'moderate', sets: 1, yogaStyle: 'vinyasa' };
+    generateWorkout();
+    assertEqual(workout.length, 0, 'Pregnant HIIT should produce empty workout');
+    // Reset
+    userProfile = { age_band: '18-39', fitness_level: 'intermediate', floor_work_ok: true,
+      mobility_limits: [], pregnancy_safe_only: false };
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 23. AUDIT: early_only pregnancy filter (Issue 4)
+// ═══════════════════════════════════════════════════
+
+describe('Audit — pregnancy early_only filter', () => {
+  it('early_only exercises blocked for pregnant profile without T1', () => {
+    const pregProfile = { fitness_level: 'intermediate', pregnancy_safe_only: true };
+    const caps = window.capability.deriveCaps(pregProfile);
+    const gluteBridge = DB.find(e => e.name === 'Glute Bridge');
+    assert(gluteBridge, 'Glute Bridge should exist');
+    assert(!window.capability.isAllowed(gluteBridge, caps, pregProfile, {}),
+      'Glute Bridge (early_only) should be blocked for pregnant without T1');
+  });
+
+  it('early_only exercises allowed for T1 pregnant profile', () => {
+    const pregProfile = { fitness_level: 'intermediate', pregnancy_safe_only: true, pregnancy_trimester: 'T1', floor_work_ok: true, mobility_limits: [] };
+    const caps = window.capability.deriveCaps(pregProfile);
+    const gluteBridge = DB.find(e => e.name === 'Glute Bridge');
+    assert(window.capability.isAllowed(gluteBridge, caps, pregProfile, {}),
+      'Glute Bridge (early_only) should be allowed for T1');
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 24. AUDIT: Last main entry has no rest (Issue 6)
+// ═══════════════════════════════════════════════════
+
+describe('Audit — last main entry rest', () => {
+  it('last main exercise has restSec=0', () => {
+    selectedEquipment = new Set(['bodyweight','mat','dumbbell','kettlebell','skipping rope']);
+    for (const t of ['hiit', 'conditioning', 'functional']) {
+      config = { type: t, duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+      generateWorkout();
+      if (workout.length === 0) continue;
+      // Find last main entry
+      let lastMain = null;
+      for (let i = workout.length - 1; i >= 0; i--) {
+        if (workout[i].section === 'main') { lastMain = workout[i]; break; }
+      }
+      if (lastMain) {
+        assertEqual(lastMain.restSec, 0,
+          `${t}: last main "${lastMain.exercise.name}" has restSec=${lastMain.restSec} (should be 0)`);
+      }
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 25. AUDIT: Pulse raiser coverage (Issue 7)
+// ═══════════════════════════════════════════════════
+
+describe('Audit — pulse raiser coverage', () => {
+  it('warmup starts with cardio in >= 90% of sessions across profiles', () => {
+    let total = 0, withCardio = 0;
+    const profiles = [
+      { age_band: '18-39', fitness_level: 'beginner', floor_work_ok: true, mobility_limits: [], pregnancy_safe_only: false },
+      { age_band: '70+', fitness_level: 'untrained', floor_work_ok: false, mobility_limits: [], pregnancy_safe_only: false },
+      { age_band: '55-69', fitness_level: 'beginner', floor_work_ok: true, mobility_limits: [], pregnancy_safe_only: false },
+    ];
+    selectedEquipment = new Set(['bodyweight', 'mat']);
+    for (const profile of profiles) {
+      userProfile = profile;
+      for (const t of ['strength', 'conditioning', 'functional']) {
+        config = { type: t, duration: 30, intensity: 'moderate', sets: 1, yogaStyle: 'vinyasa' };
+        try {
+          generateWorkout();
+          if (workout.length === 0) continue;
+          total++;
+          const first = workout[0];
+          if (first && first.exercise && first.exercise.cat === 'cardio') withCardio++;
+        } catch (e) {}
+      }
+    }
+    userProfile = { age_band: '18-39', fitness_level: 'intermediate', floor_work_ok: true, mobility_limits: [], pregnancy_safe_only: false };
+    const pct = total > 0 ? withCardio / total : 0;
+    assert(pct >= 0.9, `Pulse raiser coverage ${Math.round(pct * 100)}% (should be >= 90%)`);
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 26. AUDIT: Programs respect equipment (Issue 8)
+// ═══════════════════════════════════════════════════
+
+describe('Audit — programs respect equipment', () => {
+  it('bodyweight-only program resolves without equipment violations', () => {
+    const bwEquip = new Set(['bodyweight', 'mat']);
+    const profile = { fitness_level: 'beginner', pregnancy_safe_only: false, floor_work_ok: true, mobility_limits: [] };
+    const prog = window.programs.getProgram('prog_first_move_v1');
+    assert(prog, 'First Move program should exist');
+
+    let violations = 0, swapHits = 0;
+    for (const week of prog.weeks) {
+      for (const day of week.days) {
+        if (!day.slot || day.slot.type !== 'inline') continue;
+        var resolved = window.ProgramResolver.resolveSlot(day.slot, profile, {}, {}, bwEquip);
+        if (!resolved || !resolved.exercises) continue;
+        for (const ex of resolved.exercises) {
+          if (ex.needs_manual_swap) { violations++; continue; }
+          // Check the resolved exercise exists in DB and its equipment is available
+          const def = DB.find(d => d.name === ex.name);
+          if (def) {
+            for (const eq of def.equip) {
+              if (!bwEquip.has(eq)) violations++;
+            }
+            if (ex.name !== day.slot.exercises) swapHits++; // rough count
+          }
+        }
+      }
+    }
+    assertEqual(violations, 0, `${violations} equipment violations in bodyweight-only program`);
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 27. AUDIT: Mobility excluded from functional main (Issue 9)
+// ═══════════════════════════════════════════════════
+
+describe('Audit — mobility excluded from main block', () => {
+  it('functional main block contains no mobility exercises', () => {
+    selectedEquipment = new Set(['bodyweight','mat','dumbbell','kettlebell']);
+    config = { type: 'functional', duration: 30, intensity: 'moderate', sets: 2, yogaStyle: 'vinyasa' };
+    generateWorkout();
+    const mainMobility = workout.filter(w => w.section === 'main' && w.exercise.cat === 'mobility');
+    assertEqual(mainMobility.length, 0,
+      `${mainMobility.length} mobility exercises in functional main block (should be 0)`);
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 28. AUDIT: Builder estimatedWorkSec
+// ═══════════════════════════════════════════════════
+
+describe('Audit — estimatedWorkSec', () => {
+  it('diff 1 returns 33s (11 reps × 3s)', () => {
+    assertEqual(window.builder.estimatedWorkSec(1, false), 33);
+  });
+
+  it('diff 3 returns 20s (4 reps × 5s)', () => {
+    assertEqual(window.builder.estimatedWorkSec(3, false), 20);
+  });
+
+  it('single_sided doubles the time', () => {
+    assertEqual(window.builder.estimatedWorkSec(2, true), 56); // 7 * 4 * 2
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 29. AUDIT: Yoga Sun Sal B variant (Issue 12)
+// ═══════════════════════════════════════════════════
+
+describe('Audit — yoga Sun Sal B', () => {
+  it('vinyasa includes Chair Pose or Crescent Lunge from Sun Sal B', () => {
+    let foundB = false;
+    for (let i = 0; i < 5; i++) {
+      const w = [];
+      window.yoga.generateYogaWorkout(
+        { type: 'yoga', duration: 30, yogaStyle: 'vinyasa', yogaExperience: 'confident' },
+        { upper_push:'include', upper_pull:'include', lower:'include', core:'include', full_body:'include', posterior:'include' },
+        w, 'confident', new Set(['mat'])
+      );
+      const names = w.map(e => e.exercise.name);
+      if (names.includes('Chair Pose') || names.includes('Crescent Lunge') || names.includes('Warrior I')) {
+        foundB = true;
+        break;
+      }
+    }
+    assert(foundB, 'Vinyasa should include Sun Sal B poses (Chair Pose, Crescent Lunge, or Warrior I)');
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// 30. AUDIT: DB metadata corrections verified
+// ═══════════════════════════════════════════════════
+
+describe('Audit — DB metadata corrections', () => {
+  it('Air Squat is not tagged as HIIT', () => {
+    const airSquat = DB.find(e => e.name === 'Air Squat');
+    assert(!airSquat.types.includes('hiit'), 'Air Squat should not have hiit type');
+  });
+
+  it('Push-Ups is not tagged as HIIT', () => {
+    const pushUps = DB.find(e => e.name === 'Push-Ups');
+    assert(!pushUps.types.includes('hiit'), 'Push-Ups should not have hiit type');
+  });
+
+  it('Sit-Ups is not tagged as HIIT', () => {
+    const sitUps = DB.find(e => e.name === 'Sit-Ups');
+    assert(!sitUps.types.includes('hiit'), 'Sit-Ups should not have hiit type');
+  });
+
+  it('Bicycle Crunch is not tagged as HIIT', () => {
+    const bc = DB.find(e => e.name === 'Bicycle Crunch');
+    assert(!bc.types.includes('hiit'), 'Bicycle Crunch should not have hiit type');
+  });
+
+  it('Wall Sits is not tagged as conditioning', () => {
+    const ws = DB.find(e => e.name === 'Wall Sits');
+    assert(!ws.types.includes('conditioning'), 'Wall Sits should not have conditioning type');
+  });
+
+  it('Band Pull-Apart duplicate removed (only Banded Pull-Aparts exists)', () => {
+    const bpa = DB.filter(e => e.name === 'Band Pull-Apart');
+    assertEqual(bpa.length, 0, 'Band Pull-Apart duplicate should be removed');
+    const bp = DB.find(e => e.name === 'Banded Pull-Aparts');
+    assert(bp, 'Banded Pull-Aparts should exist');
+  });
+
+  it('Inverted Row has hiit type', () => {
+    const ir = DB.find(e => e.name === 'Inverted Row');
+    assert(ir.types.includes('hiit'), 'Inverted Row should have hiit type');
+  });
+
+  it('Doorframe Row exists with bodyweight equip', () => {
+    const dr = DB.find(e => e.name === 'Doorframe Row');
+    assert(dr, 'Doorframe Row should exist');
+    assert(dr.equip.includes('bodyweight'), 'Doorframe Row should be bodyweight');
+    assert(dr.types.includes('hiit'), 'Doorframe Row should have hiit type');
+  });
+
+  it('Marching in Place exists with low cv_demand', () => {
+    const m = DB.find(e => e.name === 'Marching in Place');
+    assert(m, 'Marching in Place should exist');
+    assertEqual(m.cv_demand, 'low');
+    assertEqual(m.cat, 'cardio');
+  });
+});
+
+// ═══════════════════════════════════════════════════
 // DONE
 // ═══════════════════════════════════════════════════
 

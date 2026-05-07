@@ -364,11 +364,14 @@
     if (!today || !today.dayDef || !today.dayDef.slot) return;
 
     var state = today.state;
+    // Pass user's equipment so the resolver can check equipment availability
+    var userEquip = (typeof selectedEquipment !== 'undefined') ? selectedEquipment : new Set(['bodyweight', 'mat']);
     var resolved = window.ProgramResolver.resolveSlot(
       today.dayDef.slot,
       state.profile_snapshot,
       state.swaps,
-      state.progression_overrides
+      state.progression_overrides,
+      userEquip
     );
 
     if (!resolved || resolved.type !== 'inline') return;
