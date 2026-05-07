@@ -27,6 +27,10 @@ build/
 *.dSYM.zip
 *.app.dSYM.zip
 
+# Audit harness output (large generated datasets — not source-of-truth)
+tools/workout-audit/output/
+tools/workout-audit/audit-results/
+
 # Bundler
 vendor/bundle/
 .bundle/
