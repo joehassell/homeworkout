@@ -1,0 +1,26 @@
+{
+  "wk_settings": {
+    "soundEnabled": false,
+    "voiceEnabled": false,
+    "musicEnabled": false,
+    "theme": "dark",
+    "fontIdx": 1,
+    "weightKg": 68,
+    "userProfile": {
+      "age_band": "70+",
+      "fitness_level": "untrained",
+      "floor_work_ok": false,
+      "mobility_limits": ["knees", "lower_back"],
+      "pregnancy_safe_only": false,
+      "height_cm": 165
+    },
+    "exerciseSettings": {
+      "exercise_blacklist": [],
+      "exercise_whitelist": [],
+      "use_whitelist_exclusively": false
+    },
+    "userGoals": ["mobility"],
+    "units": "metric"
+  },
+  "wk_equipment": ["bodyweight", "mat"]
+}

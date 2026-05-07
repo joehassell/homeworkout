@@ -96,4 +96,18 @@ platform :ios do
   lane :metadata_only do
     upload(submit: false, auto_release: false, skip_binary: true)
   end
+
+  desc "Run XCUITests on simulator"
+  lane :ui_test do |options|
+    device = options[:device] || "iPhone 15"
+    scan(
+      project: XCODE_PROJECT,
+      scheme: "AppUITests",
+      devices: [device],
+      clean: true,
+      derived_data_path: File.join(BUILD_DIR, "DerivedData"),
+      result_bundle: true,
+      output_directory: File.join(BUILD_DIR, "test-results")
+    )
+  end
 end
