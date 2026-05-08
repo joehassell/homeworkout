@@ -3203,7 +3203,9 @@ function buildCooldown(equipment, mainMuscles, usedNames, capCaps, capProfile, c
     window.capability.equipmentMatches(e, equipment) &&
     !usedNames.has(e.name) &&
     (!capCaps || window.capability.isAllowed(e, capCaps, capProfile, capSettings))
-  );
+  )
+  // Filter out high-CV cardio from cooldown — only gentle movements
+  .filter(e => e.cat !== 'cardio' || e.cv_demand === 'low' || e.cv_demand === 'medium');
   const score = e => {
     let s = 0;
     e.muscles.forEach(m => { if (mainMuscles.has(m)) s += 3; });
@@ -3406,6 +3408,23 @@ function generateWorkout() {
     goalDeduped.forEach(e => typePool.push(e));
   }
 
+  // Demote bodyweight-only fallback exercises when loaded variants are available
+  const HEAVY_LOADED = new Set(['barbell','dumbbell','kettlebell','bench']);
+  const hasLoaded = [...effectiveEquipment].some(eq => HEAVY_LOADED.has(eq));
+  if (hasLoaded && config.type !== 'yoga') {
+    const DEMOTE_WHEN_LOADED = new Set(['Wall Push-Ups', 'Sit-to-Stand from Chair', 'Glute Squeeze', 'Towel Row']);
+    const demoted = [];
+    typePool.forEach(e => {
+      const copies = DEMOTE_WHEN_LOADED.has(e.name) ? 1 : 2;
+      for (let i = 0; i < copies; i++) demoted.push(e);
+    });
+    shuffle(demoted);
+    const seenD = new Set();
+    const dedupedD = demoted.filter(e => !seenD.has(e.name) && seenD.add(e.name));
+    typePool.length = 0;
+    dedupedD.forEach(e => typePool.push(e));
+  }
+
   // Solve for mainCount per set so total ≈ totalSec.
   const mainBudget = totalSec - wDur - POST_WARMUP_REST - cdDur;
   const STRENGTH_AVG_ENTRY = 95;
@@ -3498,7 +3517,18 @@ function generateWorkout() {
 
   // Phase 2: round-robin fill remaining slots
   const catList = [...buckets.keys()];
-  shuffle(catList);
+  // For HIIT: weight categories to favor cardio/plyo over pull
+  if (config.type === 'hiit') {
+    const HIIT_CAT_WEIGHT = { plyo: 4, cardio: 3, 'full-body': 3, core: 2, 'push-h': 2, 'push-v': 1, 'pull-h': 1, 'pull-v': 1 };
+    const weightedCats = [];
+    catList.forEach(c => { const w = HIIT_CAT_WEIGHT[c] || 1; for (let i = 0; i < w; i++) weightedCats.push(c); });
+    shuffle(weightedCats);
+    const seenCats = new Set();
+    catList.length = 0;
+    weightedCats.filter(c => !seenCats.has(c) && seenCats.add(c)).forEach(c => catList.push(c));
+  } else {
+    shuffle(catList);
+  }
   let added = true;
   while (added && mainExercises.length < mainCount) {
     added = false;
@@ -3931,7 +3961,7 @@ function renderPreview() {
     } else if (w.section === 'cooldown') {
       detailText = w.workSec + 's hold';
     } else if (w.section === 'main' && config.type === 'strength') {
-      detailText = '<span class="ex-reps">' + window.builder.repTarget(w.exercise.diff) + '</span> · ' + w.restSec + 's rest';
+      detailText = '<span class="ex-reps">' + window.builder.repTarget(w.exercise.diff, config.intensity) + '</span> · ' + w.restSec + 's rest';
     } else {
       detailText = w.workSec + 's work / ' + w.restSec + 's rest';
     }
@@ -4366,7 +4396,7 @@ function finishStrengthSet() {
   const setType = currentSetType;
   const exerciseName = entry ? entry.exercise.name : '';
   const diff = entry ? entry.exercise.diff : 1;
-  const repStr = window.builder.repTarget(diff);
+  const repStr = window.builder.repTarget(diff, config.intensity);
   const repMatch = repStr.match(/(\d+)/);
   const defaultReps = repMatch ? parseInt(repMatch[1]) : 8;
   if (entry) entry.setType = setType;
@@ -4639,7 +4669,7 @@ function updateTimerUI() {
   const nextIdx = timerState.idx + 1;
   const nextEntry = workout[nextIdx];
   if (nextEntry) {
-    var nextDur = nextEntry.workSec > 0 ? ' (' + nextEntry.workSec + 's)' : (config.type === 'strength' ? ' (' + window.builder.repTarget(nextEntry.exercise.diff) + ')' : '');
+    var nextDur = nextEntry.workSec > 0 ? ' (' + nextEntry.workSec + 's)' : (config.type === 'strength' ? ' (' + window.builder.repTarget(nextEntry.exercise.diff, config.intensity) + ')' : '');
     timerEls.next.textContent = nextEntry.exercise.name + nextDur;
   } else {
     timerEls.next.textContent = 'Finish';
@@ -4689,7 +4719,7 @@ function updateTimerUI() {
     timerEls.strengthDone.classList.add('visible');
     timerEls.setTypeRow.classList.add('visible');
     const sideLabel = w.single_sided ? (timerState.strengthSide === 0 ? 'Right side · ' : 'Left side · ') : '';
-    timerEls.repTarget.textContent = sideLabel + 'Target: ' + window.builder.repTarget(w.exercise.diff);
+    timerEls.repTarget.textContent = sideLabel + 'Target: ' + window.builder.repTarget(w.exercise.diff, config.intensity);
     timerEls.weightInput.classList.remove('visible');
   } else if (isStrengthMain && timerState.phase === 'rest') {
     timerEls.strengthDone.classList.remove('visible');

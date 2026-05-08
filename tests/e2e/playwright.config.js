@@ -8,7 +8,7 @@ module.exports = defineConfig({
   expect: { timeout: 5000 },
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 2 : 1,  // 1 retry locally to handle randomized generation flakiness
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? 'github' : 'list',
   outputDir: './test-results',

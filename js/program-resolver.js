@@ -62,6 +62,17 @@
     // 2. Check if allowed (capability AND equipment)
     var def = _findExercise(name);
     if (def && _isAllowed(def, caps, profile) && _equipOk(def, equipmentSet)) {
+      // 2b. Upgrade for advanced profiles?
+      if (ex.upgrade_for_advanced && profile.fitness_level === 'advanced') {
+        for (var u = 0; u < ex.upgrade_for_advanced.length; u++) {
+          var upgName = ex.upgrade_for_advanced[u];
+          var upgDef = _findExercise(upgName);
+          if (upgDef && _isAllowed(upgDef, caps, profile) && _equipOk(upgDef, equipmentSet)) {
+            return _buildResult(upgName, ex, upgDef, overrides);
+          }
+        }
+      }
+      // Fall through to original if no upgrade works
       return _buildResult(name, ex, def, overrides);
     }
 
