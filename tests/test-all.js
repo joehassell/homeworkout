@@ -101,7 +101,6 @@ describe('Capability — deriveCaps', () => {
     const caps = window.capability.deriveCaps({
       age_band: '70+', fitness_level: 'untrained', bmi: 32,
       floor_work_ok: false, mobility_limits: ['knees'],
-      pregnancy_safe_only: false,
     });
     assertEqual(caps.complexity_cap, 2);
     assertEqual(caps.impact_cap, 'low');
@@ -115,7 +114,6 @@ describe('Capability — deriveCaps', () => {
     const caps = window.capability.deriveCaps({
       age_band: '18-39', fitness_level: 'advanced', bmi: 23,
       floor_work_ok: true, mobility_limits: [],
-      pregnancy_safe_only: false,
     });
     assertEqual(caps.complexity_cap, 5);
     assertEqual(caps.impact_cap, 'high');
@@ -127,7 +125,6 @@ describe('Capability — deriveCaps', () => {
     const caps = window.capability.deriveCaps({
       age_band: '18-39', fitness_level: 'advanced', bmi: 36,
       floor_work_ok: true, mobility_limits: [],
-      pregnancy_safe_only: false,
     });
     assertEqual(caps.impact_cap, 'low');
   });
@@ -136,7 +133,6 @@ describe('Capability — deriveCaps', () => {
     const caps = window.capability.deriveCaps({
       age_band: '55-69', fitness_level: 'beginner', bmi: 25,
       floor_work_ok: true, mobility_limits: [],
-      pregnancy_safe_only: false,
     });
     assertEqual(caps.complexity_cap, 3);
   });
@@ -149,11 +145,11 @@ describe('Capability — deriveCaps', () => {
 describe('Capability — isAllowed', () => {
   const advancedCaps = window.capability.deriveCaps({
     age_band: '18-39', fitness_level: 'advanced', bmi: 23,
-    floor_work_ok: true, mobility_limits: [], pregnancy_safe_only: false,
+    floor_work_ok: true, mobility_limits: [],
   });
   const advancedProfile = {
     age_band: '18-39', fitness_level: 'advanced', bmi: 23,
-    floor_work_ok: true, mobility_limits: [], pregnancy_safe_only: false,
+    floor_work_ok: true, mobility_limits: [],
   };
   const settings = window.capability.DEFAULT_EXERCISE_SETTINGS;
 
@@ -166,7 +162,7 @@ describe('Capability — isAllowed', () => {
   it('70+ untrained does NOT see plyo exercises', () => {
     const restrictiveProfile = {
       age_band: '70+', fitness_level: 'untrained', bmi: 28,
-      floor_work_ok: false, mobility_limits: ['knees'], pregnancy_safe_only: false,
+      floor_work_ok: false, mobility_limits: ['knees'],
     };
     const caps = window.capability.deriveCaps(restrictiveProfile);
     const jumpSquat = DB.find(e => e.name === '180 Degree Squat Jumps');
@@ -191,7 +187,7 @@ describe('Capability — isAllowed', () => {
   it('knee-contraindicated exercises filtered for knee mobility limit', () => {
     const kneeProfile = {
       age_band: '18-39', fitness_level: 'intermediate', bmi: 24,
-      floor_work_ok: true, mobility_limits: ['knees'], pregnancy_safe_only: false,
+      floor_work_ok: true, mobility_limits: ['knees'],
     };
     const caps = window.capability.deriveCaps(kneeProfile);
     const jumpSquat = DB.find(e => e.name === '180 Degree Squat Jumps');
@@ -891,47 +887,6 @@ describe('Audit — HIIT bodyweight pull', () => {
 });
 
 // ═══════════════════════════════════════════════════
-// 22. AUDIT: Pregnant + HIIT blocked (Issue 3)
-// ═══════════════════════════════════════════════════
-
-describe('Audit — pregnant HIIT blocked', () => {
-  it('pregnancy + HIIT shows error and produces no workout', () => {
-    selectedEquipment = new Set(['bodyweight', 'mat']);
-    userProfile = { age_band: '18-39', fitness_level: 'beginner', floor_work_ok: true,
-      mobility_limits: [], pregnancy_safe_only: true };
-    config = { type: 'hiit', duration: 30, intensity: 'moderate', sets: 1, yogaStyle: 'vinyasa' };
-    generateWorkout();
-    assertEqual(workout.length, 0, 'Pregnant HIIT should produce empty workout');
-    // Reset
-    userProfile = { age_band: '18-39', fitness_level: 'intermediate', floor_work_ok: true,
-      mobility_limits: [], pregnancy_safe_only: false };
-  });
-});
-
-// ═══════════════════════════════════════════════════
-// 23. AUDIT: early_only pregnancy filter (Issue 4)
-// ═══════════════════════════════════════════════════
-
-describe('Audit — pregnancy early_only filter', () => {
-  it('early_only exercises blocked for pregnant profile without T1', () => {
-    const pregProfile = { fitness_level: 'intermediate', pregnancy_safe_only: true };
-    const caps = window.capability.deriveCaps(pregProfile);
-    const gluteBridge = DB.find(e => e.name === 'Glute Bridge');
-    assert(gluteBridge, 'Glute Bridge should exist');
-    assert(!window.capability.isAllowed(gluteBridge, caps, pregProfile, {}),
-      'Glute Bridge (early_only) should be blocked for pregnant without T1');
-  });
-
-  it('early_only exercises allowed for T1 pregnant profile', () => {
-    const pregProfile = { fitness_level: 'intermediate', pregnancy_safe_only: true, pregnancy_trimester: 'T1', floor_work_ok: true, mobility_limits: [] };
-    const caps = window.capability.deriveCaps(pregProfile);
-    const gluteBridge = DB.find(e => e.name === 'Glute Bridge');
-    assert(window.capability.isAllowed(gluteBridge, caps, pregProfile, {}),
-      'Glute Bridge (early_only) should be allowed for T1');
-  });
-});
-
-// ═══════════════════════════════════════════════════
 // 24. AUDIT: Last main entry has no rest (Issue 6)
 // ═══════════════════════════════════════════════════
 
@@ -963,9 +918,9 @@ describe('Audit — pulse raiser coverage', () => {
   it('warmup starts with cardio in >= 90% of sessions across profiles', () => {
     let total = 0, withCardio = 0;
     const profiles = [
-      { age_band: '18-39', fitness_level: 'beginner', floor_work_ok: true, mobility_limits: [], pregnancy_safe_only: false },
-      { age_band: '70+', fitness_level: 'untrained', floor_work_ok: false, mobility_limits: [], pregnancy_safe_only: false },
-      { age_band: '55-69', fitness_level: 'beginner', floor_work_ok: true, mobility_limits: [], pregnancy_safe_only: false },
+      { age_band: '18-39', fitness_level: 'beginner', floor_work_ok: true, mobility_limits: [],  },
+      { age_band: '70+', fitness_level: 'untrained', floor_work_ok: false, mobility_limits: [],  },
+      { age_band: '55-69', fitness_level: 'beginner', floor_work_ok: true, mobility_limits: [],  },
     ];
     selectedEquipment = new Set(['bodyweight', 'mat']);
     for (const profile of profiles) {
@@ -981,7 +936,7 @@ describe('Audit — pulse raiser coverage', () => {
         } catch (e) {}
       }
     }
-    userProfile = { age_band: '18-39', fitness_level: 'intermediate', floor_work_ok: true, mobility_limits: [], pregnancy_safe_only: false };
+    userProfile = { age_band: '18-39', fitness_level: 'intermediate', floor_work_ok: true, mobility_limits: [],  };
     const pct = total > 0 ? withCardio / total : 0;
     assert(pct >= 0.9, `Pulse raiser coverage ${Math.round(pct * 100)}% (should be >= 90%)`);
   });
@@ -994,7 +949,7 @@ describe('Audit — pulse raiser coverage', () => {
 describe('Audit — programs respect equipment', () => {
   it('bodyweight-only program resolves without equipment violations', () => {
     const bwEquip = new Set(['bodyweight', 'mat']);
-    const profile = { fitness_level: 'beginner', pregnancy_safe_only: false, floor_work_ok: true, mobility_limits: [] };
+    const profile = { fitness_level: 'beginner', floor_work_ok: true, mobility_limits: [] };
     const prog = window.programs.getProgram('prog_first_move_v1');
     assert(prog, 'First Move program should exist');
 

@@ -11,7 +11,6 @@
       "fitness_level": "untrained",
       "floor_work_ok": false,
       "mobility_limits": ["knees", "lower_back"],
-      "pregnancy_safe_only": false,
       "height_cm": 165
     },
     "exerciseSettings": {

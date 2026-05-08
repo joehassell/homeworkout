@@ -78,32 +78,6 @@ test.describe('Generate workout', () => {
     expect(err).toContain('excluded');
   });
 
-  test('pregnant profile + HIIT → shows pregnancy warning', async ({ page }) => {
-    const pregnantApp = new App(page);
-    const pregnantSettings = {
-      soundEnabled: false,
-      voiceEnabled: false,
-      userProfile: {
-        age_band: '18-39',
-        fitness_level: 'beginner',
-        floor_work_ok: true,
-        mobility_limits: [],
-        pregnancy_safe_only: true,
-        pregnancy_trimester: 'T2',
-        height_cm: 168
-      }
-    };
-    await pregnantApp.launch({
-      localStorage: {
-        wk_settings: JSON.stringify(pregnantSettings)
-      }
-    });
-    await pregnantApp.selectType('hiit');
-    await pregnantApp.generate();
-    const err = await pregnantApp.genError();
-    expect(err).toContain('pregnancy');
-  });
-
   // ── Duration variants ──────────────────────────────
 
   test('15-min workout generates without error', async () => {

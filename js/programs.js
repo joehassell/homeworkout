@@ -90,9 +90,9 @@
                 title: 'Foundation A  - Squat & Push',
                 duration_min: 28,
                 exercises: [
-                  { name: 'Air Squat', sets: 3, reps: '8-10', rest_sec: 60, swap_alternatives: ['Goblet Squat', 'Box Squat', 'Sit-to-Stand from Chair', 'Heel-Elevated Squat to Box', 'Glute Bridge', 'Wall Sits'] },
-                  { name: 'Incline Push-Ups', sets: 3, reps: '6-10', rest_sec: 60, swap_alternatives: ['Knee Push-Ups', 'Push-Ups', 'Wall Push-Ups'] },
-                  { name: 'Glute Bridge', sets: 3, reps: '12-15', rest_sec: 45, swap_alternatives: ['Single-Leg Glute Bridge', 'Sit-to-Stand from Chair'] },
+                  { name: 'Air Squat', sets: 3, reps: '8-10', rest_sec: 60, swap_alternatives: ['Goblet Squat', 'Box Squat', 'Sit-to-Stand from Chair', 'Heel-Elevated Squat to Box', 'Glute Bridge', 'Wall Sits'], upgrade_for_advanced: ['Goblet Squat', 'Front Squat'] },
+                  { name: 'Incline Push-Ups', sets: 3, reps: '6-10', rest_sec: 60, swap_alternatives: ['Knee Push-Ups', 'Push-Ups', 'Wall Push-Ups'], upgrade_for_advanced: ['Push-Ups', 'Decline Push-Ups'] },
+                  { name: 'Glute Bridge', sets: 3, reps: '12-15', rest_sec: 45, swap_alternatives: ['Single-Leg Glute Bridge', 'Sit-to-Stand from Chair'], upgrade_for_advanced: ['Single-Leg Glute Bridge', 'Hip Thrust'] },
                   { name: 'Dead Bug', sets: 3, reps: '30s', rest_sec: 30, swap_alternatives: ['Bird Dog', 'Standing Pallof Press', 'Standing Wood-Chop'] },
                   { name: 'Cat-Cow', sets: 2, reps: '30s', rest_sec: 15, swap_alternatives: [] }
                 ]
@@ -108,7 +108,7 @@
                 duration_min: 28,
                 exercises: [
                   { name: 'Romanian Deadlift', sets: 3, reps: '8-12', rest_sec: 60, swap_alternatives: ['Single-Leg RDL', 'Glute Bridge', 'Single-Leg Glute Bridge', 'Hip Hinge Stick Work', 'Standing Hip Extension', 'Sit-to-Stand from Chair'] },
-                  { name: 'Inverted Row', sets: 3, reps: '8-12', rest_sec: 60, swap_alternatives: ['Doorframe Row', 'Banded Pull-Aparts', 'Dumbbell Row', 'Towel Row'] },
+                  { name: 'Inverted Row', sets: 3, reps: '8-12', rest_sec: 60, swap_alternatives: ['Doorframe Row', 'Banded Pull-Aparts', 'Dumbbell Row', 'Towel Row'], upgrade_for_advanced: ['Dumbbell Row', 'Bent-Over Barbell Row'] },
                   { name: 'Single-Leg Balance', sets: 3, reps: '20s/side', rest_sec: 30, swap_alternatives: [] },
                   { name: 'Bird Dog', sets: 3, reps: '30s', rest_sec: 30, swap_alternatives: ['Dead Bug', 'Standing Pallof Press', 'Standing Wood-Chop'] },
                   { name: 'Side-Lying T-Spine Rotation', sets: 2, reps: '8/side', rest_sec: 15, swap_alternatives: ['Cat-Cow', 'Standing Pallof Press'] }
@@ -135,9 +135,9 @@
                 title: 'Foundation A  - Squat & Push',
                 duration_min: 28,
                 exercises: [
-                  { name: 'Air Squat', sets: 3, reps: '9-11', rest_sec: 60, swap_alternatives: ['Goblet Squat', 'Box Squat', 'Sit-to-Stand from Chair', 'Heel-Elevated Squat to Box', 'Glute Bridge', 'Wall Sits'] },
-                  { name: 'Incline Push-Ups', sets: 3, reps: '7-11', rest_sec: 60, swap_alternatives: ['Knee Push-Ups', 'Push-Ups', 'Wall Push-Ups'] },
-                  { name: 'Glute Bridge', sets: 3, reps: '13-16', rest_sec: 45, swap_alternatives: ['Single-Leg Glute Bridge', 'Sit-to-Stand from Chair'] },
+                  { name: 'Air Squat', sets: 3, reps: '9-11', rest_sec: 60, swap_alternatives: ['Goblet Squat', 'Box Squat', 'Sit-to-Stand from Chair', 'Heel-Elevated Squat to Box', 'Glute Bridge', 'Wall Sits'], upgrade_for_advanced: ['Goblet Squat', 'Front Squat'] },
+                  { name: 'Incline Push-Ups', sets: 3, reps: '7-11', rest_sec: 60, swap_alternatives: ['Knee Push-Ups', 'Push-Ups', 'Wall Push-Ups'], upgrade_for_advanced: ['Push-Ups', 'Decline Push-Ups'] },
+                  { name: 'Glute Bridge', sets: 3, reps: '13-16', rest_sec: 45, swap_alternatives: ['Single-Leg Glute Bridge', 'Sit-to-Stand from Chair'], upgrade_for_advanced: ['Single-Leg Glute Bridge', 'Hip Thrust'] },
                   { name: 'Dead Bug', sets: 3, reps: '35s', rest_sec: 30, swap_alternatives: ['Bird Dog', 'Standing Pallof Press', 'Standing Wood-Chop'] },
                   { name: 'Cat-Cow', sets: 2, reps: '30s', rest_sec: 15, swap_alternatives: [] }
                 ]
@@ -153,7 +153,7 @@
                 duration_min: 28,
                 exercises: [
                   { name: 'Romanian Deadlift', sets: 3, reps: '9-13', rest_sec: 60, swap_alternatives: ['Single-Leg RDL', 'Glute Bridge', 'Single-Leg Glute Bridge', 'Hip Hinge Stick Work', 'Standing Hip Extension', 'Sit-to-Stand from Chair'] },
-                  { name: 'Inverted Row', sets: 3, reps: '9-13', rest_sec: 60, swap_alternatives: ['Doorframe Row', 'Banded Pull-Aparts', 'Dumbbell Row', 'Towel Row'] },
+                  { name: 'Inverted Row', sets: 3, reps: '9-13', rest_sec: 60, swap_alternatives: ['Doorframe Row', 'Banded Pull-Aparts', 'Dumbbell Row', 'Towel Row'], upgrade_for_advanced: ['Dumbbell Row', 'Bent-Over Barbell Row'] },
                   { name: 'Single-Leg Balance', sets: 3, reps: '25s/side', rest_sec: 30, swap_alternatives: [] },
                   { name: 'Bird Dog', sets: 3, reps: '35s', rest_sec: 30, swap_alternatives: ['Dead Bug', 'Standing Pallof Press', 'Standing Wood-Chop'] },
                   { name: 'Side-Lying T-Spine Rotation', sets: 2, reps: '10/side', rest_sec: 15, swap_alternatives: ['Cat-Cow', 'Standing Pallof Press'] }
@@ -173,7 +173,7 @@
                   { name: 'Push-Ups', sets: 2, reps: '7-11', rest_sec: 60, swap_alternatives: ['Incline Push-Ups', 'Knee Push-Ups', 'Wall Push-Ups'] },
                   { name: 'Single-Leg RDL', sets: 2, reps: '7/side', rest_sec: 45, swap_alternatives: ['Romanian Deadlift', 'Glute Bridge', 'Single-Leg Glute Bridge'] },
                   { name: 'Front Plank', sets: 2, reps: '35-50s', rest_sec: 30, swap_alternatives: ['Dead Bug', 'Standing Pallof Press', 'Standing Wood-Chop'] },
-                  { name: 'Glute Bridge', sets: 2, reps: '13-16', rest_sec: 30, swap_alternatives: [] },
+                  { name: 'Standing Hip Extension', sets: 2, reps: '12-15/side', rest_sec: 30, swap_alternatives: ['Glute Squeeze', 'Hip Hinge Stick Work'] },
                   { name: 'Dead Bug', sets: 2, reps: '35s', rest_sec: 30, swap_alternatives: ['Bird Dog', 'Standing Pallof Press', 'Standing Wood-Chop'] },
                   { name: 'World\'s Greatest Stretch', sets: 2, reps: '30s/side', rest_sec: 15, swap_alternatives: ['Cat-Cow', 'Standing Pallof Press'] }
                 ]
@@ -199,9 +199,9 @@
                 title: 'Foundation A  - Squat & Push',
                 duration_min: 28,
                 exercises: [
-                  { name: 'Air Squat', sets: 3, reps: '10-12', rest_sec: 60, swap_alternatives: ['Goblet Squat', 'Box Squat', 'Sit-to-Stand from Chair', 'Heel-Elevated Squat to Box', 'Glute Bridge', 'Wall Sits'] },
-                  { name: 'Incline Push-Ups', sets: 3, reps: '8-12', rest_sec: 60, swap_alternatives: ['Knee Push-Ups', 'Push-Ups', 'Wall Push-Ups'] },
-                  { name: 'Glute Bridge', sets: 3, reps: '14-17', rest_sec: 45, swap_alternatives: ['Single-Leg Glute Bridge', 'Sit-to-Stand from Chair'] },
+                  { name: 'Air Squat', sets: 3, reps: '10-12', rest_sec: 60, swap_alternatives: ['Goblet Squat', 'Box Squat', 'Sit-to-Stand from Chair', 'Heel-Elevated Squat to Box', 'Glute Bridge', 'Wall Sits'], upgrade_for_advanced: ['Goblet Squat', 'Front Squat'] },
+                  { name: 'Incline Push-Ups', sets: 3, reps: '8-12', rest_sec: 60, swap_alternatives: ['Knee Push-Ups', 'Push-Ups', 'Wall Push-Ups'], upgrade_for_advanced: ['Push-Ups', 'Decline Push-Ups'] },
+                  { name: 'Glute Bridge', sets: 3, reps: '14-17', rest_sec: 45, swap_alternatives: ['Single-Leg Glute Bridge', 'Sit-to-Stand from Chair'], upgrade_for_advanced: ['Single-Leg Glute Bridge', 'Hip Thrust'] },
                   { name: 'Dead Bug', sets: 3, reps: '40s', rest_sec: 30, swap_alternatives: ['Bird Dog', 'Standing Pallof Press', 'Standing Wood-Chop'] },
                   { name: 'Cat-Cow', sets: 2, reps: '30s', rest_sec: 15, swap_alternatives: [] }
                 ]
@@ -217,7 +217,7 @@
                 duration_min: 28,
                 exercises: [
                   { name: 'Romanian Deadlift', sets: 3, reps: '10-14', rest_sec: 60, swap_alternatives: ['Single-Leg RDL', 'Glute Bridge', 'Single-Leg Glute Bridge', 'Hip Hinge Stick Work', 'Standing Hip Extension', 'Sit-to-Stand from Chair'] },
-                  { name: 'Inverted Row', sets: 3, reps: '10-14', rest_sec: 60, swap_alternatives: ['Doorframe Row', 'Banded Pull-Aparts', 'Dumbbell Row', 'Towel Row'] },
+                  { name: 'Inverted Row', sets: 3, reps: '10-14', rest_sec: 60, swap_alternatives: ['Doorframe Row', 'Banded Pull-Aparts', 'Dumbbell Row', 'Towel Row'], upgrade_for_advanced: ['Dumbbell Row', 'Bent-Over Barbell Row'] },
                   { name: 'Single-Leg Balance', sets: 3, reps: '30s/side', rest_sec: 30, swap_alternatives: [] },
                   { name: 'Bird Dog', sets: 3, reps: '40s', rest_sec: 30, swap_alternatives: ['Dead Bug', 'Standing Pallof Press', 'Standing Wood-Chop'] },
                   { name: 'Side-Lying T-Spine Rotation', sets: 2, reps: '12/side', rest_sec: 15, swap_alternatives: ['Cat-Cow', 'Standing Pallof Press'] }
@@ -237,7 +237,7 @@
                   { name: 'Push-Ups', sets: 2, reps: '8-12', rest_sec: 60, swap_alternatives: ['Incline Push-Ups', 'Knee Push-Ups', 'Wall Push-Ups'] },
                   { name: 'Single-Leg RDL', sets: 2, reps: '8/side', rest_sec: 45, swap_alternatives: ['Romanian Deadlift', 'Glute Bridge', 'Single-Leg Glute Bridge'] },
                   { name: 'Front Plank', sets: 2, reps: '40-55s', rest_sec: 30, swap_alternatives: ['Dead Bug', 'Standing Pallof Press', 'Standing Wood-Chop'] },
-                  { name: 'Glute Bridge', sets: 2, reps: '14-17', rest_sec: 30, swap_alternatives: [] },
+                  { name: 'Standing Hip Extension', sets: 2, reps: '12-15/side', rest_sec: 30, swap_alternatives: ['Glute Squeeze', 'Hip Hinge Stick Work'] },
                   { name: 'Dead Bug', sets: 2, reps: '40s', rest_sec: 30, swap_alternatives: ['Bird Dog', 'Standing Pallof Press', 'Standing Wood-Chop'] },
                   { name: 'World\'s Greatest Stretch', sets: 2, reps: '30s/side', rest_sec: 15, swap_alternatives: ['Cat-Cow', 'Standing Pallof Press'] }
                 ]
@@ -263,9 +263,9 @@
                 title: 'Foundation A  - Squat & Push',
                 duration_min: 28,
                 exercises: [
-                  { name: 'Air Squat', sets: 3, reps: '11-13', rest_sec: 60, swap_alternatives: ['Goblet Squat', 'Box Squat', 'Sit-to-Stand from Chair', 'Heel-Elevated Squat to Box', 'Glute Bridge', 'Wall Sits'] },
-                  { name: 'Incline Push-Ups', sets: 3, reps: '9-13', rest_sec: 60, swap_alternatives: ['Knee Push-Ups', 'Push-Ups', 'Wall Push-Ups'] },
-                  { name: 'Glute Bridge', sets: 3, reps: '15-18', rest_sec: 45, swap_alternatives: ['Single-Leg Glute Bridge', 'Sit-to-Stand from Chair'] },
+                  { name: 'Air Squat', sets: 3, reps: '11-13', rest_sec: 60, swap_alternatives: ['Goblet Squat', 'Box Squat', 'Sit-to-Stand from Chair', 'Heel-Elevated Squat to Box', 'Glute Bridge', 'Wall Sits'], upgrade_for_advanced: ['Goblet Squat', 'Front Squat'] },
+                  { name: 'Incline Push-Ups', sets: 3, reps: '9-13', rest_sec: 60, swap_alternatives: ['Knee Push-Ups', 'Push-Ups', 'Wall Push-Ups'], upgrade_for_advanced: ['Push-Ups', 'Decline Push-Ups'] },
+                  { name: 'Glute Bridge', sets: 3, reps: '15-18', rest_sec: 45, swap_alternatives: ['Single-Leg Glute Bridge', 'Sit-to-Stand from Chair'], upgrade_for_advanced: ['Single-Leg Glute Bridge', 'Hip Thrust'] },
                   { name: 'Dead Bug', sets: 3, reps: '45s', rest_sec: 30, swap_alternatives: ['Bird Dog', 'Standing Pallof Press', 'Standing Wood-Chop'] },
                   { name: 'Cat-Cow', sets: 2, reps: '30s', rest_sec: 15, swap_alternatives: [] }
                 ]
@@ -299,7 +299,7 @@
                   { name: 'Push-Ups', sets: 2, reps: '9-13', rest_sec: 60, swap_alternatives: ['Incline Push-Ups', 'Knee Push-Ups', 'Wall Push-Ups'] },
                   { name: 'Single-Leg RDL', sets: 2, reps: '8/side', rest_sec: 45, swap_alternatives: ['Romanian Deadlift', 'Glute Bridge', 'Single-Leg Glute Bridge'] },
                   { name: 'Front Plank', sets: 2, reps: '45-60s', rest_sec: 30, swap_alternatives: ['Dead Bug', 'Standing Pallof Press', 'Standing Wood-Chop'] },
-                  { name: 'Glute Bridge', sets: 2, reps: '15-18', rest_sec: 30, swap_alternatives: [] },
+                  { name: 'Standing Hip Extension', sets: 2, reps: '12-15/side', rest_sec: 30, swap_alternatives: ['Glute Squeeze', 'Hip Hinge Stick Work'] },
                   { name: 'Dead Bug', sets: 2, reps: '45s', rest_sec: 30, swap_alternatives: ['Bird Dog', 'Standing Pallof Press', 'Standing Wood-Chop'] },
                   { name: 'World\'s Greatest Stretch', sets: 2, reps: '30s/side', rest_sec: 15, swap_alternatives: ['Cat-Cow', 'Standing Pallof Press'] }
                 ]

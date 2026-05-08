@@ -55,7 +55,7 @@
     hiit:         { light: {work:1.0,rest:1.4}, moderate: {work:0.95,rest:0.85}, high: {work:0.85,rest:0.40} },
     strength:     { light: {work:1.0,rest:1.5}, moderate: {work:1.0,rest:1.0},   high: {work:0.85,rest:0.7}  },
     conditioning: { light: {work:1.0,rest:1.4}, moderate: {work:1.0,rest:1.0},   high: {work:0.95,rest:0.7}  },
-    functional:   { light: {work:1.0,rest:1.3}, moderate: {work:1.0,rest:1.0},   high: {work:0.95,rest:0.75} },
+    functional:   { light: {work:1.15,rest:1.2}, moderate: {work:1.0,rest:1.0}, high: {work:0.85,rest:0.85} },
   };
 
   const INTER_SET_REST = {
@@ -110,10 +110,22 @@
     return INTER_SET_REST[intensity] || INTER_SET_REST.moderate;
   }
 
-  // Strength-mode rep target by exercise difficulty.
+  // Strength-mode rep target by exercise difficulty and intensity.
   // Lower diff = sustainable movement, higher reps.
   // Higher diff = heavier compound, fewer reps.
-  function repTarget(diff) {
+  // Intensity shifts the entire rep spectrum up or down.
+  function repTarget(diff, intensity) {
+    if (intensity === 'high') {
+      if (diff === 3) return '1-3 reps';
+      if (diff === 2) return '3-5 reps';
+      return '6-8 reps';
+    }
+    if (intensity === 'light') {
+      if (diff === 3) return '6-8 reps';
+      if (diff === 2) return '10-12 reps';
+      return '12-15 reps';
+    }
+    // moderate (default)
     if (diff === 3) return '3-5 reps';
     if (diff === 2) return '6-8 reps';
     return '10-12 reps';
