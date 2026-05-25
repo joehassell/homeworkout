@@ -412,13 +412,30 @@ extension WorkoutSessionManager: HKLiveWorkoutBuilderDelegate {
                     self.avgHeartRate = avg
                 }
 
-                // Send HR to phone
-                if WCSession.default.isReachable {
-                    WCSession.default.sendMessage([
-                        "type": "heartRate",
-                        "bpm": bpm,
-                        "timestamp": Date().timeIntervalSince1970,
-                    ], replyHandler: nil) { _ in }
+                // Send HR to phone — sendMessage for low latency, applicationContext as
+                // reliable fallback so the latest BPM survives reachability flapping or
+                // brief watch-app suspension.
+                let payload: [String: Any] = [
+                    "type": "heartRate",
+                    "bpm": bpm,
+                    "timestamp": Date().timeIntervalSince1970,
+                ]
+                let wc = WCSession.default
+                if wc.activationState == .activated {
+                    if wc.isReachable {
+                        wc.sendMessage(payload, replyHandler: nil) { _ in
+                            // sendMessage failed — fall through to context update below
+                            try? wc.updateApplicationContext([
+                                "latestHeartRate": bpm,
+                                "heartRateTimestamp": Date().timeIntervalSince1970,
+                            ])
+                        }
+                    } else {
+                        try? wc.updateApplicationContext([
+                            "latestHeartRate": bpm,
+                            "heartRateTimestamp": Date().timeIntervalSince1970,
+                        ])
+                    }
                 }
             }
 

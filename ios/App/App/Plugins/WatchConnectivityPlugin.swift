@@ -154,6 +154,17 @@ public class WatchConnectivityPlugin: CAPPlugin, CAPBridgedPlugin, WCSessionDele
         handleIncomingMessage(userInfo)
     }
 
+    public func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
+        // Watch falls back to applicationContext for HR when reachability flaps.
+        if let bpm = applicationContext["latestHeartRate"] as? Double {
+            let timestamp = applicationContext["heartRateTimestamp"] as? Double ?? Date().timeIntervalSince1970
+            notifyListeners("watchHeartRate", data: [
+                "bpm": bpm,
+                "timestamp": timestamp,
+            ])
+        }
+    }
+
     private func handleIncomingMessage(_ message: [String: Any]) {
         guard let type = message["type"] as? String else { return }
 

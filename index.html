@@ -241,9 +241,13 @@
       <svg class="btn-icon" id="t-pause-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
       <span id="t-pause-label">Pause</span>
     </button>
-    <button class="btn btn-danger btn-with-icon" onclick="stopWorkout()">
+    <button class="btn btn-primary btn-with-icon" onclick="endWorkout()" aria-label="End workout and save progress">
+      <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>End Workout</span>
+    </button>
+    <button class="btn btn-danger btn-with-icon" onclick="discardWorkout()" aria-label="Discard workout">
       <svg class="btn-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
-      <span>Stop</span>
+      <span>Discard</span>
     </button>
   </div>
   <div class="timer-upcoming">
@@ -471,6 +475,13 @@
   <div class="settings-row is-native-only">
     <label class="settings-label">Music Controls</label>
     <button type="button" id="set-music" class="settings-toggle on" onclick="toggleMusicSetting()">On</button>
+  </div>
+  <div class="settings-row settings-row-stack is-native-only">
+    <label class="settings-label">Audio source</label>
+    <div id="music-source-pills" class="pill-row" role="group" aria-label="Audio source">
+      <button type="button" class="pill selected" data-value="music" onclick="setMusicSource('music')">Apple Music</button>
+      <button type="button" class="pill" data-value="podcasts" onclick="setMusicSource('podcasts')">Apple Podcasts</button>
+    </div>
   </div>
   </div>
 
@@ -709,10 +720,11 @@
     <div class="music-expanded-title" id="music-title">Not Playing</div>
     <div class="music-expanded-artist" id="music-artist">Tap to play</div>
   </div>
-  <div class="music-expanded-controls">
+  <div class="music-expanded-controls" id="music-bubble-transport">
     <button class="music-ctrl" onclick="event.stopPropagation();musicPrev()" aria-label="Previous"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
     <button class="music-ctrl music-ctrl-play" id="music-play-btn" onclick="event.stopPropagation();musicToggle()" aria-label="Play/Pause"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
     <button class="music-ctrl" onclick="event.stopPropagation();musicNext()" aria-label="Next"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
+    <div class="music-podcasts-hint" aria-live="polite">Use Control Center or the Podcasts app to play and pause.</div>
   </div>
   <div class="music-expanded-actions">
     <button class="music-action-btn" onclick="event.stopPropagation();musicStartRadio()" aria-label="Radio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.4"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.4"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/><circle cx="12" cy="12" r="2"/></svg> Radio</button>
@@ -916,9 +928,10 @@ function isNative() {
   return !!(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
 }
 
-// ── Apple Music bridge ──────────────────────────────────
+// ── Apple Music / Apple Podcasts bridge ─────────────────
 let musicAvailable = false;
 let musicEnabled = true;
+let musicSource = 'music';  // 'music' (Apple Music) or 'podcasts' (Apple Podcasts)
 let musicState = {}; // cached now-playing state
 let cachedArtwork = null; // persisted album art base64
 let cachedArtworkTrack = ''; // track title the cached art belongs to
@@ -933,6 +946,7 @@ async function initMusic() {
     // Re-fetch state after authorization (plugin sends musicStateChanged after auth)
     mp.addListener('musicStateChanged', (data) => {
       musicAvailable = true; // if we get state updates, auth succeeded
+      if (musicSource !== 'music') return; // ignore Apple Music state when source is Podcasts
       musicState = data;
       updateMusicBar(data);
       updateMusicPlayer(data);
@@ -983,6 +997,16 @@ function updateMusicBar(data) {
   const activeScreen = document.querySelector('.screen.active');
   const onWorkoutScreen = activeScreen && (activeScreen.id === 'preview' || activeScreen.id === 'timer');
   bubble.classList.toggle('visible', !!onWorkoutScreen);
+
+  // Podcasts source: iOS doesn't expose Apple Podcasts state, so the bubble
+  // is a launcher with a fixed label — skip the Music-state rendering below.
+  if (musicSource === 'podcasts') {
+    if (title) title.textContent = 'Apple Podcasts';
+    if (artist) artist.textContent = 'Tap to open';
+    if (bubbleArt) bubbleArt.classList.remove('has-art');
+    bubble.classList.remove('playing');
+    return;
+  }
 
   if (data.title) {
     if (title) title.textContent = data.title;
@@ -1062,6 +1086,7 @@ function setMusicVolume(val) {
 
 function musicToggle() {
   if (!isNative()) return;
+  if (musicSource === 'podcasts') { musicOpenApp(); return; }
   if (!musicAvailable) {
     // Try to initialize music (triggers authorization prompt)
     initMusic();
@@ -1072,11 +1097,13 @@ function musicToggle() {
 }
 
 function musicNext() {
+  if (musicSource === 'podcasts') return;
   if (!musicAvailable) return;
   window.Capacitor.Plugins.MusicPlugin.next();
 }
 
 function musicPrev() {
+  if (musicSource === 'podcasts') return;
   if (!musicAvailable) return;
   window.Capacitor.Plugins.MusicPlugin.previous();
 }
@@ -1088,7 +1115,65 @@ function musicStartRadio() {
 
 function musicOpenApp() {
   if (!isNative()) return;
-  window.Capacitor.Plugins.MusicPlugin.openAppleMusic();
+  const mp = window.Capacitor.Plugins.MusicPlugin;
+  if (musicSource === 'podcasts' && typeof mp.openPodcasts === 'function') {
+    mp.openPodcasts();
+  } else {
+    mp.openAppleMusic();
+  }
+}
+
+function setMusicSource(source) {
+  if (source !== 'music' && source !== 'podcasts') return;
+  musicSource = source;
+  document.querySelectorAll('#music-source-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === source);
+  });
+  saveAppSettings();
+  applyMusicSourceUI();
+  // Tell the native side which source the user chose so it can target the right
+  // playback APIs (only Apple Music exposes a programmatic transport on iOS).
+  if (isNative()) {
+    const mp = window.Capacitor.Plugins.MusicPlugin;
+    if (mp && typeof mp.setSource === 'function') {
+      try { mp.setSource({ source }); } catch (e) {}
+    }
+    if (source === 'music') {
+      // Re-attach now-playing state when switching back to Music.
+      try { mp && mp.getNowPlaying().then(s => { musicState = s; updateMusicBar(s); }); } catch (e) {}
+    } else {
+      // Podcasts: clear the Apple-Music–derived metadata so the bubble doesn't lie.
+      musicState = {};
+      updateMusicBar({});
+      // Also clear stale Apple Music metadata on the Watch face.
+      watchSendCommand('musicUpdate', { title: 'Apple Podcasts', artist: '', isPlaying: false });
+    }
+  }
+}
+
+function applyMusicSourceUI() {
+  const titleEl = document.getElementById('music-title');
+  const artistEl = document.getElementById('music-artist');
+  const openBtn = document.querySelector('.music-action-btn[aria-label="Open Apple Music"], .music-action-btn[aria-label="Open Apple Podcasts"]');
+  const transport = document.getElementById('music-bubble-transport');
+  const radioBtn = document.querySelector('.music-action-btn[aria-label="Radio"]');
+  if (musicSource === 'podcasts') {
+    if (titleEl) titleEl.textContent = 'Apple Podcasts';
+    if (artistEl) artistEl.textContent = 'Tap to open';
+    if (openBtn) {
+      openBtn.setAttribute('aria-label', 'Open Apple Podcasts');
+      if (openBtn.lastChild) openBtn.lastChild.textContent = ' Podcasts';
+    }
+    if (radioBtn) radioBtn.style.display = 'none';
+    if (transport) transport.classList.add('source-podcasts');
+  } else {
+    if (openBtn) {
+      openBtn.setAttribute('aria-label', 'Open Apple Music');
+      if (openBtn.lastChild) openBtn.lastChild.textContent = ' Apple Music';
+    }
+    if (radioBtn) radioBtn.style.display = '';
+    if (transport) transport.classList.remove('source-podcasts');
+  }
 }
 
 function showToast(msg) {
@@ -1480,6 +1565,20 @@ function initWatchConnectivity() {
               timerState.strengthSide = 0;
               updateTimerUI();
               watchSendState();
+            }
+          }
+          break;
+        case 'end':
+          if (timerState.running) {
+            const reached = workout
+              .map((w, i) => ({ w, i }))
+              .filter(({ w, i }) => w.section === 'main' && i < timerState.idx)
+              .length;
+            if (reached === 0) {
+              stopWorkout();
+            } else {
+              timerState.endedEarly = true;
+              finishWorkout();
             }
           }
           break;
@@ -1952,6 +2051,9 @@ function loadAppSettings() {
       if (typeof s.soundEnabled === 'boolean') soundEnabled = s.soundEnabled;
       if (typeof s.voiceEnabled === 'boolean') voiceEnabled = s.voiceEnabled;
       if (typeof s.musicEnabled === 'boolean') musicEnabled = s.musicEnabled;
+      if (typeof s.musicSource === 'string' && (s.musicSource === 'music' || s.musicSource === 'podcasts')) {
+        musicSource = s.musicSource;
+      }
       if (typeof s.theme === 'string') currentTheme = s.theme;
       if (typeof s.fontIdx === 'number') currentFontIdx = s.fontIdx;
       if (typeof s.weightKg === 'number') userWeightKg = s.weightKg;
@@ -1990,6 +2092,10 @@ function loadAppSettings() {
   syncVoiceUI();
   const musicBtn = document.getElementById('set-music');
   if (musicBtn) { musicBtn.textContent = musicEnabled ? 'On' : 'Off'; musicBtn.classList.toggle('on', musicEnabled); }
+  document.querySelectorAll('#music-source-pills .pill').forEach(p => {
+    p.classList.toggle('selected', p.dataset.value === musicSource);
+  });
+  applyMusicSourceUI();
   applyTheme(currentTheme);
   applyFontScale(currentFontIdx);
   syncUnitsUI();
@@ -2057,6 +2163,7 @@ function saveAppSettings() {
   try {
     localStorage.setItem('wk_settings', JSON.stringify({
       soundEnabled, voiceEnabled, musicEnabled,
+      musicSource,
       theme: currentTheme, fontIdx: currentFontIdx,
       weightKg: userWeightKg,
       userProfile: userProfile,
@@ -4892,7 +4999,32 @@ function stopWorkout() {
   releaseWakeLock();
   exitFullscreen();
   hkDiscardWorkout();
+  watchSendCommand('workoutEnd', {});
   showScreen('setup');
+}
+
+// User-initiated end-from-timer that preserves progress.
+function endWorkout() {
+  if (!timerState.running) return;
+  const reachedMain = workout
+    .map((w, i) => ({ w, i }))
+    .filter(({ w, i }) => w.section === 'main' && i < timerState.idx)
+    .length;
+  if (reachedMain === 0) {
+    // Nothing meaningful logged yet — confirm before saving an empty session.
+    if (!confirm('You haven’t finished any exercises yet. End and discard this workout?')) return;
+    stopWorkout();
+    return;
+  }
+  if (!confirm('End the workout now? Your progress so far will be saved.')) return;
+  timerState.endedEarly = true;
+  finishWorkout();
+}
+
+function discardWorkout() {
+  if (!timerState.running) return;
+  if (!confirm('Discard this workout? No progress will be saved.')) return;
+  stopWorkout();
 }
 
 function showWorkoutFinished() {
@@ -4930,9 +5062,12 @@ function finishWorkout() {
   const eSecs = actualDurationSec % 60;
 
   const skippedSet = new Set(timerState.skippedExercises);
+  // When ended early, anything with index >= timerState.idx hasn't been reached.
+  // (Natural completion advances idx past workout.length, so this filter is a no-op.)
+  const isReached = (i) => i < timerState.idx;
   const mainExercises = workout
     .map((w, i) => ({ w, i }))
-    .filter(({ w }) => w.section === 'main')
+    .filter(({ w, i }) => w.section === 'main' && isReached(i))
     .map(({ w, i }) => {
       const rec = {
         name: w.exercise.name,
@@ -4954,7 +5089,7 @@ function finishWorkout() {
     });
   const warmupExercises = workout
     .map((w, i) => ({ w, i }))
-    .filter(({ w }) => w.section === 'warmup')
+    .filter(({ w, i }) => w.section === 'warmup' && isReached(i))
     .map(({ w, i }) => ({
       name: w.exercise.name,
       category: w.exercise.cat,
@@ -4965,7 +5100,7 @@ function finishWorkout() {
     }));
   const cooldownExercises = workout
     .map((w, i) => ({ w, i }))
-    .filter(({ w }) => w.section === 'cooldown')
+    .filter(({ w, i }) => w.section === 'cooldown' && isReached(i))
     .map(({ w, i }) => ({
       name: w.exercise.name,
       category: w.exercise.cat,

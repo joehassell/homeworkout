@@ -243,6 +243,22 @@ html.is-native .is-native-only { display: flex; }
 }
 .music-ctrl:active { opacity: 0.6; }
 .music-ctrl-play { font-size: 1.5rem; }
+.music-podcasts-hint {
+  display: none;
+  width: 100%;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+  padding: 0 8px;
+  line-height: 1.3;
+}
+.music-expanded-controls.source-podcasts .music-ctrl {
+  display: none;
+}
+.music-expanded-controls.source-podcasts .music-podcasts-hint {
+  display: block;
+}
 .music-expanded-seek { display: flex; align-items: center; gap: 8px; }
 .music-time { font-size: 0.65rem; color: var(--text-dim); min-width: 28px; font-variant-numeric: tabular-nums; }
 .music-seek-slider {

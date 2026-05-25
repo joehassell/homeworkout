@@ -18,10 +18,15 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "getVolume", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "setVolume", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openAppleMusic", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "openPodcasts", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setSource", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "startRadio", returnType: CAPPluginReturnPromise),
     ]
 
     private let player = MPMusicPlayerController.systemMusicPlayer
+    // "music" → MPMusicPlayerController (Apple Music). "podcasts" → external app launcher only;
+    // iOS has no public API to read or control Apple Podcasts playback from another app.
+    private var source: String = "music"
 
     public override func load() {
         super.load()
@@ -146,6 +151,22 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
             }
         }
         call.resolve(["success": true])
+    }
+
+    @objc func openPodcasts(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            // Apple Podcasts is registered for the "podcasts://" scheme.
+            if let url = URL(string: "podcasts://") {
+                UIApplication.shared.open(url)
+            }
+        }
+        call.resolve(["success": true])
+    }
+
+    @objc func setSource(_ call: CAPPluginCall) {
+        let value = call.getString("source") ?? "music"
+        source = (value == "podcasts") ? "podcasts" : "music"
+        call.resolve(["source": source])
     }
 
     @objc func startRadio(_ call: CAPPluginCall) {
