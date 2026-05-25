@@ -30,7 +30,7 @@
 	</array>
 	<key>CFBundleIconName</key>
 	<string>AppIcon</string>
-	<key>UIBackgroundModes</key>
+	<key>WKBackgroundModes</key>
 	<array>
 		<string>workout-processing</string>
 	</array>
