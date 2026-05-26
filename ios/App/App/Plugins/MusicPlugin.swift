@@ -20,6 +20,8 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "openAppleMusic", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "openPodcasts", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "setSource", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getActiveSource", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "skip", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "startRadio", returnType: CAPPluginReturnPromise),
     ]
 
@@ -38,7 +40,16 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
             self, selector: #selector(playbackStateChanged),
             name: .MPMusicPlayerControllerPlaybackStateDidChange, object: player
         )
+        // Detect external audio (Apple Podcasts etc.) starting/stopping
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(audioSessionChanged),
+            name: AVAudioSession.silenceSecondaryAudioHintNotification, object: nil
+        )
         player.beginGeneratingPlaybackNotifications()
+    }
+
+    @objc private func audioSessionChanged() {
+        notifyListeners("musicSourceChanged", data: [:])
     }
 
     deinit {
@@ -167,6 +178,49 @@ public class MusicPlugin: CAPPlugin, CAPBridgedPlugin {
         let value = call.getString("source") ?? "music"
         source = (value == "podcasts") ? "podcasts" : "music"
         call.resolve(["source": source])
+    }
+
+    // Best-effort auto-detection. Apple gives no public API to read another app's
+    // playback, so we infer from:
+    //   - MPMusicPlayerController.systemMusicPlayer.nowPlayingItem (Music app)
+    //   - AVAudioSession.isOtherAudioPlaying (anything else owning audio focus)
+    @objc func getActiveSource(_ call: CAPPluginCall) {
+        let item = player.nowPlayingItem
+        let mediaType: MPMediaType = item?.mediaType ?? []
+        let isPodcastInMusicApp = mediaType.contains(.podcast) || mediaType.contains(.audioBook)
+        let session = AVAudioSession.sharedInstance()
+        let otherPlaying = session.isOtherAudioPlaying
+
+        var detected = "music"
+        var external = false
+        if item != nil {
+            detected = isPodcastInMusicApp ? "podcasts" : "music"
+        } else if otherPlaying {
+            // External audio app has focus — Apple Podcasts, Spotify, etc.
+            // We can't read its metadata, but we can show podcasts-style UI.
+            detected = "podcasts"
+            external = true
+        }
+        source = detected
+        call.resolve([
+            "source": detected,
+            "external": external,
+            "isPlaying": player.playbackState == .playing || (external && otherPlaying),
+        ])
+    }
+
+    // Skip forward/back by seconds. Only works for media owned by the Music app
+    // (Apple Music tracks + iTunes-library podcasts). External Podcasts app is
+    // out of reach — JS falls back to launching Podcasts in that case.
+    @objc func skip(_ call: CAPPluginCall) {
+        let delta = call.getDouble("seconds") ?? 10
+        guard player.nowPlayingItem != nil else {
+            call.resolve(["skipped": false, "reason": "no item"])
+            return
+        }
+        let next = max(0, player.currentPlaybackTime + delta)
+        player.currentPlaybackTime = next
+        call.resolve(["skipped": true, "time": next])
     }
 
     @objc func startRadio(_ call: CAPPluginCall) {

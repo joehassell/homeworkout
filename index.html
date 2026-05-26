@@ -476,13 +476,6 @@
     <label class="settings-label">Music Controls</label>
     <button type="button" id="set-music" class="settings-toggle on" onclick="toggleMusicSetting()">On</button>
   </div>
-  <div class="settings-row settings-row-stack is-native-only">
-    <label class="settings-label">Audio source</label>
-    <div id="music-source-pills" class="pill-row" role="group" aria-label="Audio source">
-      <button type="button" class="pill selected" data-value="music" onclick="setMusicSource('music')">Apple Music</button>
-      <button type="button" class="pill" data-value="podcasts" onclick="setMusicSource('podcasts')">Apple Podcasts</button>
-    </div>
-  </div>
   </div>
 
   <div class="settings-group">
@@ -721,10 +714,9 @@
     <div class="music-expanded-artist" id="music-artist">Tap to play</div>
   </div>
   <div class="music-expanded-controls" id="music-bubble-transport">
-    <button class="music-ctrl" onclick="event.stopPropagation();musicPrev()" aria-label="Previous"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
+    <button class="music-ctrl" id="music-prev-btn" onclick="event.stopPropagation();musicLeft()" aria-label="Previous"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
     <button class="music-ctrl music-ctrl-play" id="music-play-btn" onclick="event.stopPropagation();musicToggle()" aria-label="Play/Pause"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
-    <button class="music-ctrl" onclick="event.stopPropagation();musicNext()" aria-label="Next"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
-    <div class="music-podcasts-hint" aria-live="polite">Use Control Center or the Podcasts app to play and pause.</div>
+    <button class="music-ctrl" id="music-next-btn" onclick="event.stopPropagation();musicRight()" aria-label="Next"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
   </div>
   <div class="music-expanded-actions">
     <button class="music-action-btn" onclick="event.stopPropagation();musicStartRadio()" aria-label="Radio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/><path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.4"/><path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.4"/><path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/><circle cx="12" cy="12" r="2"/></svg> Radio</button>
@@ -931,7 +923,8 @@ function isNative() {
 // ── Apple Music / Apple Podcasts bridge ─────────────────
 let musicAvailable = false;
 let musicEnabled = true;
-let musicSource = 'music';  // 'music' (Apple Music) or 'podcasts' (Apple Podcasts)
+let musicSource = 'music';      // auto-detected: 'music' or 'podcasts'
+let musicExternalAudio = false; // true when source is Podcasts via another app
 let musicState = {}; // cached now-playing state
 let cachedArtwork = null; // persisted album art base64
 let cachedArtworkTrack = ''; // track title the cached art belongs to
@@ -946,13 +939,22 @@ async function initMusic() {
     // Re-fetch state after authorization (plugin sends musicStateChanged after auth)
     mp.addListener('musicStateChanged', (data) => {
       musicAvailable = true; // if we get state updates, auth succeeded
-      if (musicSource !== 'music') return; // ignore Apple Music state when source is Podcasts
       musicState = data;
-      updateMusicBar(data);
-      updateMusicPlayer(data);
-      // Forward to Watch
-      watchSendMusicState(data);
+      // Re-detect source — a new Music item likely means the user started Music,
+      // so flip back from Podcasts mode if needed.
+      detectMusicSource().then(() => {
+        if (musicSource === 'music') {
+          updateMusicBar(data);
+          updateMusicPlayer(data);
+          watchSendMusicState(data);
+        }
+      });
     });
+
+    // External audio (Apple Podcasts, etc.) starting/stopping → re-detect.
+    if (typeof mp.addListener === 'function') {
+      mp.addListener('musicSourceChanged', () => { detectMusicSource(); });
+    }
 
     mp.addListener('musicError', (data) => {
       const title = document.getElementById('music-title');
@@ -963,8 +965,29 @@ async function initMusic() {
 
     const state = await mp.getNowPlaying();
     musicState = state;
+    await detectMusicSource();
     updateMusicBar(state);
   } catch (e) {}
+}
+
+async function detectMusicSource() {
+  if (!isNative()) return musicSource;
+  try {
+    const mp = window.Capacitor.Plugins.MusicPlugin;
+    if (!mp || typeof mp.getActiveSource !== 'function') return musicSource;
+    const r = await mp.getActiveSource();
+    const next = r && r.source === 'podcasts' ? 'podcasts' : 'music';
+    const external = !!(r && r.external);
+    if (next !== musicSource) {
+      musicSource = next;
+      musicExternalAudio = external;
+      applyMusicSourceUI();
+      updateMusicBar(musicState || {});
+    } else {
+      musicExternalAudio = external;
+    }
+  } catch (e) {}
+  return musicSource;
 }
 
 function watchSendMusicState(data) {
@@ -998,13 +1021,15 @@ function updateMusicBar(data) {
   const onWorkoutScreen = activeScreen && (activeScreen.id === 'preview' || activeScreen.id === 'timer');
   bubble.classList.toggle('visible', !!onWorkoutScreen);
 
-  // Podcasts source: iOS doesn't expose Apple Podcasts state, so the bubble
-  // is a launcher with a fixed label — skip the Music-state rendering below.
-  if (musicSource === 'podcasts') {
+  // Podcasts source: when external (Apple Podcasts app owns audio), iOS doesn't
+  // expose the title/artist so we show a generic Podcasts label. When the
+  // Music app itself is playing a podcast media item we get real metadata —
+  // fall through to the normal rendering for that case.
+  if (musicSource === 'podcasts' && (musicExternalAudio || !data.title)) {
     if (title) title.textContent = 'Apple Podcasts';
-    if (artist) artist.textContent = 'Tap to open';
+    if (artist) artist.textContent = 'Tap controls below';
     if (bubbleArt) bubbleArt.classList.remove('has-art');
-    bubble.classList.remove('playing');
+    bubble.classList.toggle('playing', !!musicExternalAudio);
     return;
   }
 
@@ -1063,7 +1088,8 @@ function toggleMusicBubble() {
   const expanded = document.getElementById('music-expanded');
   if (expanded) {
     if (musicBubbleOpen) {
-      updateMusicBar(musicState);
+      // Re-detect on open — user may have started Podcasts or switched apps.
+      detectMusicSource().then(() => updateMusicBar(musicState || {}));
       expanded.classList.add('open');
     } else {
       expanded.classList.remove('open');
@@ -1086,26 +1112,40 @@ function setMusicVolume(val) {
 
 function musicToggle() {
   if (!isNative()) return;
-  if (musicSource === 'podcasts') { musicOpenApp(); return; }
+  const mp = window.Capacitor.Plugins.MusicPlugin;
+  // External Podcasts app: we can't pause it from outside iOS — open the app.
+  if (musicSource === 'podcasts' && musicExternalAudio) { musicOpenApp(); return; }
   if (!musicAvailable) {
-    // Try to initialize music (triggers authorization prompt)
     initMusic();
     return;
   }
-  const mp = window.Capacitor.Plugins.MusicPlugin;
   mp.getNowPlaying().then(s => s.isPlaying ? mp.pause() : mp.play());
 }
 
-function musicNext() {
-  if (musicSource === 'podcasts') return;
+// Left button = Previous (music) or Skip-back-10s (podcasts)
+function musicLeft() {
+  if (!isNative()) return;
+  const mp = window.Capacitor.Plugins.MusicPlugin;
+  if (musicSource === 'podcasts') {
+    if (musicExternalAudio) { musicOpenApp(); return; }
+    if (mp.skip) mp.skip({ seconds: -10 });
+    return;
+  }
   if (!musicAvailable) return;
-  window.Capacitor.Plugins.MusicPlugin.next();
+  mp.previous();
 }
 
-function musicPrev() {
-  if (musicSource === 'podcasts') return;
+// Right button = Next (music) or Skip-forward-10s (podcasts)
+function musicRight() {
+  if (!isNative()) return;
+  const mp = window.Capacitor.Plugins.MusicPlugin;
+  if (musicSource === 'podcasts') {
+    if (musicExternalAudio) { musicOpenApp(); return; }
+    if (mp.skip) mp.skip({ seconds: 10 });
+    return;
+  }
   if (!musicAvailable) return;
-  window.Capacitor.Plugins.MusicPlugin.previous();
+  mp.next();
 }
 
 function musicStartRadio() {
@@ -1123,48 +1163,32 @@ function musicOpenApp() {
   }
 }
 
-function setMusicSource(source) {
-  if (source !== 'music' && source !== 'podcasts') return;
-  musicSource = source;
-  document.querySelectorAll('#music-source-pills .pill').forEach(p => {
-    p.classList.toggle('selected', p.dataset.value === source);
-  });
-  saveAppSettings();
-  applyMusicSourceUI();
-  // Tell the native side which source the user chose so it can target the right
-  // playback APIs (only Apple Music exposes a programmatic transport on iOS).
-  if (isNative()) {
-    const mp = window.Capacitor.Plugins.MusicPlugin;
-    if (mp && typeof mp.setSource === 'function') {
-      try { mp.setSource({ source }); } catch (e) {}
-    }
-    if (source === 'music') {
-      // Re-attach now-playing state when switching back to Music.
-      try { mp && mp.getNowPlaying().then(s => { musicState = s; updateMusicBar(s); }); } catch (e) {}
-    } else {
-      // Podcasts: clear the Apple-Music–derived metadata so the bubble doesn't lie.
-      musicState = {};
-      updateMusicBar({});
-      // Also clear stale Apple Music metadata on the Watch face.
-      watchSendCommand('musicUpdate', { title: 'Apple Podcasts', artist: '', isPlaying: false });
-    }
-  }
-}
+const ICON_PREV = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>';
+const ICON_NEXT = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>';
+// Skip-back / skip-forward 10s — circular arrow with "10" label
+const ICON_SKIP_BACK = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 9 8 9"/><text x="12" y="16" font-size="8" font-weight="700" fill="currentColor" stroke="none" text-anchor="middle">10</text></svg>';
+const ICON_SKIP_FWD  = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 4 21 9 16 9"/><text x="12" y="16" font-size="8" font-weight="700" fill="currentColor" stroke="none" text-anchor="middle">10</text></svg>';
 
 function applyMusicSourceUI() {
-  const titleEl = document.getElementById('music-title');
-  const artistEl = document.getElementById('music-artist');
   const openBtn = document.querySelector('.music-action-btn[aria-label="Open Apple Music"], .music-action-btn[aria-label="Open Apple Podcasts"]');
   const transport = document.getElementById('music-bubble-transport');
   const radioBtn = document.querySelector('.music-action-btn[aria-label="Radio"]');
+  const leftBtn = document.getElementById('music-prev-btn');
+  const rightBtn = document.getElementById('music-next-btn');
   if (musicSource === 'podcasts') {
-    if (titleEl) titleEl.textContent = 'Apple Podcasts';
-    if (artistEl) artistEl.textContent = 'Tap to open';
     if (openBtn) {
       openBtn.setAttribute('aria-label', 'Open Apple Podcasts');
       if (openBtn.lastChild) openBtn.lastChild.textContent = ' Podcasts';
     }
     if (radioBtn) radioBtn.style.display = 'none';
+    if (leftBtn) {
+      leftBtn.innerHTML = ICON_SKIP_BACK;
+      leftBtn.setAttribute('aria-label', 'Skip back 10 seconds');
+    }
+    if (rightBtn) {
+      rightBtn.innerHTML = ICON_SKIP_FWD;
+      rightBtn.setAttribute('aria-label', 'Skip forward 10 seconds');
+    }
     if (transport) transport.classList.add('source-podcasts');
   } else {
     if (openBtn) {
@@ -1172,6 +1196,14 @@ function applyMusicSourceUI() {
       if (openBtn.lastChild) openBtn.lastChild.textContent = ' Apple Music';
     }
     if (radioBtn) radioBtn.style.display = '';
+    if (leftBtn) {
+      leftBtn.innerHTML = ICON_PREV;
+      leftBtn.setAttribute('aria-label', 'Previous');
+    }
+    if (rightBtn) {
+      rightBtn.innerHTML = ICON_NEXT;
+      rightBtn.setAttribute('aria-label', 'Next');
+    }
     if (transport) transport.classList.remove('source-podcasts');
   }
 }
@@ -2092,9 +2124,6 @@ function loadAppSettings() {
   syncVoiceUI();
   const musicBtn = document.getElementById('set-music');
   if (musicBtn) { musicBtn.textContent = musicEnabled ? 'On' : 'Off'; musicBtn.classList.toggle('on', musicEnabled); }
-  document.querySelectorAll('#music-source-pills .pill').forEach(p => {
-    p.classList.toggle('selected', p.dataset.value === musicSource);
-  });
   applyMusicSourceUI();
   applyTheme(currentTheme);
   applyFontScale(currentFontIdx);

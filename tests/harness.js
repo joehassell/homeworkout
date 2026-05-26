@@ -11,6 +11,8 @@ const _stubEl = () => ({
   disabled: false, files: [], offsetWidth: 0,
   querySelectorAll() { return []; },
   appendChild(){}, removeChild(){},
+  setAttribute(){}, removeAttribute(){}, getAttribute(){ return null; },
+  lastChild: null, firstChild: null,
 });
 
 global.window = global;

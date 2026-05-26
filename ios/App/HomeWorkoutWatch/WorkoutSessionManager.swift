@@ -175,6 +175,14 @@ class WorkoutSessionManager: NSObject, ObservableObject {
             isPaused = true
         case "resume":
             isPaused = false
+        case "end":
+            // End locally now so the UI returns to idle even if the phone is
+            // unreachable or doesn't ack. The phone will independently call
+            // finishWorkout() and may re-send workoutEnd (idempotent here).
+            endHealthKitSession()
+            stopLocalCountdown()
+            isActive = false
+            fireHaptic(for: "done")
         default:
             break
         }

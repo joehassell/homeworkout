@@ -13,5 +13,7 @@ CAP_PLUGIN(MusicPlugin, "MusicPlugin",
     CAP_PLUGIN_METHOD(openAppleMusic, CAPPluginReturnPromise);
     CAP_PLUGIN_METHOD(openPodcasts, CAPPluginReturnPromise);
     CAP_PLUGIN_METHOD(setSource, CAPPluginReturnPromise);
+    CAP_PLUGIN_METHOD(getActiveSource, CAPPluginReturnPromise);
+    CAP_PLUGIN_METHOD(skip, CAPPluginReturnPromise);
     CAP_PLUGIN_METHOD(startRadio, CAPPluginReturnPromise);
 )
