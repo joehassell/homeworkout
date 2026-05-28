@@ -1554,10 +1554,14 @@ function checkHRZoneCoaching(bpm) {
 let watchConnected = false;
 let currentHeartRate = 0;
 
+let _watchConnectivityInited = false;
 function initWatchConnectivity() {
   if (!isNative()) return;
-  // Watch is Pro-only
-  if (!Entitlement.isPro()) return;
+  if (_watchConnectivityInited) return;
+  _watchConnectivityInited = true;
+  // The Watch app + paired-watch + companion install are the real gate.
+  // Don't gate on Entitlement.isPro() — if Pro is granted later (promo code,
+  // restored purchase), HR samples already arriving over WC would be missed.
   try {
     const wc = window.Capacitor.Plugins.WatchConnectivityPlugin;
 

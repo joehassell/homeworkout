@@ -67,6 +67,25 @@ class WorkoutSessionManager: NSObject, ObservableObject {
     private func startHealthKitSession() {
         guard HKHealthStore.isHealthDataAvailable() else { return }
 
+        // Request authorization for the types HKLiveWorkoutDataSource will read.
+        // Without this the builder silently collects nothing on first launch.
+        let typesToShare: Set<HKSampleType> = [HKObjectType.workoutType()]
+        let typesToRead: Set<HKObjectType> = [
+            HKObjectType.workoutType(),
+            HKQuantityType(.heartRate),
+            HKQuantityType(.activeEnergyBurned),
+        ]
+        healthStore.requestAuthorization(toShare: typesToShare, read: typesToRead) { [weak self] _, error in
+            if let error = error {
+                NSLog("Watch HK auth error: \(error.localizedDescription)")
+            }
+            DispatchQueue.main.async {
+                self?.beginWorkoutSession()
+            }
+        }
+    }
+
+    private func beginWorkoutSession() {
         let config = HKWorkoutConfiguration()
         config.activityType = mapWorkoutType(workoutType)
         config.locationType = .indoor
